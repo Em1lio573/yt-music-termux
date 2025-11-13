@@ -1,4 +1,4 @@
-🎵 Termux YouTube Music Downloader
+## 🎵 Termux YouTube Music Downloader
 Un script automatizado para Termux que descarga música de YouTube en Alta Calidad (320kbps), con carátulas, metadatos y conversión a MP3 estéreo. Se integra nativamente con el menú "Compartir" de Android.
 ✨ Características
  * 🚀 Integración con Android: Funciona desde el botón "Compartir" de la app de YouTube.
@@ -10,12 +10,12 @@ Un script automatizado para Termux que descarga música de YouTube en Alta Calid
 📱 Instalación Rápida
  * Abre Termux.
  * Clona este repositorio:
-   git clone [https://github.com/TU_USUARIO/TU_REPO.git](https://github.com/TU_USUARIO/TU_REPO.git)
+   git clone [](https://github.com/Em1lio573/yt-music-termux)
 cd TU_REPO
 
  * Ejecuta el instalador:
    chmod +x setup.sh
-./setup.sh
+   ./setup.sh
 
  * ¡Listo! Ahora ve a YouTube, selecciona una canción, dale a Compartir y elige Termux.
 🛠️ Requisitos
