@@ -54,15 +54,37 @@ def descargar_musica(url):
     print(f"{Colores.BLUE}Origen: {url}{Colores.ENDC}")
 
     ydl_opts = {
+        # --- FORMATO DE AUDIO ---
         'format': 'bestaudio/best',
         'outtmpl': download_path,
         'writethumbnail': True,
         'noplaylist': False,
         
         # --- SECCIÓN ANTI-DUPLICADOS ---
-        'download_archive': archivo_historial, # Aquí se guardan los IDs descargados
-        'ignoreerrors': True,                  # Si un video falla, sigue con el siguiente
-        # -------------------------------
+        'download_archive': archivo_historial,  # Aquí se guardan los IDs descargados
+        'ignoreerrors': True,                   # Si un video falla, sigue con el siguiente
+        # -------- FIX PARA EL BLOQUEO 429 DE YOUTUBE --------
+        'extractor_args': {
+            'youtube': {
+                'player_client': ['android', 'web'],
+                'player_skip': ['webpage', 'configs'],
+            }
+        },
+        # --- REINTENTOS Y TIMEOUTS (Optimizado para Termux) ---
+        'retries': 10,
+        'fragment_retries': 10,
+        'skip_unavailable_fragments': True,
+        'socket_timeout': 30,
+        'socket_connect_timeout': 30,
+        'http_chunk_size': 10485760,  # 10MB chunks para conexiones lentas
+        # -------------------------------------------------------
+        
+        # --- DESCARGA EFICIENTE EN TERMUX ---
+        'concurrent_fragment_downloads': 1,  # Evita sobrecargar
+        'quiet': False,
+        'no_warnings': False,
+        'ratelimit': 500000,  # 500KB/s límite (evita bloqueos)
+        # -----------------------------------
 
         'postprocessors': [
             {
@@ -83,8 +105,6 @@ def descargar_musica(url):
             '-metadata', 'comment=Descargado con Termux'
         ],
         'progress_hooks': [progress_hook],
-        'quiet': True,
-        'no_warnings': True,
     }
 
     try:
