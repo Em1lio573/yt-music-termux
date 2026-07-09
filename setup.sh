@@ -2,11 +2,6 @@
 
 echo -e "\033[96m=== Iniciando Configuración del Descargador ===\033[0m"
 
-# 1. Dar permisos de almacenamiento
-echo -e "\033[93mSolicitando acceso al almacenamiento...\033[0m"
-echo "Por favor, acepta la ventana emergente si aparece."
-termux-setup-storage
-sleep 2
 
 # 2. Instalar paquetes necesarios
 echo -e "\033[93mActualizando e instalando dependencias (Python, FFmpeg)...\033[0m"
