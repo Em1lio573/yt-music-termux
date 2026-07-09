@@ -42,10 +42,12 @@ def progress_hook(d):
 
 def sanitizar_nombre(nombre):
     """Elimina caracteres inválidos en nombres de carpetas"""
+    if not nombre:
+        return "Desconocido"
     caracteres_invalidos = ['/', '\\', ':', '*', '?', '"', '<', '>', '|']
     for char in caracteres_invalidos:
         nombre = nombre.replace(char, '')
-    return nombre.strip()
+    return nombre.strip() or "Desconocido"
 
 def descargar_musica(url):
     global hubo_descarga
@@ -61,6 +63,9 @@ def descargar_musica(url):
     # Ruta del archivo de historial (evita duplicados)
     archivo_historial = '/data/data/com.termux/files/home/.historial_descargas_youtube.txt'
     
+    # Ruta para cookies (si existen)
+    cookies_path = '/data/data/com.termux/files/home/.cookies.txt'
+    
     print(f"\n{Colores.HEADER}{Colores.BOLD}=== YouTube Music Downloader (Smart) ==={Colores.ENDC}")
     print(f"{Colores.BLUE}Origen: {url}{Colores.ENDC}")
 
@@ -75,9 +80,11 @@ def descargar_musica(url):
         'writethumbnail': True,
         'noplaylist': False,
         
-        # --- EXTRACCIÓN DE METADATOS ---
-        'postprocessor_args': ['-metadata', 'artist=%(artist)s', '-metadata', 'album=%(album)s'],
-        'writeinfojson': False,
+        # --- MANEJO DE COOKIES Y AUTENTICACIÓN ---
+        'cookiefile': cookies_path if os.path.exists(cookies_path) else None,
+        'http_headers': {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        },
         
         # --- SECCIÓN ANTI-DUPLICADOS ---
         'download_archive': archivo_historial,
@@ -86,13 +93,14 @@ def descargar_musica(url):
         # -------- FIX PARA EL BLOQUEO 429 DE YOUTUBE --------
         'extractor_args': {
             'youtube': {
-                'player_client': ['android', 'web'],
-                'player_skip': ['webpage', 'configs'],
+                'player_client': ['android', 'web', 'ios'],
+                'player_skip': ['webpage'],
+                'html5_player': None,
             }
         },
         # --- REINTENTOS Y TIMEOUTS (Optimizado para Termux) ---
-        'retries': 10,
-        'fragment_retries': 10,
+        'retries': 15,
+        'fragment_retries': 15,
         'skip_unavailable_fragments': True,
         'socket_timeout': 30,
         'socket_connect_timeout': 30,
@@ -103,6 +111,7 @@ def descargar_musica(url):
         'quiet': False,
         'no_warnings': False,
         'ratelimit': 500000,
+        'throttled_rate': 100000,
 
         'postprocessors': [
             {
@@ -127,12 +136,14 @@ def descargar_musica(url):
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            # Extraemos info básica primero
+            # Extraemos info básica primero (sin descargar)
+            print(f"{Colores.WARNING}Extrayendo información...{Colores.ENDC}")
             info = ydl.extract_info(url, download=False)
             
-            titulo_general = info.get('title', 'Desconocido')
-            artista = sanitizar_nombre(info.get('artist', 'Artista Desconocido'))
-            album = sanitizar_nombre(info.get('album', 'Álbum Desconocido'))
+            # Manejo seguro de metadatos
+            titulo_general = info.get('title') or 'Desconocido'
+            artista = sanitizar_nombre(info.get('artist') or info.get('uploader', 'Artista Desconocido'))
+            album = sanitizar_nombre(info.get('album') or 'Álbum Desconocido')
             es_playlist = 'entries' in info
             
             if es_playlist:
@@ -157,9 +168,25 @@ def descargar_musica(url):
 
         time.sleep(2)
 
+    except yt_dlp.utils.DownloadError as e:
+        if "Sign in to confirm" in str(e) or "bot" in str(e).lower():
+            print(f"\n{Colores.FAIL}Error de Autenticación de YouTube{Colores.ENDC}")
+            print(f"{Colores.WARNING}YouTube requiere autenticación. Opciones:{Colores.ENDC}")
+            print("1. Exportar cookies de tu navegador:")
+            print("   - Abre: https://www.youtube.com")
+            print("   - Usa una extensión (yt-dlp cookies export) o manualmente")
+            print("   - Guarda en: ~/.cookies.txt")
+            print("\n2. O intenta con otro cliente de YouTube:")
+            print("   pip install yt-dlp --upgrade")
+            print("\n3. Espera un tiempo antes de reintentar (rate limiting)")
+        else:
+            print(f"\n{Colores.FAIL}Error de Descarga: {str(e)}{Colores.ENDC}")
     except Exception as e:
         print(f"\n{Colores.FAIL}Error: {str(e)}{Colores.ENDC}")
-        input("\nPresiona Enter para salir...")
+        import traceback
+        traceback.print_exc()
+    
+    input(f"\n{Colores.BLUE}Presiona Enter para salir...{Colores.ENDC}")
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
