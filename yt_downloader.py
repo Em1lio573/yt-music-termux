@@ -49,7 +49,48 @@ def sanitizar_nombre(nombre):
         nombre = nombre.replace(char, '')
     return nombre.strip() or "Desconocido"
 
-def descargar_musica(url):
+def exportar_cookies_desde_navegador():
+    """Guía al usuario para exportar cookies"""
+    print(f"\n{Colores.HEADER}=== Exportar Cookies de YouTube ==={Colores.ENDC}")
+    print(f"{Colores.BLUE}Sigue estos pasos:{Colores.ENDC}")
+    print("1. En tu PC/Mac, abre: https://www.youtube.com")
+    print("2. Inicia sesión si no lo has hecho")
+    print("3. Instala una extensión para exportar cookies:")
+    print("   - Chrome: 'Get cookies.txt LOCALLY'")
+    print("   - Firefox: 'Open With > cookies.txt'")
+    print("4. Exporta las cookies en formato Netscape")
+    print("5. Copia el contenido del archivo")
+    print(f"\n{Colores.CYAN}Ahora pega el contenido de las cookies:{Colores.ENDC}")
+    print("(Presiona Ctrl+D cuando termines en Linux/Mac o Ctrl+Z en Windows)")
+    print("-" * 60)
+    
+    # Recopilar entrada multilinea
+    lineas = []
+    try:
+        while True:
+            linea = input()
+            lineas.append(linea)
+    except EOFError:
+        pass
+    
+    contenido_cookies = "\n".join(lineas)
+    
+    if not contenido_cookies.strip():
+        print(f"{Colores.FAIL}No se ingresó contenido de cookies{Colores.ENDC}")
+        return False
+    
+    # Guardar cookies
+    cookies_path = '/data/data/com.termux/files/home/.cookies.txt'
+    try:
+        with open(cookies_path, 'w') as f:
+            f.write(contenido_cookies)
+        print(f"{Colores.GREEN}✔ Cookies guardadas en: {cookies_path}{Colores.ENDC}")
+        return True
+    except Exception as e:
+        print(f"{Colores.FAIL}Error al guardar cookies: {str(e)}{Colores.ENDC}")
+        return False
+
+def descargar_musica(url, reintentar=False):
     global hubo_descarga
     hubo_descarga = False
     
@@ -66,7 +107,11 @@ def descargar_musica(url):
     # Ruta para cookies (si existen)
     cookies_path = '/data/data/com.termux/files/home/.cookies.txt'
     
-    print(f"\n{Colores.HEADER}{Colores.BOLD}=== YouTube Music Downloader (Smart) ==={Colores.ENDC}")
+    if not reintentar:
+        print(f"\n{Colores.HEADER}{Colores.BOLD}=== YouTube Music Downloader (Smart) ==={Colores.ENDC}")
+    else:
+        print(f"\n{Colores.HEADER}{Colores.BOLD}=== Reintentando Descarga ==={Colores.ENDC}")
+    
     print(f"{Colores.BLUE}Origen: {url}{Colores.ENDC}")
 
     # Template de descarga: Biblioteca/Artista/Álbum/Canción
@@ -167,26 +212,43 @@ def descargar_musica(url):
             print("Las canciones ya existían en tu historial de descargas.")
 
         time.sleep(2)
+        return True
 
     except yt_dlp.utils.DownloadError as e:
         if "Sign in to confirm" in str(e) or "bot" in str(e).lower():
             print(f"\n{Colores.FAIL}Error de Autenticación de YouTube{Colores.ENDC}")
-            print(f"{Colores.WARNING}YouTube requiere autenticación. Opciones:{Colores.ENDC}")
-            print("1. Exportar cookies de tu navegador:")
-            print("   - Abre: https://www.youtube.com")
-            print("   - Usa una extensión (yt-dlp cookies export) o manualmente")
-            print("   - Guarda en: ~/.cookies.txt")
-            print("\n2. O intenta con otro cliente de YouTube:")
-            print("   pip install yt-dlp --upgrade")
-            print("\n3. Espera un tiempo antes de reintentar (rate limiting)")
+            print(f"{Colores.WARNING}YouTube requiere autenticación.{Colores.ENDC}")
+            
+            print(f"\n{Colores.CYAN}Opciones disponibles:{Colores.ENDC}")
+            print("1. Exportar cookies manualmente (recomendado)")
+            print("2. Intentar con otro cliente")
+            print("3. Cancelar")
+            
+            opcion = input(f"\n{Colores.BLUE}¿Qué deseas hacer? (1/2/3): {Colores.ENDC}").strip()
+            
+            if opcion == "1":
+                if exportar_cookies_desde_navegador():
+                    print(f"\n{Colores.GREEN}Reintentando descarga con cookies...{Colores.ENDC}")
+                    time.sleep(2)
+                    return descargar_musica(url, reintentar=True)
+                else:
+                    print(f"{Colores.FAIL}No se pudieron guardar las cookies{Colores.ENDC}")
+            elif opcion == "2":
+                print(f"{Colores.WARNING}Intenta actualizar yt-dlp: pip install yt-dlp --upgrade{Colores.ENDC}")
+            
+            return False
         else:
             print(f"\n{Colores.FAIL}Error de Descarga: {str(e)}{Colores.ENDC}")
+            return False
+            
     except Exception as e:
         print(f"\n{Colores.FAIL}Error: {str(e)}{Colores.ENDC}")
         import traceback
         traceback.print_exc()
+        return False
     
-    input(f"\n{Colores.BLUE}Presiona Enter para salir...{Colores.ENDC}")
+    finally:
+        input(f"\n{Colores.BLUE}Presiona Enter para salir...{Colores.ENDC}")
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
