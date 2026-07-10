@@ -2,6 +2,7 @@
 import sys
 import os
 import time
+import re
 from pathlib import Path
 
 # Configuración de Colores
@@ -21,9 +22,11 @@ def instalar_ytdlp():
 
 try:
     import yt_dlp
+    from yt_dlp.postprocessor import PostProcessor
 except ImportError:
     instalar_ytdlp()
     import yt_dlp
+    from yt_dlp.postprocessor import PostProcessor
 
 try:
     from mutagen.mp3 import MP3
@@ -56,18 +59,23 @@ def sanitizar_nombre(nombre):
     return nombre.strip() or "Desconocido"
 
 def extraer_artista_principal(info):
-    """Extrae solo el artista principal (el primero en la lista)"""
+    """Extrae solo el artista principal (el primero en la lista o el creador principal)"""
     # Intentar obtener artista directo
     artista = info.get('artist')
     if artista:
-        # Si tiene múltiples artistas separados por coma, tomar el primero
-        artista_principal = artista.split(',')[0].strip()
+        # Separadores comunes: comas, punto y coma, '&', 'feat', 'ft', 'featuring'
+        separadores = r',|;| & |&| feat\.? | ft\.? | featuring '
+        partes = re.split(separadores, artista, flags=re.IGNORECASE)
+        artista_principal = partes[0].strip()
         return sanitizar_nombre(artista_principal)
     
     # Fallback a uploader
     uploader = info.get('uploader')
     if uploader:
-        return sanitizar_nombre(uploader)
+        # Limpiar cosas comunes de YouTube como " - Topic" o "VEVO"
+        uploader_clean = re.sub(r'\s*-\s*Topic$', '', uploader, flags=re.IGNORECASE)
+        uploader_clean = re.sub(r'\s*VEVO$', '', uploader_clean, flags=re.IGNORECASE)
+        return sanitizar_nombre(uploader_clean)
     
     return "Artista Desconocido"
 
@@ -82,6 +90,17 @@ def obtener_todos_artistas(info):
         return uploader
     
     return "Artista Desconocido"
+
+class MetadataPreProcessor(PostProcessor):
+    def run(self, info):
+        artista_principal = extraer_artista_principal(info)
+        album = sanitizar_nombre(info.get('album') or 'Álbum Desconocido')
+        titulo = sanitizar_nombre(info.get('title') or info.get('track') or 'Desconocido')
+        
+        info['custom_artist'] = artista_principal
+        info['custom_album'] = album
+        info['custom_title'] = titulo
+        return [], info
 
 def exportar_cookies_desde_navegador():
     """Guía al usuario para exportar cookies"""
@@ -187,9 +206,9 @@ def descargar_musica(url, reintentar=False):
     print(f"{Colores.BLUE}Origen: {url}{Colores.ENDC}")
 
     # Template de descarga: Biblioteca/Artista Principal/Álbum/Canción
-    # Solo usamos el artista principal en la carpeta
+    # Solo usamos el artista principal en la carpeta (inyectado por el preprocesador)
     download_template = os.path.join(biblioteca_path, 
-        '%(artist)s/%(album)s/%(title)s.%(ext)s')
+        '%(custom_artist)s/%(custom_album)s/%(custom_title)s.%(ext)s')
 
     ydl_opts = {
         # --- FORMATO DE AUDIO ---
@@ -254,20 +273,18 @@ def descargar_musica(url, reintentar=False):
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            # Añadir preprocesador de metadatos para personalizar rutas
+            ydl.add_post_processor(MetadataPreProcessor(), when='pre_process')
+            
             # Extraemos info básica primero (sin descargar)
             print(f"{Colores.WARNING}Extrayendo información...{Colores.ENDC}")
             info = ydl.extract_info(url, download=False)
             
-            # Manejo seguro de metadatos
+            # Manejo seguro de metadatos (ya procesados)
             titulo_general = info.get('title') or 'Desconocido'
-            
-            # Artista principal (solo para carpetas)
-            artista_principal = extraer_artista_principal(info)
-            
-            # Todos los artistas (para metadatos)
+            artista_principal = info.get('custom_artist') or extraer_artista_principal(info)
             todos_artistas = obtener_todos_artistas(info)
-            
-            album = sanitizar_nombre(info.get('album') or 'Álbum Desconocido')
+            album = info.get('custom_album') or sanitizar_nombre(info.get('album') or 'Álbum Desconocido')
             es_playlist = 'entries' in info
             
             if es_playlist:
