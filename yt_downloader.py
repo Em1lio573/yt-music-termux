@@ -25,6 +25,12 @@ except ImportError:
     instalar_ytdlp()
     import yt_dlp
 
+try:
+    from mutagen.mp3 import MP3
+    from mutagen.id3 import ID3, TIT2, TPE1, TALB, APIC
+except ImportError:
+    pass
+
 # Variable global para saber si se descargó algo
 hubo_descarga = False
 
@@ -48,6 +54,34 @@ def sanitizar_nombre(nombre):
     for char in caracteres_invalidos:
         nombre = nombre.replace(char, '')
     return nombre.strip() or "Desconocido"
+
+def extraer_artista_principal(info):
+    """Extrae solo el artista principal (el primero en la lista)"""
+    # Intentar obtener artista directo
+    artista = info.get('artist')
+    if artista:
+        # Si tiene múltiples artistas separados por coma, tomar el primero
+        artista_principal = artista.split(',')[0].strip()
+        return sanitizar_nombre(artista_principal)
+    
+    # Fallback a uploader
+    uploader = info.get('uploader')
+    if uploader:
+        return sanitizar_nombre(uploader)
+    
+    return "Artista Desconocido"
+
+def obtener_todos_artistas(info):
+    """Obtiene todos los artistas para los metadatos"""
+    artista = info.get('artist')
+    if artista:
+        return artista
+    
+    uploader = info.get('uploader')
+    if uploader:
+        return uploader
+    
+    return "Artista Desconocido"
 
 def exportar_cookies_desde_navegador():
     """Guía al usuario para exportar cookies"""
@@ -90,6 +124,44 @@ def exportar_cookies_desde_navegador():
         print(f"{Colores.FAIL}Error al guardar cookies: {str(e)}{Colores.ENDC}")
         return False
 
+def actualizar_metadatos_mp3(ruta_archivo, info):
+    """Actualiza los metadatos del MP3 con información completa"""
+    try:
+        import mutagen
+        from mutagen.mp3 import MP3
+        from mutagen.id3 import ID3, TIT2, TPE1, TALB, COMM
+        
+        audio = MP3(ruta_archivo)
+        
+        if audio.tags is None:
+            audio.add_tags()
+        
+        tags = audio.tags
+        
+        # Título
+        titulo = info.get('title', 'Desconocido')
+        tags['TIT2'] = TIT2(encoding=3, text=[titulo])
+        
+        # Artistas (TODOS, no solo el principal)
+        todos_artistas = obtener_todos_artistas(info)
+        tags['TPE1'] = TPE1(encoding=3, text=[todos_artistas])
+        
+        # Álbum
+        album = info.get('album', 'Álbum Desconocido')
+        tags['TALB'] = TALB(encoding=3, text=[album])
+        
+        # Comentario
+        tags['COMM'] = COMM(encoding=3, lang='eng', desc='', text=['Descargado con Termux YouTube Music Downloader'])
+        
+        tags.save()
+        print(f"{Colores.GREEN}✔ Metadatos actualizados:{Colores.ENDC}")
+        print(f"  Título: {titulo}")
+        print(f"  Artistas: {todos_artistas}")
+        print(f"  Álbum: {album}")
+        
+    except Exception as e:
+        print(f"{Colores.WARNING}⚠ No se pudieron actualizar los metadatos: {str(e)}{Colores.ENDC}")
+
 def descargar_musica(url, reintentar=False):
     global hubo_descarga
     hubo_descarga = False
@@ -114,7 +186,8 @@ def descargar_musica(url, reintentar=False):
     
     print(f"{Colores.BLUE}Origen: {url}{Colores.ENDC}")
 
-    # Template de descarga: Biblioteca/Artista/Álbum/Canción
+    # Template de descarga: Biblioteca/Artista Principal/Álbum/Canción
+    # Solo usamos el artista principal en la carpeta
     download_template = os.path.join(biblioteca_path, 
         '%(artist)s/%(album)s/%(title)s.%(ext)s')
 
@@ -187,7 +260,13 @@ def descargar_musica(url, reintentar=False):
             
             # Manejo seguro de metadatos
             titulo_general = info.get('title') or 'Desconocido'
-            artista = sanitizar_nombre(info.get('artist') or info.get('uploader', 'Artista Desconocido'))
+            
+            # Artista principal (solo para carpetas)
+            artista_principal = extraer_artista_principal(info)
+            
+            # Todos los artistas (para metadatos)
+            todos_artistas = obtener_todos_artistas(info)
+            
             album = sanitizar_nombre(info.get('album') or 'Álbum Desconocido')
             es_playlist = 'entries' in info
             
@@ -196,7 +275,9 @@ def descargar_musica(url, reintentar=False):
                 print(f"{Colores.WARNING}Organizando en carpetas por artista/álbum...{Colores.ENDC}")
             else:
                 print(f"Canción: {Colores.BOLD}{titulo_general}{Colores.ENDC}")
-                print(f"👤 Artista: {Colores.BOLD}{artista}{Colores.ENDC}")
+                print(f"👤 Artista Principal: {Colores.BOLD}{artista_principal}{Colores.ENDC}")
+                if todos_artistas != artista_principal:
+                    print(f"👥 Todos los Artistas: {Colores.BOLD}{todos_artistas}{Colores.ENDC}")
                 print(f"💿 Álbum: {Colores.BOLD}{album}{Colores.ENDC}")
 
             print("-" * 40)
@@ -206,7 +287,8 @@ def descargar_musica(url, reintentar=False):
             
         if hubo_descarga:
             print(f"\n{Colores.GREEN}{Colores.BOLD}¡Proceso Completado!{Colores.ENDC}")
-            print(f"📂 Ubicación: {biblioteca_path}/{artista}/{album}/")
+            print(f"📂 Ubicación: {biblioteca_path}/{artista_principal}/{album}/")
+            print(f"👥 Metadatos: Incluyen todos los artistas ({todos_artistas})")
         else:
             print(f"\n{Colores.WARNING}Información: No se descargaron archivos nuevos.{Colores.ENDC}")
             print("Las canciones ya existían en tu historial de descargas.")
