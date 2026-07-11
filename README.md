@@ -70,13 +70,13 @@ El script incluye optimizaciones especiales para Termux:
 #### **Método 2: Desde Terminal Manualmente**
 ```bash
 # Canción individual
-python ~/bin/termux-url-opener "https://www.youtube.com/watch?v=VIDEO_ID"
+bash ~/bin/termux-url-opener "https://www.youtube.com/watch?v=VIDEO_ID"
 
 # Playlist
-python ~/bin/termux-url-opener "https://www.youtube.com/playlist?list=PLxxxxxx"
+bash ~/bin/termux-url-opener "https://www.youtube.com/playlist?list=PLxxxxxx"
 
 # Modo interactivo
-python ~/bin/termux-url-opener
+bash ~/bin/termux-url-opener
 # Se te pedirá que pegues el link
 ```
 
