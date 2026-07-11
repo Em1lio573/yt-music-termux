@@ -102,6 +102,21 @@ class MetadataPreProcessor(PostProcessor):
         info['custom_title'] = titulo
         return [], info
 
+def ejecutar_media_scan(ruta_archivo):
+    """Llama a termux-media-scan de forma silenciosa para que Android indexe el archivo"""
+    try:
+        import subprocess
+        subprocess.run(["termux-media-scan", ruta_archivo], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except Exception:
+        pass
+
+class MediaScanPostProcessor(PostProcessor):
+    def run(self, info):
+        filepath = info.get('filepath')
+        if filepath:
+            ejecutar_media_scan(filepath)
+        return [], info
+
 def exportar_cookies_desde_navegador():
     """Guía al usuario para exportar cookies"""
     print(f"\n{Colores.HEADER}=== Exportar Cookies de YouTube ==={Colores.ENDC}")
@@ -275,6 +290,9 @@ def descargar_musica(url, reintentar=False):
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             # Añadir preprocesador de metadatos para personalizar rutas
             ydl.add_post_processor(MetadataPreProcessor(), when='pre_process')
+            
+            # Añadir postprocesador para notificar a la base de datos de Android
+            ydl.add_post_processor(MediaScanPostProcessor(), when='post_process')
             
             # Extraemos info básica primero (sin descargar)
             print(f"{Colores.WARNING}Extrayendo información...{Colores.ENDC}")
