@@ -25,8 +25,7 @@ cd yt-music-termux
 
 3. **Ejecuta el instalador:**
 ```bash
-chmod +x setup.sh
-./setup.sh
+bash setup.sh
 ```
 
 4. **¡Listo!** Ahora ve a YouTube, selecciona una canción, dale a Compartir y elige Termux.
@@ -70,13 +69,13 @@ El script incluye optimizaciones especiales para Termux:
 #### **Método 2: Desde Terminal Manualmente**
 ```bash
 # Canción individual
-bash ~/bin/termux-url-opener "https://www.youtube.com/watch?v=VIDEO_ID"
+python ~/bin/termux-url-opener "https://www.youtube.com/watch?v=VIDEO_ID"
 
 # Playlist
-bash ~/bin/termux-url-opener "https://www.youtube.com/playlist?list=PLxxxxxx"
+python ~/bin/termux-url-opener "https://www.youtube.com/playlist?list=PLxxxxxx"
 
 # Modo interactivo
-bash ~/bin/termux-url-opener
+python ~/bin/termux-url-opener
 # Se te pedirá que pegues el link
 ```
 
@@ -104,7 +103,7 @@ pkg install ffmpeg -y
 ```bash
 mkdir -p ~/bin
 chmod 755 ~/bin
-./setup.sh
+bash setup.sh
 ```
 
 #### ❌ "Las descargas son lentas o se cuelgan"
