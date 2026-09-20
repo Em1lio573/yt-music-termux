@@ -360,3 +360,60 @@ export function getStreamUrl(filepath) {
   const server = getStoredServerUrl();
   return `${server}/api/stream?path=${encodeURIComponent(filepath)}`;
 }
+
+/**
+ * Normaliza texto para comparaciones insensibles a mayúsculas, acentos y signos
+ */
+export function normalizeText(str) {
+  if (!str) return '';
+  return str
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
+ * Detecta si una canción de búsqueda ya está presente en la biblioteca del dispositivo
+ */
+export function findMatchingTrack(searchItem, libraryTracks) {
+  if (!searchItem || !libraryTracks || !libraryTracks.length) return null;
+  const normTitle = normalizeText(searchItem.title);
+  const normArtist = normalizeText(searchItem.artist);
+
+  return libraryTracks.find(t => {
+    const trackTitle = normalizeText(t.title);
+    const trackArtist = normalizeText(t.artist);
+    
+    // Si los títulos coinciden exacta o cercanamente
+    const titleMatch = (
+      normTitle && trackTitle && (
+        normTitle === trackTitle || 
+        normTitle.includes(trackTitle) || 
+        trackTitle.includes(normTitle)
+      )
+    );
+    
+    if (!titleMatch) return false;
+
+    // Si además el artista coincide o no está especificado
+    if (!normArtist || !trackArtist) return true;
+    return normArtist.includes(trackArtist) || trackArtist.includes(normArtist);
+  }) || null;
+}
+
+/**
+ * Solicita permisos nativos de audio en el dispositivo si es necesario
+ */
+export async function requestAudioPermissions() {
+  if (isNativeApp() && Capacitor.Plugins.NativeDownloader?.requestPermissions) {
+    try {
+      return await Capacitor.Plugins.NativeDownloader.requestPermissions();
+    } catch (e) {
+      console.warn('Permisos de audio:', e);
+    }
+  }
+  return null;
+}

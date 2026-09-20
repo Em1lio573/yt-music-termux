@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { 
   Search, Download, Music, Settings, History, Check, Play, Pause, 
   RefreshCw, Folder, Trash2, ShieldCheck, Sparkles, Sliders, ExternalLink,
   Volume2, AlertCircle, ArrowDownCircle, HardDrive, Radio, Terminal as TerminalIcon,
-  ChevronDown, ChevronUp, Cpu, Smartphone
+  ChevronDown, ChevronUp, Cpu, Smartphone, Disc, Filter, CheckCircle2
 } from 'lucide-react';
 import {
   isNativeApp,
@@ -19,15 +19,17 @@ import {
   fetchHistory as apiFetchHistory,
   addHistoryEntry,
   deleteHistory as apiDeleteHistory,
-  getStreamUrl
+  getStreamUrl,
+  findMatchingTrack,
+  requestAudioPermissions
 } from './apiClient';
 
 const CALIDADES = [
-  { id: 'native', nombre: 'Original Nativo', badge: 'Opus ~160k', desc: 'Máster real sin pérdida de compresión', icon: '🎵' },
-  { id: 'm4a', nombre: 'M4A / AAC', badge: '256 kbps', desc: 'Estándar de alta fidelidad universal', icon: '🎧' },
-  { id: 'mp3_320', nombre: 'MP3 320k', badge: '320 kbps CBR', desc: 'Máxima compatibilidad con reproductores', icon: '💿' },
-  { id: 'mp3_v0', nombre: 'MP3 V0', badge: 'VBR ~245k', desc: 'Balance perfecto entre tamaño y calidad', icon: '⚡' },
-  { id: 'flac', nombre: 'FLAC Lossless', badge: 'Sin pérdida', desc: 'Audio sin compresión destructiva', icon: '🎼' }
+  { id: 'native', nombre: 'Opus Nativo', badge: '~160 kbps VBR', desc: 'Máster oficial sin recodificar (Máxima fidelidad real de YouTube Music)', icon: '🎵', recommended: true },
+  { id: 'm4a', nombre: 'M4A / AAC', badge: '~128 kbps', desc: 'Nativo sin recodificar (Universal Apple, Android y estéreos modernos)', icon: '🎧' },
+  { id: 'm4a_256', nombre: 'M4A Premium', badge: '256 kbps', desc: 'Audio de alta fidelidad (Requiere cuenta YouTube Music Premium)', icon: '✨' },
+  { id: 'mp3_320', nombre: 'MP3 320k', badge: 'Transcodificado', desc: 'Para estéreos de auto antiguos que no leen Opus ni M4A', icon: '💿' },
+  { id: 'data_saver', nombre: 'Ahorro de Datos', badge: 'Opus ~70k', desc: 'Mínimo consumo de espacio de almacenamiento en el teléfono', icon: '⚡' }
 ];
 
 export default function App() {
@@ -36,6 +38,8 @@ export default function App() {
   const [selectedQuality, setSelectedQuality] = useState('native');
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [isScanningLibrary, setIsScanningLibrary] = useState(false);
+  const [librarySearchQuery, setLibrarySearchQuery] = useState('');
   
   // Estado del motor de descargas
   const [engineInfo, setEngineInfo] = useState({ isNative: false, initialized: false, version: '' });
@@ -107,11 +111,15 @@ export default function App() {
   };
 
   const loadLibraryData = async () => {
+    setIsScanningLibrary(true);
     try {
+      await requestAudioPermissions();
       const tracks = await apiFetchLibrary();
       setLibraryTracks(tracks);
     } catch (e) {
       console.warn('Error cargando biblioteca:', e);
+    } finally {
+      setIsScanningLibrary(false);
     }
     try {
       const hist = await apiFetchHistory();
@@ -120,6 +128,24 @@ export default function App() {
       console.warn('Error cargando historial:', e);
     }
   };
+
+  // Filtrado en vivo de biblioteca local
+  const filteredLibraryTracks = useMemo(() => {
+    if (!librarySearchQuery.trim()) return libraryTracks;
+    const q = librarySearchQuery.toLowerCase().trim();
+    return libraryTracks.filter(t => 
+      (t.title && t.title.toLowerCase().includes(q)) ||
+      (t.artist && t.artist.toLowerCase().includes(q)) ||
+      (t.album && t.album.toLowerCase().includes(q)) ||
+      (t.folder && t.folder.toLowerCase().includes(q))
+    );
+  }, [libraryTracks, librarySearchQuery]);
+
+  // Almacenamiento total calculado
+  const totalLibrarySizeMb = useMemo(() => {
+    const sum = libraryTracks.reduce((acc, t) => acc + (Number(t.size_mb) || 0), 0);
+    return Math.round(sum * 10) / 10;
+  }, [libraryTracks]);
 
   // Buscar canciones (directo en iTunes API)
   const handleSearch = async (e) => {
@@ -392,6 +418,8 @@ export default function App() {
                       key={cal.id}
                       onClick={() => setSelectedQuality(cal.id)}
                       className={`p-2.5 rounded-2xl border text-left transition-all apple-press ${
+                        cal.recommended ? 'col-span-2' : ''
+                      } ${
                         isSelected 
                           ? 'bg-rose-500/15 border-rose-500/50 shadow-lg shadow-rose-500/10' 
                           : 'bg-zinc-900/60 border-white/5 hover:border-white/10'
@@ -400,12 +428,22 @@ export default function App() {
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-xs font-semibold text-white flex items-center gap-1.5">
                           <span>{cal.icon}</span> {cal.nombre}
+                          {cal.recommended && (
+                            <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                              Recomendado
+                            </span>
+                          )}
                         </span>
                         {isSelected && <Check className="w-3.5 h-3.5 text-rose-400" />}
                       </div>
-                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-white/5 text-zinc-300">
-                        {cal.badge}
-                      </span>
+                      <div className="flex items-center justify-between gap-1">
+                        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-white/5 text-zinc-300 shrink-0">
+                          {cal.badge}
+                        </span>
+                        <span className="text-[10px] text-zinc-400 truncate">
+                          {cal.desc}
+                        </span>
+                      </div>
                     </button>
                   );
                 })}
@@ -422,55 +460,87 @@ export default function App() {
                   <span className="text-[10px] text-zinc-500">Portadas oficiales 1200px</span>
                 </div>
                 <div className="space-y-2">
-                  {searchResults.map((item) => (
-                    <div
-                      key={item.id}
-                      className="p-3 rounded-2xl apple-card flex items-center justify-between gap-3 border border-white/5 hover:border-white/10 transition-all"
-                    >
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="relative group shrink-0">
-                          <img 
-                            src={item.cover} 
-                            alt="Cover"
-                            className="w-12 h-12 rounded-xl object-cover shadow-md bg-zinc-800"
-                            loading="lazy"
-                          />
-                          {item.previewUrl && (
-                            <button
-                              onClick={(e) => togglePreview(item, e)}
-                              className="absolute inset-0 bg-black/40 rounded-xl flex items-center justify-center opacity-90 active:scale-95"
-                              title="Escuchar muestra de 30 segundos"
-                            >
-                              {previewTrackId === item.id ? (
-                                <Pause className="w-4 h-4 text-white fill-current" />
-                              ) : (
-                                <Play className="w-4 h-4 text-white fill-current ml-0.5" />
-                              )}
-                            </button>
-                          )}
-                        </div>
-                        <div className="min-w-0">
-                          <h4 className="text-sm font-semibold text-white truncate">
-                            {item.title}
-                          </h4>
-                          <p className="text-xs text-zinc-400 truncate">
-                            {item.artist} {item.album ? `• ${item.album}` : ''}
-                          </p>
-                          <span className="text-[11px] font-mono text-zinc-500">
-                            ⏱ {item.duration_str}
-                          </span>
-                        </div>
-                      </div>
-
-                      <button
-                        onClick={() => handleDownloadItem(item)}
-                        className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-rose-500 hover:text-white text-zinc-200 text-xs font-semibold flex items-center gap-1.5 apple-press shrink-0 border border-white/10"
+                  {searchResults.map((item) => {
+                    const localMatch = findMatchingTrack(item, libraryTracks);
+                    return (
+                      <div
+                        key={item.id}
+                        className={`p-3 rounded-2xl apple-card flex items-center justify-between gap-3 border transition-all ${
+                          localMatch ? 'border-emerald-500/30 bg-emerald-950/10' : 'border-white/5 hover:border-white/10'
+                        }`}
                       >
-                        <Download className="w-3.5 h-3.5" />
-                        <span>Bajar</span>
-                      </button>
-                    </div>
-                  ))}
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="relative group shrink-0">
+                            <img 
+                              src={item.cover} 
+                              alt="Cover"
+                              className="w-12 h-12 rounded-xl object-cover shadow-md bg-zinc-800"
+                              loading="lazy"
+                            />
+                            {item.previewUrl && (
+                              <button
+                                onClick={(e) => togglePreview(item, e)}
+                                className="absolute inset-0 bg-black/40 rounded-xl flex items-center justify-center opacity-90 active:scale-95"
+                                title="Escuchar muestra de 30 segundos"
+                              >
+                                {previewTrackId === item.id ? (
+                                  <Pause className="w-4 h-4 text-white fill-current" />
+                                ) : (
+                                  <Play className="w-4 h-4 text-white fill-current ml-0.5" />
+                                )}
+                              </button>
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <h4 className="text-sm font-semibold text-white truncate">
+                              {item.title}
+                            </h4>
+                            <p className="text-xs text-zinc-400 truncate">
+                              {item.artist} {item.album ? `• ${item.album}` : ''}
+                            </p>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <span className="text-[11px] font-mono text-zinc-500">
+                                ⏱ {item.duration_str}
+                              </span>
+                              {localMatch && (
+                                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center gap-1 border border-emerald-500/30">
+                                  <CheckCircle2 className="w-2.5 h-2.5" /> En tu dispositivo
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        {localMatch ? (
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <button
+                              onClick={() => playTrack(localMatch)}
+                              className="px-3 py-2 rounded-xl bg-emerald-500/25 hover:bg-emerald-500/35 text-emerald-300 border border-emerald-500/40 text-xs font-semibold flex items-center gap-1.5 apple-press shadow-sm"
+                              title="Reproducir desde tu teléfono"
+                            >
+                              <Play className="w-3.5 h-3.5 fill-current" />
+                              <span>Oír</span>
+                            </button>
+                            <button
+                              onClick={() => handleDownloadItem(item)}
+                              className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white border border-white/5 apple-press"
+                              title="Volver a descargar"
+                            >
+                              <Download className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => handleDownloadItem(item)}
+                            className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-rose-500 hover:text-white text-zinc-200 text-xs font-semibold flex items-center gap-1.5 apple-press shrink-0 border border-white/10"
+                          >
+                            <Download className="w-3.5 h-3.5" />
+                            <span>Bajar</span>
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -483,7 +553,7 @@ export default function App() {
                 </div>
                 <h3 className="text-sm font-semibold text-zinc-300">Descargas 100% en tu Teléfono</h3>
                 <p className="text-xs text-zinc-500 max-w-xs mt-1">
-                  Descarga en la calle, con datos móviles o Wi-Fi sin depender de tu PC. Con máster de estudio y carátula oficial en 1200x1200px.
+                  Descarga en la calle con datos móviles o Wi-Fi sin depender de tu PC. Audio oficial y carátula 1200x1200px incrustada.
                 </p>
               </div>
             )}
@@ -495,30 +565,59 @@ export default function App() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-bold text-white tracking-tight">Tu Biblioteca Local</h2>
-                <p className="text-xs text-zinc-400">{libraryTracks.length} canciones guardadas en el teléfono</p>
+                <h2 className="text-lg font-bold text-white tracking-tight">Tu Música en el Dispositivo</h2>
+                <p className="text-xs text-zinc-400">
+                  {filteredLibraryTracks.length} {librarySearchQuery ? 'encontradas' : 'canciones reconocidas'} • {totalLibrarySizeMb > 1024 ? (totalLibrarySizeMb / 1024).toFixed(1) + ' GB' : totalLibrarySizeMb + ' MB'}
+                </p>
               </div>
               <button 
                 onClick={loadLibraryData}
-                className="p-2 rounded-xl bg-zinc-900 border border-white/10 text-zinc-400 active:scale-95"
+                disabled={isScanningLibrary}
+                className="px-3 py-1.5 rounded-xl bg-zinc-900 border border-white/10 text-xs font-medium text-zinc-300 flex items-center gap-1.5 active:scale-95 shadow-sm"
+                title="Escanear todo el almacenamiento del teléfono"
               >
-                <RefreshCw className="w-4 h-4" />
+                <RefreshCw className={`w-3.5 h-3.5 text-rose-400 ${isScanningLibrary ? 'animate-spin' : ''}`} />
+                <span>{isScanningLibrary ? 'Escaneando...' : 'Escanear'}</span>
               </button>
             </div>
 
-            {libraryTracks.length === 0 ? (
+            {/* Buscador de canciones en la biblioteca local */}
+            <div className="relative">
+              <Search className="w-4 h-4 text-zinc-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={librarySearchQuery}
+                onChange={(e) => setLibrarySearchQuery(e.target.value)}
+                placeholder="Buscar por canción, artista o carpeta..."
+                className="w-full py-2.5 pl-10 pr-20 rounded-xl bg-zinc-900/80 border border-white/10 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-rose-500/50"
+              />
+              {librarySearchQuery && (
+                <button
+                  onClick={() => setLibrarySearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-zinc-400 hover:text-white px-1.5 py-0.5 rounded bg-white/10"
+                >
+                  Limpiar
+                </button>
+              )}
+            </div>
+
+            {filteredLibraryTracks.length === 0 ? (
               <div className="py-16 text-center text-zinc-500">
                 <Music className="w-10 h-10 mx-auto mb-2 text-zinc-600" />
-                <p className="text-sm">Aún no hay canciones en /sdcard/Music/Biblioteca</p>
-                <p className="text-xs text-zinc-600 mt-1">Descarga tus temas favoritos en la pestaña Explorar</p>
+                <p className="text-sm">
+                  {librarySearchQuery ? `No se encontraron resultados para "${librarySearchQuery}"` : 'No se encontraron canciones en el teléfono'}
+                </p>
+                <p className="text-xs text-zinc-600 mt-1">
+                  Pulsa "Escanear" para actualizar la música de tu dispositivo
+                </p>
               </div>
             ) : (
               <div className="space-y-2">
-                {libraryTracks.map((track, i) => {
+                {filteredLibraryTracks.map((track, i) => {
                   const isCurrent = currentTrack && currentTrack.path === track.path;
                   return (
                     <div
-                      key={i}
+                      key={track.path || i}
                       onClick={() => playTrack(track)}
                       className={`p-3 rounded-2xl border flex items-center justify-between gap-3 cursor-pointer apple-press transition-all ${
                         isCurrent 
@@ -538,10 +637,13 @@ export default function App() {
                         </div>
                         <div className="min-w-0">
                           <h4 className="text-sm font-semibold text-white truncate">{track.title}</h4>
-                          <p className="text-xs text-zinc-400 truncate">{track.artist || 'Artista'} • {track.folder}</p>
+                          <p className="text-xs text-zinc-400 truncate">{track.artist || 'Artista'} • {track.folder || 'Música'}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
+                        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/5 text-zinc-400 uppercase">
+                          {track.ext ? track.ext.replace('.', '') : 'mp3'}
+                        </span>
                         <span className="text-[11px] font-mono text-zinc-500">
                           {track.size_mb} MB
                         </span>
@@ -640,10 +742,39 @@ export default function App() {
 
                 <div className="space-y-1.5 text-xs text-zinc-400">
                   <p>• <span className="text-zinc-200">Tecnología:</span> Python + yt-dlp + FFmpeg compilados en ARM64</p>
-                  <p>• <span className="text-zinc-200">Almacenamiento:</span> <span className="font-mono text-[11px] text-zinc-300">/sdcard/Music/Biblioteca/</span></p>
+                  <p>• <span className="text-zinc-200">Almacenamiento:</span> <span className="font-mono text-[11px] text-zinc-300">/sdcard/Music/</span></p>
                   <p>• <span className="text-zinc-200">SponsorBlock:</span> Activado automáticamente</p>
                   <p>• <span className="text-zinc-200">Carátulas:</span> 1200×1200 px HD incrustadas en el archivo</p>
                 </div>
+              </div>
+            </div>
+
+            {/* Tarjeta de Reconocimiento de Música del Dispositivo */}
+            <div className="space-y-2">
+              <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider px-1">
+                Música en el Dispositivo
+              </span>
+              <div className="p-4 rounded-2xl apple-card border border-white/10 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Disc className="w-4 h-4 text-emerald-400" />
+                    <span className="text-xs font-semibold text-white">Reconocimiento Integral</span>
+                  </div>
+                  <span className="text-[11px] font-mono text-emerald-400 font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20">
+                    {libraryTracks.length} canciones
+                  </span>
+                </div>
+                <p className="text-xs text-zinc-400">
+                  Detecta automáticamente todos los archivos de música en /sdcard/Music/ y en la biblioteca MediaStore de Android.
+                </p>
+                <button
+                  onClick={loadLibraryData}
+                  disabled={isScanningLibrary}
+                  className="w-full py-2.5 px-3 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-semibold flex items-center justify-center gap-2 apple-press border border-white/10 transition-all"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 text-rose-400 ${isScanningLibrary ? 'animate-spin' : ''}`} />
+                  <span>{isScanningLibrary ? 'Escaneando archivos del teléfono...' : 'Re-escanear todo el dispositivo'}</span>
+                </button>
               </div>
             </div>
 
@@ -660,7 +791,12 @@ export default function App() {
                     className="p-3.5 flex items-center justify-between cursor-pointer hover:bg-white/5"
                   >
                     <div>
-                      <h4 className="text-sm font-semibold text-white">{cal.nombre}</h4>
+                      <div className="flex items-center gap-2">
+                        <h4 className="text-sm font-semibold text-white">{cal.nombre}</h4>
+                        <span className="text-[10px] font-mono text-zinc-400 bg-white/5 px-1.5 py-0.5 rounded">
+                          {cal.badge}
+                        </span>
+                      </div>
                       <p className="text-xs text-zinc-400">{cal.desc}</p>
                     </div>
                     {selectedQuality === cal.id && <Check className="w-4 h-4 text-rose-400" />}

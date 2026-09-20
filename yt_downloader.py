@@ -52,42 +52,40 @@ CONFIG_FILE = CONFIG_DIR / "config.json"
 
 CALIDADES = {
     "native": {
-        "nombre": "Original Nativo (Opus ~160k / AAC ~128k - Cero pérdida)",
-        "desc": "Máxima fidelidad real de YouTube/YT Music sin re-compresión destructiva.",
-        "codec": "best",
-        "format": "bestaudio/best",
-        "ext": "opus/m4a"
+        "nombre": "Opus Nativo (~160 kbps VBR - Máster sin recodificar)",
+        "desc": "Máxima fidelidad real de YouTube Music por extracción directa sin pérdida.",
+        "codec": "opus",
+        "format": "bestaudio[ext=opus]/bestaudio[ext=webm]/bestaudio/best",
+        "ext": "opus"
     },
     "m4a": {
-        "nombre": "M4A / AAC Universal (~256 kbps)",
-        "desc": "Estándar de alta fidelidad compatible con iOS, Android y autorradios.",
+        "nombre": "M4A / AAC Nativo (~128-140 kbps - Universal)",
+        "desc": "Extracción directa AAC compatible con Apple, Android y estéreos modernos.",
         "codec": "m4a",
         "format": "bestaudio[ext=m4a]/bestaudio/best",
-        "quality": "256",
+        "ext": "m4a"
+    },
+    "m4a_256": {
+        "nombre": "M4A Premium (256 kbps - Alta Fidelidad)",
+        "desc": "Máxima calidad de YouTube Music Premium (itag 141 con fallback nativo).",
+        "codec": "m4a",
+        "format": "141/bestaudio[ext=m4a]/bestaudio/best",
         "ext": "m4a"
     },
     "mp3_320": {
-        "nombre": "MP3 320 kbps (CBR - Máxima compatibilidad)",
-        "desc": "Transcodificación a MP3 de bitrate constante para reproductores antiguos.",
+        "nombre": "MP3 320 kbps (Transcodificado - Compatibilidad)",
+        "desc": "Transcodificación LAME con FFmpeg para estéreos antiguos de automóvil.",
         "codec": "mp3",
         "format": "bestaudio/best",
         "quality": "320",
         "ext": "mp3"
     },
-    "mp3_v0": {
-        "nombre": "MP3 VBR V0 (~245 kbps - Balance óptimo peso/calidad)",
-        "desc": "Bitrate variable de alta calidad con menor peso que 320k.",
-        "codec": "mp3",
-        "format": "bestaudio/best",
-        "quality": "0",
-        "ext": "mp3"
-    },
-    "flac": {
-        "nombre": "FLAC Lossless (Sin compresión destructiva)",
-        "desc": "Contenedor sin pérdida para preservar audio de máxima calidad.",
-        "codec": "flac",
-        "format": "bestaudio/best",
-        "ext": "flac"
+    "data_saver": {
+        "nombre": "Opus Ahorro de Datos (~70 kbps)",
+        "desc": "Mínimo consumo de espacio en disco y datos móviles (itags 250/249).",
+        "codec": "opus",
+        "format": "250/249/bestaudio[abr<=80]/bestaudio/best",
+        "ext": "opus"
     }
 }
 

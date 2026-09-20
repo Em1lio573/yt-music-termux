@@ -1,7 +1,13 @@
 package com.emilio.ytmusic;
 
+import android.Manifest;
+import android.content.ContentResolver;
+import android.database.Cursor;
 import android.media.MediaScannerConnection;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 
 import com.getcapacitor.JSArray;
@@ -10,6 +16,7 @@ import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
+import com.getcapacitor.annotation.Permission;
 
 import com.yausername.ffmpeg.FFmpeg;
 import com.yausername.youtubedl_android.YoutubeDL;
@@ -18,6 +25,8 @@ import com.yausername.youtubedl_android.YoutubeDLResponse;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
@@ -25,7 +34,18 @@ import java.util.regex.Pattern;
 
 import kotlin.Unit;
 
-@CapacitorPlugin(name = "NativeDownloader")
+@CapacitorPlugin(
+    name = "NativeDownloader",
+    permissions = {
+        @Permission(
+            alias = "audio",
+            strings = {
+                Manifest.permission.READ_MEDIA_AUDIO,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            }
+        )
+    }
+)
 public class NativeDownloaderPlugin extends Plugin {
     private static final String TAG = "NativeDownloader";
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -128,32 +148,39 @@ public class NativeDownloaderPlugin extends Plugin {
                 // Plantilla de salida limpia
                 request.addOption("-o", musicDir.getAbsolutePath() + "/%(artist,uploader)s/%(title)s.%(ext)s");
                 
-                // Extracción de audio con ffmpeg nativo
+                // Extracción con opciones reales de YouTube Music
                 request.addOption("-x");
                 if ("m4a".equals(quality)) {
+                    // M4A / AAC Nativo (~128-140 kbps itag 140) - Extracción directa sin recodificar
+                    request.addOption("-f", "ba[ext=m4a]/ba");
                     request.addOption("--audio-format", "m4a");
-                    request.addOption("--audio-quality", "256K");
-                    emitTerminal("[ffmpeg] Modo de audio: M4A / AAC (~256 kbps)");
+                    emitTerminal("[yt-dlp] Formato: M4A / AAC Nativo (~128 kbps) - Extracción directa");
+                } else if ("m4a_256".equals(quality)) {
+                    // M4A Premium (256 kbps itag 141 si hay sesión Premium, con fallback a 140)
+                    request.addOption("-f", "141/ba[ext=m4a]/ba");
+                    request.addOption("--audio-format", "m4a");
+                    emitTerminal("[yt-dlp] Formato: M4A Premium (256 kbps con fallback nativo)");
                 } else if ("mp3_320".equals(quality)) {
+                    // MP3 320 kbps (Transcodificación LAME con FFmpeg para estéreos antiguos)
                     request.addOption("--audio-format", "mp3");
                     request.addOption("--audio-quality", "320K");
-                    emitTerminal("[ffmpeg] Modo de audio: MP3 320 kbps (CBR)");
-                } else if ("mp3_v0".equals(quality)) {
-                    request.addOption("--audio-format", "mp3");
-                    request.addOption("--audio-quality", "0");
-                    emitTerminal("[ffmpeg] Modo de audio: MP3 VBR V0 (~245 kbps)");
-                } else if ("flac".equals(quality)) {
-                    request.addOption("--audio-format", "flac");
-                    emitTerminal("[ffmpeg] Modo de audio: FLAC Lossless");
+                    emitTerminal("[ffmpeg] Formato: MP3 320 kbps (Transcodificación de compatibilidad)");
+                } else if ("data_saver".equals(quality)) {
+                    // Opus Ahorro de Datos (~70 kbps itags 250/249)
+                    request.addOption("-f", "250/249/ba[abr<=80]/ba");
+                    request.addOption("--audio-format", "opus");
+                    emitTerminal("[yt-dlp] Formato: Opus Ahorro de Datos (~70 kbps)");
                 } else {
-                    // Nativo sin recodificación
-                    request.addOption("--audio-format", "best");
-                    emitTerminal("[ffmpeg] Modo de audio: Original Nativo (Opus ~160k / AAC ~128k)");
+                    // Opus Nativo (~160 kbps itag 251) - Recomendado / Máxima fidelidad de YouTube Music
+                    request.addOption("-f", "ba[ext=opus]/ba[ext=webm]/ba");
+                    request.addOption("--audio-format", "opus");
+                    emitTerminal("[yt-dlp] Formato: Opus Nativo (~160 kbps) - Extracción directa sin pérdida");
                 }
 
                 // Metadatos oficiales y carátula
                 request.addOption("--embed-metadata");
                 request.addOption("--embed-thumbnail");
+                request.addOption("--convert-thumbnails", "jpg");
                 request.addOption("--no-warnings");
                 request.addOption("--ignore-errors");
                 request.addOption("--sponsorblock-remove", "music_offtopic");
@@ -199,15 +226,90 @@ public class NativeDownloaderPlugin extends Plugin {
     @PluginMethod
     public void getLibrary(PluginCall call) {
         executor.execute(() -> {
-            File musicDir = getMusicDirectory();
             JSArray tracks = new JSArray();
+            Set<String> seenPaths = new HashSet<>();
 
-            if (musicDir.exists()) {
-                scanDirRecursive(musicDir, musicDir, tracks);
+            // 1. Escaneo profundo de todo el directorio de música del teléfono (/sdcard/Music/)
+            File musicPublic = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC);
+            if (musicPublic != null && musicPublic.exists()) {
+                scanDirRecursive(musicPublic, tracks, seenPaths);
+            }
+
+            // 2. Escaneo de la carpeta de Descargas (/sdcard/Download/)
+            File downloadPublic = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            if (downloadPublic != null && downloadPublic.exists()) {
+                scanDirRecursive(downloadPublic, tracks, seenPaths);
+            }
+
+            // 3. Consulta al MediaStore del sistema operativo Android (Detecta toda la música indexada)
+            try {
+                ContentResolver resolver = getContext().getContentResolver();
+                Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+                String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
+                String[] projection = {
+                    MediaStore.Audio.Media._ID,
+                    MediaStore.Audio.Media.DATA,
+                    MediaStore.Audio.Media.TITLE,
+                    MediaStore.Audio.Media.ARTIST,
+                    MediaStore.Audio.Media.ALBUM,
+                    MediaStore.Audio.Media.DURATION,
+                    MediaStore.Audio.Media.SIZE
+                };
+                Cursor cursor = resolver.query(uri, projection, selection, null, MediaStore.Audio.Media.TITLE + " ASC");
+                if (cursor != null) {
+                    int dataCol = cursor.getColumnIndex(MediaStore.Audio.Media.DATA);
+                    int titleCol = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
+                    int artistCol = cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST);
+                    int albumCol = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM);
+                    int durationCol = cursor.getColumnIndex(MediaStore.Audio.Media.DURATION);
+                    int sizeCol = cursor.getColumnIndex(MediaStore.Audio.Media.SIZE);
+
+                    while (cursor.moveToNext()) {
+                        String path = cursor.getString(dataCol);
+                        if (path == null) continue;
+                        if (seenPaths.contains(path)) continue;
+
+                        File f = new File(path);
+                        if (!f.exists()) continue;
+                        seenPaths.add(path);
+
+                        String title = cursor.getString(titleCol);
+                        String artist = cursor.getString(artistCol);
+                        String album = cursor.getString(albumCol);
+                        long durationMs = cursor.getLong(durationCol);
+                        long sizeBytes = cursor.getLong(sizeCol);
+
+                        if (title == null || title.isEmpty()) {
+                            title = f.getName().replaceFirst("[.][^.]+$", "");
+                        }
+                        if (artist == null || artist.isEmpty() || "<unknown>".equalsIgnoreCase(artist)) {
+                            artist = f.getParentFile() != null ? f.getParentFile().getName() : "Desconocido";
+                        }
+
+                        double sizeMb = Math.round((sizeBytes / (1024.0 * 1024.0)) * 100.0) / 100.0;
+                        String ext = path.contains(".") ? path.substring(path.lastIndexOf('.')) : "";
+
+                        JSObject item = new JSObject();
+                        item.put("title", title);
+                        item.put("artist", artist);
+                        item.put("album", album != null ? album : "");
+                        item.put("folder", f.getParentFile() != null ? f.getParentFile().getName() : "Música");
+                        item.put("path", path);
+                        item.put("size_mb", sizeMb);
+                        item.put("duration", durationMs / 1000.0);
+                        item.put("ext", ext);
+                        item.put("lastModified", f.lastModified());
+                        tracks.put(item);
+                    }
+                    cursor.close();
+                }
+            } catch (Exception e) {
+                Log.w(TAG, "Consulta MediaStore omitida o sin permiso: " + e.getMessage());
             }
 
             JSObject ret = new JSObject();
             ret.put("tracks", tracks);
+            ret.put("total", tracks.length());
             call.resolve(ret);
         });
     }
@@ -235,30 +337,49 @@ public class NativeDownloaderPlugin extends Plugin {
         call.reject("No se pudo eliminar el archivo");
     }
 
-    private void scanDirRecursive(File root, File dir, JSArray tracks) {
+    private void scanDirRecursive(File dir, JSArray tracks, Set<String> seenPaths) {
+        if (dir == null || !dir.exists()) return;
         File[] files = dir.listFiles();
         if (files == null) return;
         Arrays.sort(files, (a, b) -> a.getName().compareToIgnoreCase(b.getName()));
 
         for (File f : files) {
             if (f.isDirectory()) {
-                scanDirRecursive(root, f, tracks);
+                if (!f.getName().startsWith(".")) {
+                    scanDirRecursive(f, tracks, seenPaths);
+                }
             } else {
                 String name = f.getName().toLowerCase();
                 if (name.endsWith(".opus") || name.endsWith(".m4a") || name.endsWith(".mp3") 
-                    || name.endsWith(".flac") || name.endsWith(".ogg") || name.endsWith(".wav")) {
+                    || name.endsWith(".flac") || name.endsWith(".ogg") || name.endsWith(".wav")
+                    || name.endsWith(".aac") || name.endsWith(".webm")) {
                     
+                    String path = f.getAbsolutePath();
+                    if (seenPaths.contains(path)) continue;
+                    seenPaths.add(path);
+
                     double sizeMb = Math.round((f.length() / (1024.0 * 1024.0)) * 100.0) / 100.0;
-                    String parentName = f.getParentFile() != null ? f.getParentFile().getName() : "Biblioteca";
-                    String title = f.getName().replaceFirst("[.][^.]+$", "");
+                    File parent = f.getParentFile();
+                    String album = parent != null ? parent.getName() : "Biblioteca";
+                    File grandParent = parent != null ? parent.getParentFile() : null;
+                    String artist = (grandParent != null && !grandParent.getName().equalsIgnoreCase("Music") && !grandParent.getName().equalsIgnoreCase("Download")) 
+                        ? grandParent.getName() 
+                        : album;
+
+                    String rawTitle = f.getName().replaceFirst("[.][^.]+$", "");
+                    // Limpiar numeración de pista inicial (ej: "01 - Aquella Noche" -> "Aquella Noche")
+                    String cleanTitle = rawTitle.replaceFirst("^[0-9]+[\\s._-]+", "");
+                    if (cleanTitle.isEmpty()) cleanTitle = rawTitle;
                     
                     JSObject item = new JSObject();
-                    item.put("title", title);
-                    item.put("artist", parentName);
-                    item.put("folder", parentName);
-                    item.put("path", f.getAbsolutePath());
+                    item.put("title", cleanTitle);
+                    item.put("artist", artist);
+                    item.put("album", album);
+                    item.put("folder", album);
+                    item.put("path", path);
                     item.put("size_mb", sizeMb);
                     item.put("ext", name.substring(name.lastIndexOf('.')));
+                    item.put("lastModified", f.lastModified());
                     tracks.put(item);
                 }
             }
