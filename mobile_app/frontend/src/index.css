@@ -2,7 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  /* Soporte universal para notch/cámara frontal y barra de gestos */
+  --sat: max(env(safe-area-inset-top, 0px), var(--safe-area-inset-top, 0px));
+  --sab: max(env(safe-area-inset-bottom, 0px), var(--safe-area-inset-bottom, 0px));
+  --sal: max(env(safe-area-inset-left, 0px), var(--safe-area-inset-left, 0px));
+  --sar: max(env(safe-area-inset-right, 0px), var(--safe-area-inset-right, 0px));
+}
+
 @layer utilities {
+  .safe-top {
+    padding-top: var(--sat);
+  }
+  .safe-bottom {
+    padding-bottom: var(--sab);
+  }
   /* Vidrio esmerilado translúcido estilo iOS */
   .apple-glass {
     background: rgba(28, 28, 30, 0.72);

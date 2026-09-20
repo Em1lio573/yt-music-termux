@@ -232,10 +232,16 @@ export default function App() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-black text-white font-sf pb-24 select-none">
+    <div 
+      style={{ paddingBottom: 'calc(var(--sab, 0px) + 6.5rem)' }}
+      className="flex flex-col min-h-screen bg-black text-white font-sf select-none"
+    >
       
-      {/* Barra de estado y Top Bar translúcida estilo iOS */}
-      <header className="sticky top-0 z-40 apple-glass light-edge px-4 py-3 flex items-center justify-between">
+      {/* Barra de estado y Top Bar translúcida adaptada al notch y safe-areas */}
+      <header 
+        style={{ paddingTop: 'calc(var(--sat, 0px) + 0.75rem)' }}
+        className="sticky top-0 z-40 apple-glass light-edge px-4 pb-3 flex items-center justify-between transition-all"
+      >
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-rose-600 to-pink-500 flex items-center justify-center shadow-lg shadow-rose-600/30">
             <Music className="w-4 h-4 text-white" />
@@ -669,7 +675,10 @@ export default function App() {
 
       {/* Mini-reproductor Flotante estilo iOS cuando hay canción sonando */}
       {currentTrack && (
-        <div className="fixed bottom-20 left-4 right-4 z-50 p-2.5 rounded-2xl apple-glass-heavy border border-white/20 shadow-float flex items-center justify-between gap-3 animate-fade-in">
+        <div 
+          style={{ bottom: 'calc(var(--sab, 0px) + 4.8rem)' }}
+          className="fixed left-4 right-4 z-50 p-2.5 rounded-2xl apple-glass-heavy border border-white/20 shadow-float flex items-center justify-between gap-3 animate-fade-in"
+        >
           <audio 
             ref={audioRef}
             src={getStreamUrl(currentTrack.path)}
@@ -706,8 +715,11 @@ export default function App() {
         </div>
       )}
 
-      {/* TAB BAR INFERIOR TRANSLÚCIDA ESTILO APPLE (iOS HIG) */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 apple-glass-heavy light-edge px-4 py-2 flex items-center justify-around">
+      {/* TAB BAR INFERIOR TRANSLÚCIDA ESTILO APPLE (iOS HIG) RESPETANDO ÁREA SEGURA */}
+      <nav 
+        style={{ paddingBottom: 'calc(var(--sab, 0px) + 0.5rem)' }}
+        className="fixed bottom-0 left-0 right-0 z-40 apple-glass-heavy light-edge px-4 pt-2 flex items-center justify-around"
+      >
         <button
           onClick={() => setActiveTab('explore')}
           className={`flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition-all apple-press ${
