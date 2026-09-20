@@ -51,7 +51,14 @@ jobs:
 
       - name: Copy Web Assets to Android (Capacitor)
         working-directory: mobile_app/frontend
-        run: npx cap copy android
+        run: |
+          npx cap copy android 2>&1 | tee /tmp/copy.log || true
+          cat /tmp/copy.log
+          if [ ! -f android/app/src/main/assets/public/index.html ]; then
+            ERR=$(cat /tmp/copy.log | head -n 10 | tr '\n' ' ')
+            echo "::error title=CopyFailed::$ERR"
+            exit 1
+          fi
 
       - name: Build APK with Gradle
         working-directory: mobile_app/frontend/android
