@@ -39,10 +39,12 @@ sed -i 's/VERSION_21/VERSION_17/g' android/app/capacitor.build.gradle 2>/dev/nul
 sed -i 's/VERSION_21/VERSION_17/g' android/capacitor-cordova-android-plugins/build.gradle 2>/dev/null || true
 sed -i 's/VERSION_21/VERSION_17/g' node_modules/@capacitor/android/capacitor/build.gradle 2>/dev/null || true
 
+echo "sdk.dir=$ANDROID_HOME" > android/local.properties
+
 echo -e "\033[93m3. Compilando APK con Gradle...\033[0m"
 cd android
 chmod +x gradlew
-./gradlew assembleDebug
+./gradlew assembleDebug -Dorg.gradle.java.home="$JAVA_HOME"
 
 APK_ORIGEN="app/build/outputs/apk/debug/app-debug.apk"
 APK_DESTINO="$DIR_ACTUAL/YT-Music-Pro.apk"
