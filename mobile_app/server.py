@@ -118,6 +118,14 @@ class MobileAppHandler(SimpleHTTPRequestHandler):
 
         super().do_GET()
 
+    def do_OPTIONS(self):
+        self.send_response(200)
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type, Range, Authorization')
+        self.send_header('Access-Control-Max-Age', '86400')
+        self.end_headers()
+
     def do_POST(self):
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path
@@ -262,40 +270,84 @@ class MobileAppHandler(SimpleHTTPRequestHandler):
         try:
             data = json.loads(body)
             url = data.get('url', '').strip()
+            artist = data.get('artist', '').strip()
+            title = data.get('title', '').strip()
+            album = data.get('album', '').strip()
+            duration = float(data.get('duration', 0) or 0)
+            cover = data.get('cover', '').strip()
             calidad = data.get('quality', cfg.get('default_quality', 'native'))
             
-            if not url:
-                self.send_json({'success': False, 'message': 'URL requerida'}, status=400)
+            if not url and not (artist and title):
+                self.send_json({'success': False, 'message': 'URL o canción requeridos'}, status=400)
                 return
+
+            metadata_oficial = {}
+            if artist or title:
+                metadata_oficial = {
+                    'artist': artist,
+                    'title': title,
+                    'album': album or 'Single',
+                    'duration': duration,
+                    'cover_url': cover
+                }
 
             # Ejecutar la descarga en un hilo secundario sin bloquear el servidor
             def worker():
                 try:
+                    target_url = url
+                    # Si la URL no es un video directo (watch?v= o youtu.be/), resolver a la pista oficial en YouTube Music
+                    if not ('watch?v=' in target_url or 'youtu.be/' in target_url):
+                        broadcast_sse({
+                            'status': 'downloading',
+                            'percent': '0',
+                            'speed': 'Localizando...',
+                            'eta': '--',
+                            'title': f'Localizando máster oficial: {artist} - {title}' if (artist and title) else 'Buscando en YouTube Music...'
+                        })
+                        pista_ytm = None
+                        if artist and title:
+                            pista_ytm = resolver_ytmusic(artist, title, dur_esperada=duration)
+                        
+                        if pista_ytm and pista_ytm.get('url'):
+                            target_url = pista_ytm.get('url')
+                        elif artist and title:
+                            target_url = f"ytsearch1:{artist} {title}"
+                        elif target_url.startswith('https://music.youtube.com/search?'):
+                            parsed_u = urllib.parse.urlparse(target_url)
+                            q_val = urllib.parse.parse_qs(parsed_u.query).get('q', [''])[0]
+                            target_url = f"ytsearch1:{q_val}" if q_val else target_url
+
                     broadcast_sse({
                         'status': 'downloading',
                         'percent': '0',
-                        'speed': 'Iniciando conexión...',
+                        'speed': 'Conectando...',
                         'eta': '--',
-                        'title': 'Resolviendo pista de YouTube Music...'
+                        'title': f'Descargando audio: {artist} - {title}' if (artist and title) else 'Iniciando descarga...'
                     })
+
                     # Reemplazamos temporalmente el hook por el mobile hook
                     import yt_downloader
                     orig_hook = yt_downloader.progress_hook
                     yt_downloader.progress_hook = mobile_progress_hook
                     
-                    exito = descargar_musica(url, calidad_solicitada=calidad, es_compartido=False)
+                    exito = yt_downloader.descargar_musica(
+                        target_url,
+                        calidad_solicitada=calidad,
+                        es_compartido=False,
+                        metadata_oficial=metadata_oficial
+                    )
                     
                     yt_downloader.progress_hook = orig_hook
                     
                     if exito:
                         broadcast_sse({
                             'status': 'completed',
-                            'title': 'Canción descargada con éxito'
+                            'title': f'{artist} - {title}' if (artist and title) else 'Canción descargada con éxito'
                         })
                     else:
                         broadcast_sse({
                             'status': 'error',
-                            'message': 'No se pudo completar la descarga. Revisa el enlace o las cookies.'
+                            'message': 'No se pudo completar la descarga. Revisa el enlace o la conexión.'
                         })
                 except Exception as ex:
                     broadcast_sse({
@@ -353,6 +405,9 @@ class MobileAppHandler(SimpleHTTPRequestHandler):
             self.send_header('Content-Type', mime_type)
             self.send_header('Content-Length', str(file_size))
             self.send_header('Accept-Ranges', 'bytes')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.send_header('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS')
+            self.send_header('Access-Control-Allow-Headers', 'Range, Content-Type')
             self.end_headers()
             with open(file_path, 'rb') as f:
                 self.copyfile(f, self.wfile)
@@ -373,6 +428,9 @@ class MobileAppHandler(SimpleHTTPRequestHandler):
             self.send_header('Content-Range', f"bytes {start}-{end}/{file_size}")
             self.send_header('Content-Length', str(length))
             self.send_header('Accept-Ranges', 'bytes')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.send_header('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS')
+            self.send_header('Access-Control-Allow-Headers', 'Range, Content-Type')
             self.end_headers()
 
             with open(file_path, 'rb') as f:
@@ -394,7 +452,8 @@ class MobileAppHandler(SimpleHTTPRequestHandler):
         self.send_header('Content-Type', 'application/json; charset=utf-8')
         self.send_header('Content-Length', str(len(body)))
         self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type, Range, Authorization')
         self.end_headers()
         self.wfile.write(body)
 

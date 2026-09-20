@@ -350,6 +350,11 @@ class MetadataPreProcessor(PostProcessor):
         info['custom_album'] = album_orig or 'Single'
         info['custom_title'] = titulo
         
+        # Inyectar portada oficial en alta definición (1200x1200px) si está disponible
+        if self.metadata_oficial and self.metadata_oficial.get('cover_url'):
+            info['thumbnail'] = self.metadata_oficial['cover_url']
+            info['thumbnails'] = [{'url': self.metadata_oficial['cover_url'], 'id': 'cover_hd'}]
+        
         return [], info
 
 # --- INTEGRACIÓN CON ANDROID (TERMUX-API) ---
@@ -559,7 +564,7 @@ def construir_ydl_opts(calidad_clave, template_salida, usar_sponsorblock=False):
     return opts
 
 # --- PIPELINE PRINCIPAL DE DESCARGA ---
-def descargar_musica(url, calidad_solicitada=None, es_compartido=False):
+def descargar_musica(url, calidad_solicitada=None, es_compartido=False, metadata_oficial=None):
     global hubo_descarga
     hubo_descarga = False
     
@@ -582,7 +587,7 @@ def descargar_musica(url, calidad_solicitada=None, es_compartido=False):
     print(f"{Colores.WARNING}Analizando fuente y metadatos...{Colores.ENDC}")
     
     url_descarga = url
-    metadata_oficial = {}
+    metadata_oficial = dict(metadata_oficial) if metadata_oficial else {}
     es_playlist = False
     usar_sponsorblock = False
     
@@ -608,9 +613,24 @@ def descargar_musica(url, calidad_solicitada=None, es_compartido=False):
     
     # 3. Detección Inteligente de YouTube Music ("YT Music First")
     if not es_playlist and cfg.get("prefer_ytmusic", True):
+        # Si ya contamos con metadatos oficiales (ej. provistos por la app / iTunes)
+        if metadata_oficial and metadata_oficial.get('title') and metadata_oficial.get('artist'):
+            print(f"{Colores.GREEN}✔ Metadatos oficiales integrados:{Colores.ENDC} {metadata_oficial['artist']} - {metadata_oficial['title']}")
+            if not ('watch?v=' in url_descarga or 'youtu.be/' in url_descarga):
+                pista_ytm = resolver_ytmusic(metadata_oficial['artist'], metadata_oficial['title'], metadata_oficial.get('duration'))
+                if pista_ytm and pista_ytm.get('url'):
+                    print(f"{Colores.GREEN}🎯 Pista oficial de YouTube Music localizada: {Colores.BOLD}{pista_ytm.get('title')}{Colores.ENDC}")
+                    url_descarga = pista_ytm.get('url')
         # Si la URL ya es de music.youtube.com, ya es la versión de estudio
-        if 'music.youtube.com' in url:
+        elif 'music.youtube.com' in url:
             print(f"{Colores.GREEN}✔ Enlace nativo de YouTube Music detectado.{Colores.ENDC}")
+            # Si no hay metadatos oficiales aún, intentar obtener carátula HD de iTunes para la pista
+            if not metadata_oficial:
+                art_detectado, tit_detectado = limpiar_titulo(titulo_pre)
+                query_busqueda = f"{art_detectado or ''} {tit_detectado}".strip()
+                datos_itunes = obtener_duracion_oficial(query_busqueda) if query_busqueda else None
+                if datos_itunes:
+                    metadata_oficial = datos_itunes
         else:
             # Es un video de YouTube estándar. Buscar artista/título y duración oficial.
             art_detectado, tit_detectado = limpiar_titulo(titulo_pre)
