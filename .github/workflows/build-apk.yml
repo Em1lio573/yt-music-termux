@@ -53,14 +53,28 @@ jobs:
         working-directory: mobile_app/frontend
         run: |
           chmod +x android/gradlew
-          npx cap sync android --verbose
+          npx cap sync android --verbose 2>&1 | tee /tmp/sync.log
+          SYNC_STATUS=${PIPESTATUS[0]}
+          if [ $SYNC_STATUS -ne 0 ]; then
+            ERROR_MSG=$(grep -E '(FAILURE|FAILED|Error|error|Exception)' /tmp/sync.log | head -n 5 | tr '\n' ' -- ')
+            echo "::error title=CapSyncFailure::$ERROR_MSG"
+            tail -n 60 /tmp/sync.log
+            exit $SYNC_STATUS
+          fi
           sed -i 's/VERSION_21/VERSION_17/g' android/app/capacitor.build.gradle 2>/dev/null || true
 
       - name: Build APK with Gradle
         working-directory: mobile_app/frontend/android
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon --stacktrace -Dorg.gradle.java.home="$JAVA_HOME"
+          ./gradlew assembleDebug --no-daemon --stacktrace -Dorg.gradle.java.home="$JAVA_HOME" 2>&1 | tee /tmp/gradle.log
+          GRADLE_STATUS=${PIPESTATUS[0]}
+          if [ $GRADLE_STATUS -ne 0 ]; then
+            ERROR_MSG=$(grep -E '(FAILURE|FAILED|Error|Caused by)' /tmp/gradle.log | head -n 5 | tr '\n' ' -- ')
+            echo "::error title=GradleFailure::$ERROR_MSG"
+            tail -n 60 /tmp/gradle.log
+            exit $GRADLE_STATUS
+          fi
 
       - name: Verify & Copy APK
         run: |
