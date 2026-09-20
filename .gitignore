@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.cookies.txt
+test_library/
+.system_generated/

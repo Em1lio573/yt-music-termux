@@ -1,155 +1,109 @@
-## 🎵 Termux YouTube Music Downloader
+# 🎵 Termux YouTube Music Downloader (Pro)
 
-Un script automatizado para Termux que descarga música de YouTube en Alta Calidad (320kbps), con carátulas, metadatos y conversión a MP3 estéreo. Se integra nativamente con el menú "Compartir" de la app de YouTube.
-
-### ✨ Características
-
-- 🚀 **Integración con Android**: Funciona desde el botón "Compartir" de la app de YouTube.
-- 🎧 **Alta Fidelidad**: Descargas forzadas a MP3 320kbps y Estéreo.
-- 🖼️ **Metadatos Completos**: Agrega automáticamente Artista, Título y Carátula (Cover Art) al archivo.
-- 📂 **Organización**: Guarda los archivos directamente en la carpeta Music del dispositivo.
-- 🧠 **Modo Inteligente**: Evita descargar canciones duplicadas (especial para Playlists).
-- 📋 **Soporte de Playlists**: Descarga listas completas con un solo clic.
-- 🔄 **Anti-Bloqueo 429**: Implementa cliente Android de YouTube para evitar restricciones.
-- ⚡ **Reintentos Automáticos**: 10 reintentos configurables con timeouts optimizados.
-
-### 📱 Instalación Rápida
-
-1. **Abre Termux**
-
-2. **Clona este repositorio:**
-```bash
-git clone https://github.com/Em1lio573/yt-music-termux.git
-cd yt-music-termux
-```
-
-3. **Ejecuta el instalador:**
-```bash
-bash setup.sh
-```
-
-4. **¡Listo!** Ahora ve a YouTube, selecciona una canción, dale a Compartir y elige Termux.
-
-### 🛠️ Requisitos
-
-El script de instalación (`setup.sh`) se encarga de todo automáticamente, pero para referencia, utiliza:
-
-- **Python 3**
-- **FFmpeg** (para conversión de audio)
-- **yt-dlp** (descargador de YouTube mejorado)
-- **mutagen** (gestión de metadatos)
-- **Termux:API** (recomendado para mejor integración)
-
-### 🔧 Configuración Técnica
-
-El script incluye optimizaciones especiales para Termux:
-
-- **Fix para Error 429**: Alterna entre cliente Android y web de YouTube
-- **Gestión de Fragmentos**: Descarga de 1 fragmento concurrente (evita sobrecargas)
-- **Límite de Velocidad**: 500 KB/s (previene bloqueos)
-- **Reintentos Inteligentes**: Hasta 10 reintentos con timeout de 30 segundos
-- **Chunks Optimizados**: 10 MB por chunk (ideal para conexiones lentas)
-
-### 📝 Ubicaciones Importantes
-
-| Elemento | Ruta |
-|----------|------|
-| 🎵 Descargas | `/storage/emulated/0/Music/` (alias: `~/storage/music/`) |
-| 📋 Historial | `~/.historial_descargas_youtube.txt` |
-| 🔧 Script Principal | `~/bin/termux-url-opener` |
-
-### 🚀 Uso
-
-#### **Método 1: Desde YouTube (Recomendado)**
-1. Abre YouTube
-2. Busca una canción o playlist
-3. Toca el botón **Compartir**
-4. Selecciona **Termux** de la lista
-
-#### **Método 2: Desde Terminal Manualmente**
-```bash
-# Canción individual
-python ~/bin/termux-url-opener "https://www.youtube.com/watch?v=VIDEO_ID"
-
-# Playlist
-python ~/bin/termux-url-opener "https://www.youtube.com/playlist?list=PLxxxxxx"
-
-# Modo interactivo
-python ~/bin/termux-url-opener
-# Se te pedirá que pegues el link
-```
-
-### 🐛 Troubleshooting
-
-#### ❌ "Error: python: No such file or directory"
-```bash
-pkg install python -y
-pip install yt-dlp mutagen --upgrade
-```
-
-#### ❌ "Error 429 Too Many Requests"
-✅ El script ya incluye el fix automático. Si persiste:
-```bash
-# Actualiza yt-dlp a la versión más reciente
-pip install yt-dlp --upgrade
-```
-
-#### ❌ "FFmpeg not found"
-```bash
-pkg install ffmpeg -y
-```
-
-#### ❌ "Permission denied when creating ~/bin/termux-url-opener"
-```bash
-mkdir -p ~/bin
-chmod 755 ~/bin
-bash setup.sh
-```
-
-#### ❌ "Las descargas son lentas o se cuelgan"
-El script ya incluye optimizaciones. Intenta:
-```bash
-# Reducir límite de velocidad (aún más lento pero más estable)
-# Edita la línea en yt_downloader.py:
-# 'ratelimit': 250000,  # 250KB/s en lugar de 500KB/s
-```
-
-#### ✅ "¿Cómo verifico que se descargó correctamente?"
-```bash
-ls -lah ~/storage/music/
-# Deberías ver los archivos MP3 con la carátula embedida
-```
-
-### 📊 Características Detalladas
-
-| Característica | Valor |
-|---|---|
-| Codec de Audio | MP3 |
-| Bitrate | 320 kbps |
-| Canales | Estéreo (2) |
-| Formato de Contenedor | MP3 |
-| Metadatos | ID3v2 (Título, Artista, Carátula) |
-| Carátula Embedida | ✅ Sí |
-| Anti-Duplicados | ✅ Sí (historial) |
-| Soporte de Playlists | ✅ Sí |
-| Reintentos Automáticos | ✅ Sí (10 intentos) |
-
-### 📄 Licencia
-
-Este proyecto es de código abierto. Úsalo libremente y comparte mejoras.
-
-### 💡 Consejos
-
-- **Para playlists grandes**: Ejecuta el script en la noche. Las playlists pueden tardar horas.
-- **Conexión lenta**: El script automáticamente reduce velocidad y usa chunks pequeños.
-- **Ahorrar espacio**: Borra el archivo `.historial_descargas_youtube.txt` si quieres re-descargar canciones.
-- **Mejor calidad**: El script ya descarga la mejor calidad disponible (bestaudio).
-
-### 🤝 Contribuciones
-
-¿Encontraste un bug? ¿Tienes una mejora?
-Abre un [issue](https://github.com/Em1lio573/yt-music-termux/issues) o [pull request](https://github.com/Em1lio573/yt-music-termux/pulls).
+Un descargador avanzado para Termux enfocado en **música de estudio en alta fidelidad real**, integración nativa con el menú "Compartir" de Android, base de datos de duración oficial y organización inteligente de biblioteca.
 
 ---
 
-**Última actualización**: 2026-07-09 | **Versión**: 2.0 (Optimizada)
+## ✨ Características Principales
+
+### 🎯 Prioridad YouTube Music ("YT Music First")
+- **Adiós a los videoclips con ruidos o diálogos**: Cuando compartes un video musical desde YouTube, el script extrae los metadatos y localiza automáticamente la **pista oficial de estudio en YouTube Music** (*Topic Tracks / Provided to YouTube*).
+- **Audio de estudio puro**: Descarga la versión original del máster musical sin intros habladas, sketches de video ni créditos de película.
+
+### ⏱️ Base de Datos de Duración Oficial (iTunes / Apple Music)
+- Consulta en milisegundos la base de datos oficial para validar la **duración exacta de la canción en estudio** (en segundos) y obtener la carátula oficial en alta resolución (1200x1200px).
+- Compara la duración del video de YouTube con la oficial; si hay una diferencia notable por contenido extra, prioriza la pista de YouTube Music.
+
+### 🛡️ Respaldo con SponsorBlock (`music_offtopic`)
+- Si compartes un concierto en vivo, cover o tema underground que no existe en YouTube Music, el descargador utiliza **SponsorBlock** para recortar con precisión milimétrica las partes no musicales (intros, silencios y charlas).
+
+### 🎧 Calidad de Audio Real (Sin Bitrates Falsos)
+YouTube almacena su audio en **Opus (~160kbps)** y **AAC (~128kbps)**. A diferencia de otros scripts que fingen "320kbps" re-comprimiendo destructivamente el audio y triplicando el tamaño del archivo, este script ofrece:
+- **Original Nativo (Predeterminado)**: Extracción directa sin recodificación. Preserva el 100% de la calidad original del master de YouTube en Opus/M4A con 0 pérdida generacional y descarga ultra rápida.
+- **M4A / AAC Universal (~256 kbps)**: Estándar para iOS, Android y autorradios.
+- **MP3 320 kbps (CBR)**: Transcodificación de alta compatibilidad para reproductores antiguos.
+- **MP3 VBR V0 (~245 kbps)**: Máxima calidad perceptiva en formato MP3 con peso optimizado.
+- **FLAC Lossless**: Contenedor sin compresión destructiva.
+
+### 📂 Organización Inteligente de Biblioteca
+Elimina de raíz las molestas carpetas de *"Álbum Desconocido"*:
+- **Singles / Canciones sueltas**: `~/storage/music/Biblioteca/<Artista>/Singles/<Canción>.<ext>`
+- **Álbumes oficiales**: `~/storage/music/Biblioteca/<Artista>/<Álbum>/<01 - Canción>.<ext>`
+- **Playlists completas**: `~/storage/music/Biblioteca/Playlists/<Nombre Playlist>/<01 - Artista - Canción>.<ext>`
+- **Limpieza de títulos**: Elimina automáticamente etiquetas como *(Official Video)*, *[Audio Oficial]*, *(Lyric Video)*, *[4K]*, *(Remastered)*, etc.
+
+### ⚡ Cuenta Regresiva al Compartir
+- Al compartir desde YouTube a Termux, una cuenta regresiva de **4 segundos** inicia la descarga automáticamente en la calidad predeterminada.
+- Si tocas cualquier tecla durante esos 4 segundos, se abre el selector rápido para elegir otro formato o ajustar configuraciones.
+
+### 💻 Menú Interactivo de Gestión
+Al ejecutar `python3 yt_downloader.py` sin argumentos:
+1. **Descargar por enlace** (Canciones o Playlists completas).
+2. **Búsqueda directa en YouTube Music**: Busca canciones y descárgalas sin abrir YouTube.
+3. **Gestor de Historial**: Inspecciona canciones descargadas o elimina una entrada para permitir su re-descarga.
+4. **Configuración (`config.json`)**: Modifica calidades por defecto, tiempos de espera, carpetas y filtros.
+5. **Gestor de Cookies**: Importa y gestiona cookies para evitar errores 429 de YouTube.
+6. **Actualización Automática**: Actualiza `yt-dlp` a la última versión disponible.
+
+### 📱 Integración con Android
+- **Indexación automática**: Llama a `termux-media-scan` para que los reproductores (Poweramp, Musicolet, Retro Music, VLC, etc.) detecten las canciones al instante.
+- **Notificaciones**: Muestra una notificación del sistema con `termux-notification` al concluir.
+
+---
+
+## 🚀 Instalación Rápida
+
+1. **Abre Termux** y clona el repositorio:
+   ```bash
+   git clone https://github.com/Em1lio573/yt-music-termux.git
+   cd yt-music-termux
+   ```
+
+2. **Ejecuta el configurador**:
+   ```bash
+   bash setup.sh
+   ```
+
+3. **¡Listo!** Abre YouTube o YouTube Music, busca cualquier canción, toca **Compartir**, selecciona **Termux** y la descarga comenzará automáticamente.
+
+> [!TIP]
+> Gracias al nuevo lanzador dinámico, cualquier actualización futura que recibas con `git pull` dentro de la carpeta del proyecto se aplicará automáticamente al menú Compartir de YouTube sin tener que reinstalar.
+
+---
+
+## 🛠️ Requisitos
+El script de instalación (`setup.sh`) configura todo automáticamente, pero utiliza:
+- `python` (Python 3.10+)
+- `ffmpeg` (para extracción y metadatos)
+- `termux-api` (para indexación y notificaciones)
+- `yt-dlp` (motor de descarga)
+- `mutagen` (gestor de metadatos multiformato ID3, MP4, Vorbis)
+
+---
+
+## 📊 Comparativa de Calidad Real
+
+| Formato | Bitrate Real | Pérdida de Transcodificación | Velocidad | Tamaño | Compatibilidad |
+|---|---|---|---|---|---|
+| **Original Nativo** | ~160k Opus / ~128k AAC | **0% (Direct Copy)** | ⚡ Instantánea | 🪶 ~3-4 MB | Android 5.0+, VLC, Poweramp |
+| **M4A (AAC)** | ~256 kbps | Mínima | ⚡ Rápida | 🪶 ~5-6 MB | Universal (iOS, Android, PC) |
+| **MP3 320k** | 320 kbps (CBR) | Recompresión a MP3 | 🕒 Normal | 📦 ~9-11 MB | Reproductores de coche antiguos |
+| **MP3 V0** | ~245 kbps (VBR) | Recompresión a MP3 | 🕒 Normal | 📦 ~7-8 MB | Reproductores MP3 estándar |
+| **FLAC** | Lossless | Sin compresión con pérdida | 🕒 Normal | 📦 ~25-35 MB | Audiófilos / Hi-Res |
+
+---
+
+## 📁 Estructura de Archivos y Rutas
+
+| Elemento | Ruta |
+|---|---|
+| 🎵 Biblioteca de Música | `~/storage/music/Biblioteca/` |
+| ⚙️ Archivo de Configuración | `~/.config/yt-music-termux/config.json` |
+| 📋 Historial de Descargas | `~/.historial_descargas_youtube.txt` |
+| 🍪 Cookies de YouTube | `~/.cookies.txt` |
+| 🚀 Lanzador de Compartir | `~/bin/termux-url-opener` |
+
+---
+
+## 📄 Licencia
+Proyecto libre y de código abierto bajo licencia MIT. Úsalo, mejóralo y compártelo.
