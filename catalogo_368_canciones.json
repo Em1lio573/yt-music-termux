@@ -1,0 +1,2946 @@
+[
+  {
+    "id": 1,
+    "title": "Aquella Noche",
+    "artist": "Bardero$",
+    "main_artist": "Bardero$",
+    "album": "Inmortales",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Bardero$/Inmortales/02 - Aquella Noche.mp3"
+  },
+  {
+    "id": 2,
+    "title": "No Le Conviene",
+    "artist": "Kenny Die",
+    "main_artist": "Kenny Die",
+    "album": "No Le Conviene",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Kenny Die/No Le Conviene/01 - No Le Conviene.mp3"
+  },
+  {
+    "id": 3,
+    "title": "$$$",
+    "artist": "Bardero$",
+    "main_artist": "Bardero$",
+    "album": "$$$",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Bardero$/$$$/01 - $$$.mp3"
+  },
+  {
+    "id": 4,
+    "title": "Ma' You Know Me",
+    "artist": "Kenny Die, sebas",
+    "main_artist": "Kenny Die",
+    "album": "Ma' You Know Me",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Kenny Die, sebas/Ma' You Know Me/01 - Ma' You Know Me.mp3"
+  },
+  {
+    "id": 5,
+    "title": "Cuando Cae la Noche",
+    "artist": "C.R.O",
+    "main_artist": "C.R.O",
+    "album": "Leyendas de la Noche",
+    "original_path": "/storage/emulated/0/Music/Monochrome/C.R.O/Leyendas de la Noche/01 - Cuando Cae la Noche.mp3"
+  },
+  {
+    "id": 6,
+    "title": "Morimos en el Party",
+    "artist": "C.R.O",
+    "main_artist": "C.R.O",
+    "album": "Leyendas de la Noche",
+    "original_path": "/storage/emulated/0/Music/Monochrome/C.R.O/Leyendas de la Noche/02 - Morimos en el Party.mp3"
+  },
+  {
+    "id": 7,
+    "title": "Un Imperio",
+    "artist": "C.R.O",
+    "main_artist": "C.R.O",
+    "album": "Leyendas de la Noche",
+    "original_path": "/storage/emulated/0/Music/Monochrome/C.R.O/Leyendas de la Noche/04 - Un Imperio.mp3"
+  },
+  {
+    "id": 8,
+    "title": "Rockiando",
+    "artist": "C.R.O",
+    "main_artist": "C.R.O",
+    "album": "Leyendas de la Noche",
+    "original_path": "/storage/emulated/0/Music/Monochrome/C.R.O/Leyendas de la Noche/03 - Rockiando.mp3"
+  },
+  {
+    "id": 9,
+    "title": "LA Mdb",
+    "artist": "C.R.O",
+    "main_artist": "C.R.O",
+    "album": "Leyendas de la Noche",
+    "original_path": "/storage/emulated/0/Music/Monochrome/C.R.O/Leyendas de la Noche/05 - LA Mdb.mp3"
+  },
+  {
+    "id": 10,
+    "title": "Todo Controlado",
+    "artist": "C.R.O",
+    "main_artist": "C.R.O",
+    "album": "Leyendas de la Noche",
+    "original_path": "/storage/emulated/0/Music/Monochrome/C.R.O/Leyendas de la Noche/07 - Todo Controlado.mp3"
+  },
+  {
+    "id": 11,
+    "title": "Molly",
+    "artist": "C.R.O",
+    "main_artist": "C.R.O",
+    "album": "Leyendas de la Noche",
+    "original_path": "/storage/emulated/0/Music/Monochrome/C.R.O/Leyendas de la Noche/06 - Molly.mp3"
+  },
+  {
+    "id": 12,
+    "title": "Keta",
+    "artist": "C.R.O",
+    "main_artist": "C.R.O",
+    "album": "C.R.O - Mdbcrew, Vol. 2",
+    "original_path": "/storage/emulated/0/Music/Monochrome/C.R.O/C.R.O - Mdbcrew, Vol. 2/18 - Keta.mp3"
+  },
+  {
+    "id": 13,
+    "title": "Money",
+    "artist": "C.R.O",
+    "main_artist": "C.R.O",
+    "album": "Money",
+    "original_path": "/storage/emulated/0/Music/Monochrome/C.R.O/Money/01 - Money.mp3"
+  },
+  {
+    "id": 14,
+    "title": "Repárame",
+    "artist": "C.R.O",
+    "main_artist": "C.R.O",
+    "album": "Repárame",
+    "original_path": "/storage/emulated/0/Music/Monochrome/C.R.O/Repárame/01 - Repárame.mp3"
+  },
+  {
+    "id": 15,
+    "title": "Tu Luna",
+    "artist": "Homer el Mero Mero, FMK, Tiago PZK",
+    "main_artist": "Homer el Mero Mero",
+    "album": "El Mundo Es Tuyo",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Homer el Mero Mero, FMK, Tiago PZK/El Mundo Es Tuyo/18 - Tu Luna.mp3"
+  },
+  {
+    "id": 16,
+    "title": "Las 3 y 33",
+    "artist": "Homer el Mero Mero",
+    "main_artist": "Homer el Mero Mero",
+    "album": "El Mundo Es Tuyo",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Homer el Mero Mero/El Mundo Es Tuyo/05 - Las 3 y 33.mp3"
+  },
+  {
+    "id": 17,
+    "title": "Stole the Show",
+    "artist": "Kygo, Parson James",
+    "main_artist": "Kygo",
+    "album": "Stole the Show",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Kygo, Parson James/Stole the Show/01 - Stole the Show.mp3"
+  },
+  {
+    "id": 18,
+    "title": "obstáculo",
+    "artist": "Tainy, Myke Towers",
+    "main_artist": "Tainy",
+    "album": "DATA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Tainy, Myke Towers/DATA/01 - obstáculo.mp3"
+  },
+  {
+    "id": 19,
+    "title": "PASIEMPRE",
+    "artist": "Tainy, arcangel, JHAYCO, Myke Towers, Omar Courtz, Arca",
+    "main_artist": "Tainy",
+    "album": "DATA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Tainy, arcangel, JHAYCO, Myke Towers, Omar Courtz, Arca/DATA/02 - PASIEMPRE.mp3"
+  },
+  {
+    "id": 20,
+    "title": "Todavía",
+    "artist": "Tainy, Wisin & Yandel",
+    "main_artist": "Tainy",
+    "album": "DATA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Tainy, Wisin & Yandel/DATA/03 - Todavía.mp3"
+  },
+  {
+    "id": 21,
+    "title": "11 Y ONCE",
+    "artist": "Tainy, Sech, E.VAX",
+    "main_artist": "Tainy",
+    "album": "DATA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Tainy, Sech, E.VAX/DATA/06 - 11 Y ONCE.mp3"
+  },
+  {
+    "id": 22,
+    "title": "mañana",
+    "artist": "Tainy, Young Miko, The Marías",
+    "main_artist": "Tainy",
+    "album": "DATA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Tainy, Young Miko, The Marías/DATA/08 - mañana.mp3"
+  },
+  {
+    "id": 23,
+    "title": "MOJABI GHOST",
+    "artist": "Tainy, Bad Bunny",
+    "main_artist": "Tainy",
+    "album": "DATA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Tainy, Bad Bunny/DATA/05 - MOJABI GHOST.mp3"
+  },
+  {
+    "id": 24,
+    "title": "FANTASMA | AVC",
+    "artist": "Tainy, JHAYCO",
+    "main_artist": "Tainy",
+    "album": "FANTASMA | AVC",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Tainy, JHAYCO/FANTASMA _ AVC/01 - FANTASMA _ AVC.mp3"
+  },
+  {
+    "id": 25,
+    "title": "COLMILLO",
+    "artist": "Tainy, J Balvin, Young Miko, Jowell & Randy",
+    "main_artist": "Tainy",
+    "album": "COLMILLO",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Tainy, J Balvin, Young Miko, Jowell & Randy/COLMILLO/01 - COLMILLO.mp3"
+  },
+  {
+    "id": 26,
+    "title": "BUENOS AIRES",
+    "artist": "Tainy, Mora, zion",
+    "main_artist": "Tainy",
+    "album": "DATA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Tainy, Mora, zion/DATA/09 - BUENOS AIRES.mp3"
+  },
+  {
+    "id": 27,
+    "title": "LA BABY",
+    "artist": "Tainy, Daddy Yankee, Feid, Sech",
+    "main_artist": "Tainy",
+    "album": "LA BABY",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Tainy, Daddy Yankee, Feid, Sech/LA BABY/01 - LA BABY.mp3"
+  },
+  {
+    "id": 28,
+    "title": "desde las 10 (KANYâ€™S INTERLUDE)",
+    "artist": "Tainy, Kany Garcia",
+    "main_artist": "Tainy",
+    "album": "DATA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Tainy, Kany Garcia/DATA/07 - desde las 10 (KANY’S INTERLUDE).mp3"
+  },
+  {
+    "id": 29,
+    "title": "me jodi...",
+    "artist": "Tainy, Arcangel",
+    "main_artist": "Tainy",
+    "album": "DATA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Tainy, Arcangel/DATA/12 - me jodi....mp3"
+  },
+  {
+    "id": 30,
+    "title": "VOLVER",
+    "artist": "Tainy, Skrillex, Four Tet, Rauw Alejandro",
+    "main_artist": "Tainy",
+    "album": "DATA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Tainy, Skrillex, Four Tet, Rauw Alejandro/DATA/13 - VOLVER.mp3"
+  },
+  {
+    "id": 31,
+    "title": "EN VISTO",
+    "artist": "Tainy, Ozuna",
+    "main_artist": "Tainy",
+    "album": "DATA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Tainy, Ozuna/DATA/14 - EN VISTO.mp3"
+  },
+  {
+    "id": 32,
+    "title": "Sci-Fi",
+    "artist": "Tainy, Rauw Alejandro",
+    "main_artist": "Tainy",
+    "album": "Sci-Fi",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Tainy, Rauw Alejandro/Sci-Fi/01 - Sci-Fi.mp3"
+  },
+  {
+    "id": 33,
+    "title": "Lo Siento BB:/",
+    "artist": "Tainy, Bad Bunny, Julieta Venegas",
+    "main_artist": "Tainy",
+    "album": "Lo Siento BB:/",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Tainy, Bad Bunny, Julieta Venegas/Lo Siento BB__/01 - Lo Siento BB__.mp3"
+  },
+  {
+    "id": 34,
+    "title": "si preguntas por mi",
+    "artist": "Tainy, Kris Floyd, Judeline",
+    "main_artist": "Tainy",
+    "album": "DATA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Tainy, Kris Floyd, Judeline/DATA/16 - si preguntas por mi.mp3"
+  },
+  {
+    "id": 35,
+    "title": "SACRIFICIO",
+    "artist": "Tainy, Xantos",
+    "main_artist": "Tainy",
+    "album": "DATA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Tainy, Xantos/DATA/20 - SACRIFICIO.mp3"
+  },
+  {
+    "id": 36,
+    "title": "PARANORMAL",
+    "artist": "Tainy, Alvaro Diaz",
+    "main_artist": "Tainy",
+    "album": "DATA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Tainy, Alvaro Diaz/DATA/19 - PARANORMAL.mp3"
+  },
+  {
+    "id": 37,
+    "title": "CORLEONE INTERLUDE",
+    "artist": "Tainy, Chencho Corleone",
+    "main_artist": "Tainy",
+    "album": "DATA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Tainy, Chencho Corleone/DATA/18 - CORLEONE INTERLUDE.mp3"
+  },
+  {
+    "id": 38,
+    "title": "INTRO",
+    "artist": "KHEA",
+    "main_artist": "KHEA",
+    "album": "SEROTONINA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/KHEA/SEROTONINA/01 - INTRO.mp3"
+  },
+  {
+    "id": 39,
+    "title": "BATALLA",
+    "artist": "KHEA",
+    "main_artist": "KHEA",
+    "album": "SEROTONINA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/KHEA/SEROTONINA/03 - BATALLA.mp3"
+  },
+  {
+    "id": 40,
+    "title": "ECLIPSE",
+    "artist": "KHEA",
+    "main_artist": "KHEA",
+    "album": "SEROTONINA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/KHEA/SEROTONINA/02 - ECLIPSE.mp3"
+  },
+  {
+    "id": 41,
+    "title": "SIN CORAZÓN",
+    "artist": "KHEA",
+    "main_artist": "KHEA",
+    "album": "SEROTONINA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/KHEA/SEROTONINA/04 - SIN CORAZÓN.mp3"
+  },
+  {
+    "id": 42,
+    "title": "CON UN BESO",
+    "artist": "KHEA",
+    "main_artist": "KHEA",
+    "album": "SEROTONINA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/KHEA/SEROTONINA/05 - CON UN BESO.mp3"
+  },
+  {
+    "id": 43,
+    "title": "EFECTO",
+    "artist": "KHEA",
+    "main_artist": "KHEA",
+    "album": "SEROTONINA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/KHEA/SEROTONINA/06 - EFECTO.mp3"
+  },
+  {
+    "id": 44,
+    "title": "VOLVERÁS",
+    "artist": "KHEA",
+    "main_artist": "KHEA",
+    "album": "SEROTONINA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/KHEA/SEROTONINA/10 - VOLVERÁS.mp3"
+  },
+  {
+    "id": 45,
+    "title": "COMO YO TE QUIERO",
+    "artist": "KHEA",
+    "main_artist": "KHEA",
+    "album": "SEROTONINA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/KHEA/SEROTONINA/07 - COMO YO TE QUIERO.mp3"
+  },
+  {
+    "id": 46,
+    "title": "FEELING",
+    "artist": "KHEA",
+    "main_artist": "KHEA",
+    "album": "SEROTONINA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/KHEA/SEROTONINA/12 - FEELING.mp3"
+  },
+  {
+    "id": 47,
+    "title": "DE LA TIERRA A MARTE",
+    "artist": "KHEA",
+    "main_artist": "KHEA",
+    "album": "SEROTONINA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/KHEA/SEROTONINA/13 - DE LA TIERRA A MARTE.mp3"
+  },
+  {
+    "id": 48,
+    "title": "S.A.D",
+    "artist": "KHEA",
+    "main_artist": "KHEA",
+    "album": "S.A.D",
+    "original_path": "/storage/emulated/0/Music/Monochrome/KHEA/S.A.D/01 - S.A.D.mp3"
+  },
+  {
+    "id": 49,
+    "title": "SI ESTÁS CON ALGUIEN",
+    "artist": "Omar Courtz",
+    "main_artist": "Omar Courtz",
+    "album": "POR SI MAÑANA NO ESTOY",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Omar Courtz/POR SI MAÑANA NO ESTOY/09 - SI ESTÁS CON ALGUIEN.mp3"
+  },
+  {
+    "id": 50,
+    "title": "POR SI MAÑANA NO ESTOY",
+    "artist": "Omar Courtz",
+    "main_artist": "Omar Courtz",
+    "album": "POR SI MAÑANA NO ESTOY",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Omar Courtz/POR SI MAÑANA NO ESTOY/18 - POR SI MAÑANA NO ESTOY.mp3"
+  },
+  {
+    "id": 51,
+    "title": "Pensando en Verte",
+    "artist": "Bardero$, C.R.O, Homer el Mero Mero",
+    "main_artist": "Bardero$",
+    "album": "Pensando en Verte",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Bardero$, C.R.O, Homer el Mero Mero/Pensando en Verte/01 - Pensando en Verte.mp3"
+  },
+  {
+    "id": 52,
+    "title": "Pensabas",
+    "artist": "Mora, Joyce Santana, Brray, Eladio Carrión",
+    "main_artist": "Mora",
+    "album": "Pensabas",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora, Joyce Santana, Brray, Eladio Carrión/Pensabas/01 - Pensabas.mp3"
+  },
+  {
+    "id": 53,
+    "title": "INTERLUV RCP </3 Ft. Asan",
+    "artist": "KHEA, ASAN",
+    "main_artist": "KHEA",
+    "album": "SEROTONINA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/KHEA, ASAN/SEROTONINA/09 - INTERLUV RCP __3 Ft. Asan.mp3"
+  },
+  {
+    "id": 54,
+    "title": "PARA AMARTE A TI",
+    "artist": "KHEA, Tiago PZK",
+    "main_artist": "KHEA",
+    "album": "PARA AMARTE A TI",
+    "original_path": "/storage/emulated/0/Music/Monochrome/KHEA, Tiago PZK/PARA AMARTE A TI/01 - PARA AMARTE A TI.mp3"
+  },
+  {
+    "id": 55,
+    "title": "NUNCA VOY SOLO",
+    "artist": "KHEA, Milo j",
+    "main_artist": "KHEA",
+    "album": "SEROTONINA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/KHEA, Milo j/SEROTONINA/11 - NUNCA VOY SOLO.mp3"
+  },
+  {
+    "id": 56,
+    "title": "Pintao",
+    "artist": "Duki, YSY A, rei",
+    "main_artist": "Duki",
+    "album": "Desde el Fin del Mundo",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Duki, YSY A, rei/Desde el Fin del Mundo/02 - Pintao.mp3"
+  },
+  {
+    "id": 57,
+    "title": "Iba a Llamarte",
+    "artist": "C.R.O, Duki",
+    "main_artist": "C.R.O",
+    "album": "Cuervos",
+    "original_path": "/storage/emulated/0/Music/Monochrome/C.R.O, Duki/Cuervos/03 - Iba a Llamarte.mp3"
+  },
+  {
+    "id": 58,
+    "title": "Heads Will Roll",
+    "artist": "Yeah Yeah Yeahs",
+    "main_artist": "Yeah Yeah Yeahs",
+    "album": "Heads Will Roll (A-Trak Remix EP)",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Yeah Yeah Yeahs/Heads Will Roll (A-Trak Remix EP)/01 - Heads Will Roll.mp3"
+  },
+  {
+    "id": 59,
+    "title": "LO MISMO DE SIEMPRE",
+    "artist": "Mora",
+    "main_artist": "Mora",
+    "album": "LO MISMO DE SIEMPRE",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora/LO MISMO DE SIEMPRE/01 - LO MISMO DE SIEMPRE.mp3"
+  },
+  {
+    "id": 60,
+    "title": "BANDIDA",
+    "artist": "Mora",
+    "main_artist": "Mora",
+    "album": "LO MISMO DE SIEMPRE",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora/LO MISMO DE SIEMPRE/02 - BANDIDA.mp3"
+  },
+  {
+    "id": 61,
+    "title": "TEMA DE JORY",
+    "artist": "Mora",
+    "main_artist": "Mora",
+    "album": "LO MISMO DE SIEMPRE",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora/LO MISMO DE SIEMPRE/03 - TEMA DE JORY.mp3"
+  },
+  {
+    "id": 62,
+    "title": "PISTA DE ATERRIZAJE",
+    "artist": "Mora",
+    "main_artist": "Mora",
+    "album": "LO MISMO DE SIEMPRE",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora/LO MISMO DE SIEMPRE/08 - PISTA DE ATERRIZAJE.mp3"
+  },
+  {
+    "id": 63,
+    "title": "DE INMEDIATO",
+    "artist": "Mora",
+    "main_artist": "Mora",
+    "album": "LO MISMO DE SIEMPRE",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora/LO MISMO DE SIEMPRE/06 - DE INMEDIATO.mp3"
+  },
+  {
+    "id": 64,
+    "title": "OTRA NOCHE SIN DORMIR",
+    "artist": "Mora",
+    "main_artist": "Mora",
+    "album": "LO MISMO DE SIEMPRE",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora/LO MISMO DE SIEMPRE/11 - OTRA NOCHE SIN DORMIR.mp3"
+  },
+  {
+    "id": 65,
+    "title": "SALU",
+    "artist": "Mora",
+    "main_artist": "Mora",
+    "album": "LO MISMO DE SIEMPRE",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora/LO MISMO DE SIEMPRE/14 - SALU.mp3"
+  },
+  {
+    "id": 66,
+    "title": "DETRÁS DE TU ALMA",
+    "artist": "Mora",
+    "main_artist": "Mora",
+    "album": "LO MISMO DE SIEMPRE",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora/LO MISMO DE SIEMPRE/16 - DETRÁS DE TU ALMA.mp3"
+  },
+  {
+    "id": 67,
+    "title": "CUANDO ME VAYA",
+    "artist": "Mora",
+    "main_artist": "Mora",
+    "album": "LO MISMO DE SIEMPRE",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora/LO MISMO DE SIEMPRE/17 - CUANDO ME VAYA.mp3"
+  },
+  {
+    "id": 68,
+    "title": "DE PAQUETE",
+    "artist": "Mora, Jory Boy",
+    "main_artist": "Mora",
+    "album": "LO MISMO DE SIEMPRE",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora, Jory Boy/LO MISMO DE SIEMPRE/04 - DE PAQUETE.mp3"
+  },
+  {
+    "id": 69,
+    "title": "CALENTÓN",
+    "artist": "Mora",
+    "main_artist": "Mora",
+    "album": "PARAÍSO",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora/PARAÍSO/04 - CALENTÓN.mp3"
+  },
+  {
+    "id": 70,
+    "title": "DROGA",
+    "artist": "Mora, C. Tangana",
+    "main_artist": "Mora",
+    "album": "LO MISMO DE SIEMPRE",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora, C. Tangana/LO MISMO DE SIEMPRE/05 - DROGA.mp3"
+  },
+  {
+    "id": 71,
+    "title": "AURORA",
+    "artist": "Mora, De la rose",
+    "main_artist": "Mora",
+    "album": "LO MISMO DE SIEMPRE",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora, De la rose/LO MISMO DE SIEMPRE/07 - AURORA.mp3"
+  },
+  {
+    "id": 72,
+    "title": "MEDIA LUNA",
+    "artist": "Mora",
+    "main_artist": "Mora",
+    "album": "ESTRELLA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora/ESTRELLA/01 - MEDIA LUNA.mp3"
+  },
+  {
+    "id": 73,
+    "title": "PASAJERO",
+    "artist": "Mora",
+    "main_artist": "Mora",
+    "album": "ESTRELLA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora/ESTRELLA/02 - PASAJERO.mp3"
+  },
+  {
+    "id": 74,
+    "title": "DONDE SE APRENDE A QUERER?",
+    "artist": "Mora",
+    "main_artist": "Mora",
+    "album": "ESTRELLA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora/ESTRELLA/04 - DONDE SE APRENDE A QUERER_.mp3"
+  },
+  {
+    "id": 75,
+    "title": "LOKITA",
+    "artist": "Mora",
+    "main_artist": "Mora",
+    "album": "ESTRELLA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora/ESTRELLA/09 - LOKITA.mp3"
+  },
+  {
+    "id": 76,
+    "title": "FANTASÍAS",
+    "artist": "Mora",
+    "main_artist": "Mora",
+    "album": "ESTRELLA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora/ESTRELLA/06 - FANTASÍAS.mp3"
+  },
+  {
+    "id": 77,
+    "title": "MAREA",
+    "artist": "Mora",
+    "main_artist": "Mora",
+    "album": "ESTRELLA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora/ESTRELLA/14 - MAREA.mp3"
+  },
+  {
+    "id": 78,
+    "title": "BIENVENIDA AL PARAÍSO",
+    "artist": "Mora",
+    "main_artist": "Mora",
+    "album": "PARAÍSO",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora/PARAÍSO/01 - BIENVENIDA AL PARAÍSO.mp3"
+  },
+  {
+    "id": 79,
+    "title": "AYER Y HOY",
+    "artist": "Mora",
+    "main_artist": "Mora",
+    "album": "ESTRELLA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora/ESTRELLA/15 - AYER Y HOY.mp3"
+  },
+  {
+    "id": 80,
+    "title": "DOMINGO DE BOTE",
+    "artist": "Mora",
+    "main_artist": "Mora",
+    "album": "PARAÍSO",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora/PARAÍSO/02 - DOMINGO DE BOTE.mp3"
+  },
+  {
+    "id": 81,
+    "title": "EN LA ORILLA",
+    "artist": "Mora",
+    "main_artist": "Mora",
+    "album": "PARAÍSO",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora/PARAÍSO/06 - EN LA ORILLA.mp3"
+  },
+  {
+    "id": 82,
+    "title": "TU SABES DONDE VIVO",
+    "artist": "Mora",
+    "main_artist": "Mora",
+    "album": "PARAÍSO",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora/PARAÍSO/10 - TU SABES DONDE VIVO.mp3"
+  },
+  {
+    "id": 83,
+    "title": "CASUALIDAD",
+    "artist": "Mora",
+    "main_artist": "Mora",
+    "album": "PARAÍSO",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora/PARAÍSO/08 - CASUALIDAD.mp3"
+  },
+  {
+    "id": 84,
+    "title": "MALAFAMA",
+    "artist": "Mora",
+    "main_artist": "Mora",
+    "album": "PARAÍSO",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora/PARAÍSO/13 - MALAFAMA.mp3"
+  },
+  {
+    "id": 85,
+    "title": "badtrip :(",
+    "artist": "Mora",
+    "main_artist": "Mora",
+    "album": "MICRODOSIS",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora/MICRODOSIS/01 - badtrip _(.mp3"
+  },
+  {
+    "id": 86,
+    "title": "QUE HABILIDAD",
+    "artist": "Mora",
+    "main_artist": "Mora",
+    "album": "PARAÍSO",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora/PARAÍSO/14 - QUE HABILIDAD.mp3"
+  },
+  {
+    "id": 87,
+    "title": "Hasta Cuando",
+    "artist": "Mora",
+    "main_artist": "Mora",
+    "album": "Hasta Cuando",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora/Hasta Cuando/01 - Hasta Cuando.mp3"
+  },
+  {
+    "id": 88,
+    "title": "2010",
+    "artist": "Mora",
+    "main_artist": "Mora",
+    "album": "MICRODOSIS",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora/MICRODOSIS/02 - 2010.mp3"
+  },
+  {
+    "id": 89,
+    "title": "PECADO",
+    "artist": "Mora",
+    "main_artist": "Mora",
+    "album": "MICRODOSIS",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora/MICRODOSIS/05 - PECADO.mp3"
+  },
+  {
+    "id": 90,
+    "title": "ROBERT DE NIRO",
+    "artist": "Mora",
+    "main_artist": "Mora",
+    "album": "MICRODOSIS",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora/MICRODOSIS/04 - ROBERT DE NIRO.mp3"
+  },
+  {
+    "id": 91,
+    "title": "LINDOR",
+    "artist": "Mora",
+    "main_artist": "Mora",
+    "album": "MICRODOSIS",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora/MICRODOSIS/06 - LINDOR.mp3"
+  },
+  {
+    "id": 92,
+    "title": "ESCALOFRÍOS",
+    "artist": "Mora",
+    "main_artist": "Mora",
+    "album": "MICRODOSIS",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora/MICRODOSIS/08 - ESCALOFRÍOS.mp3"
+  },
+  {
+    "id": 93,
+    "title": "LEJOS DE TI",
+    "artist": "Mora",
+    "main_artist": "Mora",
+    "album": "MICRODOSIS",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora/MICRODOSIS/10 - LEJOS DE TI.mp3"
+  },
+  {
+    "id": 94,
+    "title": "QSY",
+    "artist": "Mora",
+    "main_artist": "Mora",
+    "album": "MICRODOSIS",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora/MICRODOSIS/11 - QSY.mp3"
+  },
+  {
+    "id": 95,
+    "title": "ORO ROSADO",
+    "artist": "Mora",
+    "main_artist": "Mora",
+    "album": "MICRODOSIS",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora/MICRODOSIS/13 - ORO ROSADO.mp3"
+  },
+  {
+    "id": 96,
+    "title": "TE VI EN MIS PESADILLAS",
+    "artist": "Alvaro Diaz",
+    "main_artist": "Alvaro Diaz",
+    "album": "SAYONARA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Alvaro Diaz/SAYONARA/01 - TE VI EN MIS PESADILLAS.mp3"
+  },
+  {
+    "id": 97,
+    "title": "KAWA",
+    "artist": "Alvaro Diaz",
+    "main_artist": "Alvaro Diaz",
+    "album": "SAYONARA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Alvaro Diaz/SAYONARA/02 - KAWA.mp3"
+  },
+  {
+    "id": 98,
+    "title": "PLN",
+    "artist": "Alvaro Diaz",
+    "main_artist": "Alvaro Diaz",
+    "album": "PLN",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Alvaro Diaz/PLN/01 - PLN.mp3"
+  },
+  {
+    "id": 99,
+    "title": "LENTITO",
+    "artist": "Alvaro Diaz",
+    "main_artist": "Alvaro Diaz",
+    "album": "LENTITO",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Alvaro Diaz/LENTITO/01 - LENTITO.mp3"
+  },
+  {
+    "id": 100,
+    "title": "QUIÉN TE QUIERE COMO EL NENE",
+    "artist": "Alvaro Diaz",
+    "main_artist": "Alvaro Diaz",
+    "album": "SAYONARA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Alvaro Diaz/SAYONARA/13 - QUIÉN TE QUIERE COMO EL NENE.mp3"
+  },
+  {
+    "id": 101,
+    "title": "MAJIN BUU",
+    "artist": "Alvaro Diaz",
+    "main_artist": "Alvaro Diaz",
+    "album": "SAYONARA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Alvaro Diaz/SAYONARA/14 - MAJIN BUU.mp3"
+  },
+  {
+    "id": 102,
+    "title": "YOKO",
+    "artist": "Alvaro Diaz",
+    "main_artist": "Alvaro Diaz",
+    "album": "SAYONARA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Alvaro Diaz/SAYONARA/15 - YOKO.mp3"
+  },
+  {
+    "id": 103,
+    "title": "RAMONA FLOWERS",
+    "artist": "Alvaro Diaz",
+    "main_artist": "Alvaro Diaz",
+    "album": "SAYONARA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Alvaro Diaz/SAYONARA/17 - RAMONA FLOWERS.mp3"
+  },
+  {
+    "id": 104,
+    "title": "NO LLORES SI ME VOY",
+    "artist": "Alvaro Diaz",
+    "main_artist": "Alvaro Diaz",
+    "album": "SAYONARA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Alvaro Diaz/SAYONARA/20 - NO LLORES SI ME VOY.mp3"
+  },
+  {
+    "id": 105,
+    "title": "MIL VIDAS",
+    "artist": "Mora, Ryan Castro",
+    "main_artist": "Mora",
+    "album": "LO MISMO DE SIEMPRE",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora, Ryan Castro/LO MISMO DE SIEMPRE/09 - MIL VIDAS.mp3"
+  },
+  {
+    "id": 106,
+    "title": "MÁS QUE ALGO",
+    "artist": "Mora, Omar Courtz",
+    "main_artist": "Mora",
+    "album": "LO MISMO DE SIEMPRE",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora, Omar Courtz/LO MISMO DE SIEMPRE/10 - MÁS QUE ALGO.mp3"
+  },
+  {
+    "id": 107,
+    "title": "EL ÚLTIMO BESO",
+    "artist": "Mora, Sech",
+    "main_artist": "Mora",
+    "album": "LO MISMO DE SIEMPRE",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora, Sech/LO MISMO DE SIEMPRE/12 - EL ÚLTIMO BESO.mp3"
+  },
+  {
+    "id": 108,
+    "title": "TOA",
+    "artist": "Mora, Young Miko",
+    "main_artist": "Mora",
+    "album": "LO MISMO DE SIEMPRE",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora, Young Miko/LO MISMO DE SIEMPRE/13 - TOA.mp3"
+  },
+  {
+    "id": 109,
+    "title": "LA PRESIDENCIAL",
+    "artist": "Mora, Dei V",
+    "main_artist": "Mora",
+    "album": "LO MISMO DE SIEMPRE",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora, Dei V/LO MISMO DE SIEMPRE/15 - LA PRESIDENCIAL.mp3"
+  },
+  {
+    "id": 110,
+    "title": "PÓLVORA",
+    "artist": "Mora, Yandel",
+    "main_artist": "Mora",
+    "album": "ESTRELLA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora, Yandel/ESTRELLA/03 - PÓLVORA.mp3"
+  },
+  {
+    "id": 111,
+    "title": "REINA",
+    "artist": "Mora, SAIKO",
+    "main_artist": "Mora",
+    "album": "ESTRELLA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora, SAIKO/ESTRELLA/05 - REINA.mp3"
+  },
+  {
+    "id": 112,
+    "title": "EL CHACAL",
+    "artist": "Mora",
+    "main_artist": "Mora",
+    "album": "ESTRELLA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora/ESTRELLA/07 - EL CHACAL.mp3"
+  },
+  {
+    "id": 113,
+    "title": "LAGUNA",
+    "artist": "Mora, arcangel",
+    "main_artist": "Mora",
+    "album": "ESTRELLA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora, arcangel/ESTRELLA/08 - LAGUNA.mp3"
+  },
+  {
+    "id": 114,
+    "title": "PIDE",
+    "artist": "Mora, RaiNao",
+    "main_artist": "Mora",
+    "album": "ESTRELLA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora, RaiNao/ESTRELLA/10 - PIDE.mp3"
+  },
+  {
+    "id": 115,
+    "title": "UN DESEO",
+    "artist": "Mora, RaiNao",
+    "main_artist": "Mora",
+    "album": "ESTRELLA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora, RaiNao/ESTRELLA/11 - UN DESEO.mp3"
+  },
+  {
+    "id": 116,
+    "title": "DIAMONDS",
+    "artist": "Mora, Dei V",
+    "main_artist": "Mora",
+    "album": "ESTRELLA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora, Dei V/ESTRELLA/12 - DIAMONDS.mp3"
+  },
+  {
+    "id": 117,
+    "title": "CÓRCEGA",
+    "artist": "Mora, Álvaro Díaz",
+    "main_artist": "Mora",
+    "album": "ESTRELLA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora, Álvaro Díaz/ESTRELLA/13 - CÓRCEGA.mp3"
+  },
+  {
+    "id": 118,
+    "title": "APA",
+    "artist": "Mora, Quevedo",
+    "main_artist": "Mora",
+    "album": "PARAÍSO",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora, Quevedo/PARAÍSO/03 - APA.mp3"
+  },
+  {
+    "id": 119,
+    "title": "COSITAS",
+    "artist": "Mora, paopao",
+    "main_artist": "Mora",
+    "album": "PARAÍSO",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora, paopao/PARAÍSO/05 - COSITAS.mp3"
+  },
+  {
+    "id": 120,
+    "title": "MODELITO",
+    "artist": "Mora, YOVNGCHIMI",
+    "main_artist": "Mora",
+    "album": "PARAÍSO",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora, YOVNGCHIMI/PARAÍSO/07 - MODELITO.mp3"
+  },
+  {
+    "id": 121,
+    "title": "AIRBNB",
+    "artist": "Mora, De La Ghetto",
+    "main_artist": "Mora",
+    "album": "PARAÍSO",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora, De La Ghetto/PARAÍSO/09 - AIRBNB.mp3"
+  },
+  {
+    "id": 122,
+    "title": "EIVISSA",
+    "artist": "Mora, Danny Ocean",
+    "main_artist": "Mora",
+    "album": "PARAÍSO",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora, Danny Ocean/PARAÍSO/11 - EIVISSA.mp3"
+  },
+  {
+    "id": 123,
+    "title": "COMO HAS ESTAU?",
+    "artist": "Mora",
+    "main_artist": "Mora",
+    "album": "PARAÍSO",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora/PARAÍSO/12 - COMO HAS ESTAU_.mp3"
+  },
+  {
+    "id": 124,
+    "title": "Si Veo a Tu Mamá",
+    "artist": "Bad Bunny",
+    "main_artist": "Bad Bunny",
+    "album": "YHLQMDLG",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Bad Bunny/YHLQMDLG/01 - Si Veo a Tu Mamá.mp3"
+  },
+  {
+    "id": 125,
+    "title": "Pero Ya No",
+    "artist": "Bad Bunny",
+    "main_artist": "Bad Bunny",
+    "album": "YHLQMDLG",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Bad Bunny/YHLQMDLG/03 - Pero Ya No.mp3"
+  },
+  {
+    "id": 126,
+    "title": "La Difícil",
+    "artist": "Bad Bunny",
+    "main_artist": "Bad Bunny",
+    "album": "YHLQMDLG",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Bad Bunny/YHLQMDLG/02 - La Difícil.mp3"
+  },
+  {
+    "id": 127,
+    "title": "Soliá",
+    "artist": "Bad Bunny",
+    "main_artist": "Bad Bunny",
+    "album": "YHLQMDLG",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Bad Bunny/YHLQMDLG/07 - Soliá.mp3"
+  },
+  {
+    "id": 128,
+    "title": "La Zona",
+    "artist": "Bad Bunny",
+    "main_artist": "Bad Bunny",
+    "album": "YHLQMDLG",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Bad Bunny/YHLQMDLG/08 - La Zona.mp3"
+  },
+  {
+    "id": 129,
+    "title": "A Tu Merced",
+    "artist": "Bad Bunny",
+    "main_artist": "Bad Bunny",
+    "album": "YHLQMDLG",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Bad Bunny/YHLQMDLG/12 - A Tu Merced.mp3"
+  },
+  {
+    "id": 130,
+    "title": "La Santa",
+    "artist": "Bad Bunny, Daddy Yankee",
+    "main_artist": "Bad Bunny",
+    "album": "YHLQMDLG",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Bad Bunny, Daddy Yankee/YHLQMDLG/04 - La Santa.mp3"
+  },
+  {
+    "id": 131,
+    "title": "Yo Perreo Sola",
+    "artist": "Bad Bunny",
+    "main_artist": "Bad Bunny",
+    "album": "YHLQMDLG",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Bad Bunny/YHLQMDLG/05 - Yo Perreo Sola.mp3"
+  },
+  {
+    "id": 132,
+    "title": "ᐸ3",
+    "artist": "Madvi",
+    "main_artist": "Madvi",
+    "album": "ᐸ3",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Madvi/ᐸ3/01 - ᐸ3.mp3"
+  },
+  {
+    "id": 133,
+    "title": "7 Lágrimas (Remix)",
+    "artist": "Soge Culebra, Mora, Garabatto",
+    "main_artist": "Soge Culebra",
+    "album": "7 Lágrimas (Remix)",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Soge Culebra, Mora, Garabatto/7 Lágrimas (Remix)/01 - 7 Lágrimas (Remix).mp3"
+  },
+  {
+    "id": 134,
+    "title": "Vete",
+    "artist": "Bad Bunny",
+    "main_artist": "Bad Bunny",
+    "album": "Vete",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Bad Bunny/Vete/01 - Vete.mp3"
+  },
+  {
+    "id": 135,
+    "title": "Ignorantes",
+    "artist": "Bad Bunny, Sech",
+    "main_artist": "Bad Bunny",
+    "album": "YHLQMDLG",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Bad Bunny, Sech/YHLQMDLG/11 - Ignorantes.mp3"
+  },
+  {
+    "id": 136,
+    "title": "Safaera",
+    "artist": "Bad Bunny, Jowell & Randy, Ñengo Flow",
+    "main_artist": "Bad Bunny",
+    "album": "YHLQMDLG",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Bad Bunny, Jowell & Randy, Ñengo Flow/YHLQMDLG/14 - Safaera.mp3"
+  },
+  {
+    "id": 137,
+    "title": "25/8",
+    "artist": "Bad Bunny",
+    "main_artist": "Bad Bunny",
+    "album": "YHLQMDLG",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Bad Bunny/YHLQMDLG/15 - 25_8.mp3"
+  },
+  {
+    "id": 138,
+    "title": "Está Cabrón Ser Yo",
+    "artist": "Bad Bunny, Anuel AA",
+    "main_artist": "Bad Bunny",
+    "album": "YHLQMDLG",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Bad Bunny, Anuel AA/YHLQMDLG/16 - Está Cabrón Ser Yo.mp3"
+  },
+  {
+    "id": 139,
+    "title": "Puesto Pa' Guerrial",
+    "artist": "Bad Bunny, Myke Towers",
+    "main_artist": "Bad Bunny",
+    "album": "YHLQMDLG",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Bad Bunny, Myke Towers/YHLQMDLG/17 - Puesto Pa' Guerrial.mp3"
+  },
+  {
+    "id": 140,
+    "title": "TUS LÁGRIMAS",
+    "artist": "Mora, Sech",
+    "main_artist": "Mora",
+    "album": "MICRODOSIS",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora, Sech/MICRODOSIS/07 - TUS LÁGRIMAS.mp3"
+  },
+  {
+    "id": 141,
+    "title": "TU AMIGO",
+    "artist": "Mora, zion",
+    "main_artist": "Mora",
+    "album": "MICRODOSIS",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora, zion/MICRODOSIS/12 - TU AMIGO.mp3"
+  },
+  {
+    "id": 142,
+    "title": "LA INOCENTE",
+    "artist": "Mora, Feid",
+    "main_artist": "Mora",
+    "album": "MICRODOSIS",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora, Feid/MICRODOSIS/14 - LA INOCENTE.mp3"
+  },
+  {
+    "id": 143,
+    "title": "OJOS COLORAU",
+    "artist": "Mora",
+    "main_artist": "Mora",
+    "album": "MICRODOSIS",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora/MICRODOSIS/15 - OJOS COLORAU.mp3"
+  },
+  {
+    "id": 144,
+    "title": "GATITAS SANDUNGUERAS",
+    "artist": "Alvaro Diaz, Feid",
+    "main_artist": "Alvaro Diaz",
+    "album": "SAYONARA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Alvaro Diaz, Feid/SAYONARA/03 - GATITAS SANDUNGUERAS.mp3"
+  },
+  {
+    "id": 145,
+    "title": "FUNERAL",
+    "artist": "Alvaro Diaz, ARON",
+    "main_artist": "Alvaro Diaz",
+    "album": "SAYONARA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Alvaro Diaz, ARON/SAYONARA/18 - FUNERAL.mp3"
+  },
+  {
+    "id": 146,
+    "title": "QUIZÁS SI QUIZÁS NO",
+    "artist": "Alvaro Diaz, Quevedo",
+    "main_artist": "Alvaro Diaz",
+    "album": "QUIZÁS SI QUIZÁS NO",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Alvaro Diaz, Quevedo/QUIZÁS SI QUIZÁS NO/01 - QUIZÁS SI QUIZÁS NO.mp3"
+  },
+  {
+    "id": 147,
+    "title": "Virtual Diva",
+    "artist": "Don Omar",
+    "main_artist": "Don Omar",
+    "album": "iDon",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Don Omar/iDon/02 - Virtual Diva.mp3"
+  },
+  {
+    "id": 148,
+    "title": "Blue Zone",
+    "artist": "Don Omar",
+    "main_artist": "Don Omar",
+    "album": "iDon",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Don Omar/iDon/03 - Blue Zone.mp3"
+  },
+  {
+    "id": 149,
+    "title": "Danza Kuduro",
+    "artist": "Don Omar, Lucenzo",
+    "main_artist": "Don Omar",
+    "album": "Meet The Orphans",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Don Omar, Lucenzo/Meet The Orphans/12 - Danza Kuduro.mp3"
+  },
+  {
+    "id": 150,
+    "title": "Nightlovers",
+    "artist": "Moonkey, C.R.O",
+    "main_artist": "Moonkey",
+    "album": "Nightlovers",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Moonkey, C.R.O/Nightlovers/01 - Nightlovers.mp3"
+  },
+  {
+    "id": 151,
+    "title": "INTRODUCCIÓN AL ÉXTASIS",
+    "artist": "Wos",
+    "main_artist": "Wos",
+    "album": "OSCURO ÉXTASIS",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Wos/OSCURO ÉXTASIS/01 - INTRODUCCIÓN AL ÉXTASIS.mp3"
+  },
+  {
+    "id": 152,
+    "title": "BUITRES",
+    "artist": "Wos",
+    "main_artist": "Wos",
+    "album": "OSCURO ÉXTASIS",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Wos/OSCURO ÉXTASIS/02 - BUITRES.mp3"
+  },
+  {
+    "id": 153,
+    "title": "MIRÁ MAMÁ",
+    "artist": "Wos",
+    "main_artist": "Wos",
+    "album": "OSCURO ÉXTASIS",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Wos/OSCURO ÉXTASIS/05 - MIRÁ MAMÁ.mp3"
+  },
+  {
+    "id": 154,
+    "title": "GATO NEGRO",
+    "artist": "Wos",
+    "main_artist": "Wos",
+    "album": "OSCURO ÉXTASIS",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Wos/OSCURO ÉXTASIS/06 - GATO NEGRO.mp3"
+  },
+  {
+    "id": 155,
+    "title": "QUE SE MEJOREN",
+    "artist": "Wos",
+    "main_artist": "Wos",
+    "album": "OSCURO ÉXTASIS",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Wos/OSCURO ÉXTASIS/07 - QUE SE MEJOREN.mp3"
+  },
+  {
+    "id": 156,
+    "title": "CONTANDO OVEJAS",
+    "artist": "Wos",
+    "main_artist": "Wos",
+    "album": "OSCURO ÉXTASIS",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Wos/OSCURO ÉXTASIS/10 - CONTANDO OVEJAS.mp3"
+  },
+  {
+    "id": 157,
+    "title": "LLENO DE ZAFIROS",
+    "artist": "Wos",
+    "main_artist": "Wos",
+    "album": "OSCURO ÉXTASIS",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Wos/OSCURO ÉXTASIS/12 - LLENO DE ZAFIROS.mp3"
+  },
+  {
+    "id": 158,
+    "title": "CONVOY JARANA",
+    "artist": "WOS, Valentín Oliva",
+    "main_artist": "WOS",
+    "album": "OSCURO ÉXTASIS",
+    "original_path": "/storage/emulated/0/Music/Monochrome/WOS, Valentín Oliva/OSCURO ÉXTASIS/63 - CONVOY JARANA.mp3"
+  },
+  {
+    "id": 159,
+    "title": "NIÑO GORDO FLACO",
+    "artist": "Wos, CA7RIEL",
+    "main_artist": "Wos",
+    "album": "OSCURO ÉXTASIS",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Wos, CA7RIEL/OSCURO ÉXTASIS/08 - NIÑO GORDO FLACO.mp3"
+  },
+  {
+    "id": 160,
+    "title": "CAMBIANDO LA PIEL",
+    "artist": "Wos, Nicki Nicole",
+    "main_artist": "Wos",
+    "album": "OSCURO ÉXTASIS",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Wos, Nicki Nicole/OSCURO ÉXTASIS/09 - CAMBIANDO LA PIEL.mp3"
+  },
+  {
+    "id": 161,
+    "title": "MUGRE",
+    "artist": "Wos",
+    "main_artist": "Wos",
+    "album": "OSCURO ÉXTASIS",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Wos/OSCURO ÉXTASIS/13 - MUGRE.mp3"
+  },
+  {
+    "id": 162,
+    "title": "Ptazeta: Bzrp Music Sessions, Vol. 45/66",
+    "artist": "Bizarrap, Ptazeta",
+    "main_artist": "Bizarrap",
+    "album": "Ptazeta: Bzrp Music Sessions, Vol. 45/66",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Bizarrap, Ptazeta/Ptazeta_ Bzrp Music Sessions, Vol. 45_66/01 - Ptazeta_ Bzrp Music Sessions, Vol. 45_66.mp3"
+  },
+  {
+    "id": 163,
+    "title": "Zaramay: Bzrp Music Sessions, Vol. 31/66",
+    "artist": "Bizarrap, Zaramay",
+    "main_artist": "Bizarrap",
+    "album": "Zaramay: Bzrp Music Sessions, Vol. 31/66",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Bizarrap, Zaramay/Zaramay_ Bzrp Music Sessions, Vol. 31_66/01 - Zaramay_ Bzrp Music Sessions, Vol. 31_66.mp3"
+  },
+  {
+    "id": 164,
+    "title": "UNA CERVEZA",
+    "artist": "Fuerza Regida, Manuel Turizo",
+    "main_artist": "Fuerza Regida",
+    "album": "Pa las Baby's Y Belikeada",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Fuerza Regida, Manuel Turizo/Pa las Baby's Y Belikeada/30 - UNA CERVEZA.mp3"
+  },
+  {
+    "id": 165,
+    "title": "HOMER EL MERO MERO: Bzrp Music Sessions, Vol. 30/66",
+    "artist": "Bizarrap, Homer el Mero Mero",
+    "main_artist": "Bizarrap",
+    "album": "HOMER EL MERO MERO: Bzrp Music Sessions, Vol. 30/66",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Bizarrap, Homer el Mero Mero/HOMER EL MERO MERO_ Bzrp Music Sessions, Vol. 30_66/01 - HOMER EL MERO MERO_ Bzrp Music Sessions, Vol. 30_66.mp3"
+  },
+  {
+    "id": 166,
+    "title": "Baby Blue",
+    "artist": "Kevin Kaarl",
+    "main_artist": "Kevin Kaarl",
+    "album": "Hasta el Fin Del Mundo",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Kevin Kaarl/Hasta el Fin Del Mundo/01 - Baby Blue.mp3"
+  },
+  {
+    "id": 167,
+    "title": "Vámonos a Marte",
+    "artist": "Kevin Kaarl",
+    "main_artist": "Kevin Kaarl",
+    "album": "Hasta el Fin Del Mundo",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Kevin Kaarl/Hasta el Fin Del Mundo/02 - Vámonos a Marte.mp3"
+  },
+  {
+    "id": 168,
+    "title": "¿Por qué?",
+    "artist": "Kevin Kaarl",
+    "main_artist": "Kevin Kaarl",
+    "album": "Hasta el Fin Del Mundo",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Kevin Kaarl/Hasta el Fin Del Mundo/03 - ¿Por qué_.mp3"
+  },
+  {
+    "id": 169,
+    "title": "Adiós",
+    "artist": "Kevin Kaarl",
+    "main_artist": "Kevin Kaarl",
+    "album": "Hasta el Fin Del Mundo",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Kevin Kaarl/Hasta el Fin Del Mundo/04 - Adiós.mp3"
+  },
+  {
+    "id": 170,
+    "title": "Tu canción",
+    "artist": "Kevin Kaarl",
+    "main_artist": "Kevin Kaarl",
+    "album": "Hasta el Fin Del Mundo",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Kevin Kaarl/Hasta el Fin Del Mundo/06 - Tu canción.mp3"
+  },
+  {
+    "id": 171,
+    "title": "Leidy Mariela",
+    "artist": "Kevin Kaarl",
+    "main_artist": "Kevin Kaarl",
+    "album": "Hasta el Fin Del Mundo",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Kevin Kaarl/Hasta el Fin Del Mundo/05 - Leidy Mariela.mp3"
+  },
+  {
+    "id": 172,
+    "title": "Si Supieras",
+    "artist": "Kevin Kaarl",
+    "main_artist": "Kevin Kaarl",
+    "album": "Hasta el Fin Del Mundo",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Kevin Kaarl/Hasta el Fin Del Mundo/07 - Si Supieras.mp3"
+  },
+  {
+    "id": 173,
+    "title": "Colapso",
+    "artist": "Kevin Kaarl",
+    "main_artist": "Kevin Kaarl",
+    "album": "Hasta el Fin Del Mundo",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Kevin Kaarl/Hasta el Fin Del Mundo/08 - Colapso.mp3"
+  },
+  {
+    "id": 174,
+    "title": "Todo ya cambió",
+    "artist": "Kevin Kaarl",
+    "main_artist": "Kevin Kaarl",
+    "album": "Hasta el Fin Del Mundo",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Kevin Kaarl/Hasta el Fin Del Mundo/09 - Todo ya cambió.mp3"
+  },
+  {
+    "id": 175,
+    "title": "Mujer Distante",
+    "artist": "Kevin Kaarl",
+    "main_artist": "Kevin Kaarl",
+    "album": "Hasta el Fin Del Mundo",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Kevin Kaarl/Hasta el Fin Del Mundo/10 - Mujer Distante.mp3"
+  },
+  {
+    "id": 176,
+    "title": "Dos Almas",
+    "artist": "Kevin Kaarl",
+    "main_artist": "Kevin Kaarl",
+    "album": "Hasta el Fin Del Mundo",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Kevin Kaarl/Hasta el Fin Del Mundo/11 - Dos Almas.mp3"
+  },
+  {
+    "id": 177,
+    "title": "Siento",
+    "artist": "Kevin Kaarl",
+    "main_artist": "Kevin Kaarl",
+    "album": "Hasta el Fin Del Mundo",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Kevin Kaarl/Hasta el Fin Del Mundo/12 - Siento.mp3"
+  },
+  {
+    "id": 178,
+    "title": "Sunflower (From the Movie \"Spider-Man : Into the Spider-Verse\")",
+    "artist": "Twinkle Twinkle Little Rock Star",
+    "main_artist": "Twinkle Twinkle Little Rock Star",
+    "album": "Lullaby Versions of Post Malone",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Twinkle Twinkle Little Rock Star/Lullaby Versions of Post Malone/02 - Sunflower (From the Movie _Spider-Man _ Into the Spider-Verse_).mp3"
+  },
+  {
+    "id": 179,
+    "title": "Sabor A Miel",
+    "artist": "Tiago PZK",
+    "main_artist": "Tiago PZK",
+    "album": "Portales",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Tiago PZK/Portales/01 - Sabor A Miel.mp3"
+  },
+  {
+    "id": 180,
+    "title": "Noches De Soledad",
+    "artist": "Tiago PZK, ASAN, KHEA",
+    "main_artist": "Tiago PZK",
+    "album": "Portales",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Tiago PZK, ASAN, KHEA/Portales/06 - Noches De Soledad.mp3"
+  },
+  {
+    "id": 181,
+    "title": "BAD BUNNY ft. MORA - HIBIKI (Visualizer) | nadie sabe lo que va a pasar mañana",
+    "artist": "Bad Bunny",
+    "main_artist": "Bad Bunny",
+    "album": "Bad Bunny",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Bad Bunny/Bad Bunny/63 - BAD BUNNY ft. MORA - HIBIKI (Visualizer) _ nadie sabe lo que va a pasar mañana.mp3"
+  },
+  {
+    "id": 182,
+    "title": "La Corriente",
+    "artist": "Bad Bunny, Tony Dize",
+    "main_artist": "Bad Bunny",
+    "album": "Un Verano Sin Ti",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Bad Bunny, Tony Dize/Un Verano Sin Ti/09 - La Corriente.mp3"
+  },
+  {
+    "id": 183,
+    "title": "WHERE SHE GOES",
+    "artist": "Bad Bunny",
+    "main_artist": "Bad Bunny",
+    "album": "WHERE SHE GOES",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Bad Bunny/WHERE SHE GOES/01 - WHERE SHE GOES.mp3"
+  },
+  {
+    "id": 184,
+    "title": "PA' ROMPERLA",
+    "artist": "Bad Bunny, Don Omar",
+    "main_artist": "Bad Bunny",
+    "album": "LAS QUE NO IBAN A SALIR",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Bad Bunny, Don Omar/LAS QUE NO IBAN A SALIR/05 - PA' ROMPERLA.mp3"
+  },
+  {
+    "id": 185,
+    "title": "Deseándote",
+    "artist": "Frankie Ruíz",
+    "main_artist": "Frankie Ruíz",
+    "album": "Show",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Frankie Ruíz/Show/01 - Deseándote.mp3"
+  },
+  {
+    "id": 186,
+    "title": "Llorarás",
+    "artist": "Oscar D'León",
+    "main_artist": "Oscar D'León",
+    "album": "Rumbo al Caribe, Las Estrellas de la Salsa",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Oscar D'León/Rumbo al Caribe, Las Estrellas de la Salsa/07 - Llorarás.mp3"
+  },
+  {
+    "id": 187,
+    "title": "Tú Con Él",
+    "artist": "Frankie Ruíz",
+    "main_artist": "Frankie Ruíz",
+    "album": "I Love Salsa Forever",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Frankie Ruíz/I Love Salsa Forever/03 - Tú Con Él.mp3"
+  },
+  {
+    "id": 188,
+    "title": "Lluvia",
+    "artist": "Eddie Santiago",
+    "main_artist": "Eddie Santiago",
+    "album": "Salsa Legends",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Eddie Santiago/Salsa Legends/03 - Lluvia.mp3"
+  },
+  {
+    "id": 189,
+    "title": "Tú Me Haces Falta",
+    "artist": "Eddie Santiago",
+    "main_artist": "Eddie Santiago",
+    "album": "Lluvia (Baile Total)",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Eddie Santiago/Lluvia (Baile Total)/04 - Tú Me Haces Falta.mp3"
+  },
+  {
+    "id": 190,
+    "title": "Casi Te Envidio",
+    "artist": "Andy Montañez",
+    "main_artist": "Andy Montañez",
+    "album": "Salsa Legends",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Andy Montañez/Salsa Legends/04 - Casi Te Envidio.mp3"
+  },
+  {
+    "id": 191,
+    "title": "Que Locura Enamorarme De Ti",
+    "artist": "Eddie Santiago",
+    "main_artist": "Eddie Santiago",
+    "album": "Íconos 25 Éxitos",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Eddie Santiago/Íconos 25 Éxitos/04 - Que Locura Enamorarme De Ti.mp3"
+  },
+  {
+    "id": 192,
+    "title": "Payaso",
+    "artist": "Andy Montañez",
+    "main_artist": "Andy Montañez",
+    "album": "Salsa Legends",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Andy Montañez/Salsa Legends/08 - Payaso.mp3"
+  },
+  {
+    "id": 193,
+    "title": "Me Gusta",
+    "artist": "Andy Montañez",
+    "main_artist": "Andy Montañez",
+    "album": "Payaso (Baile Total)",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Andy Montañez/Payaso (Baile Total)/06 - Me Gusta.mp3"
+  },
+  {
+    "id": 194,
+    "title": "Hasta El Sol De Hoy",
+    "artist": "Edgar Joel, Anthony Colon",
+    "main_artist": "Edgar Joel",
+    "album": "Salsa Romántica Éxitos",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Edgar Joel, Anthony Colon/Salsa Romántica Éxitos/18 - Hasta El Sol De Hoy.mp3"
+  },
+  {
+    "id": 195,
+    "title": "Desde El Fondo De Mi Corazón",
+    "artist": "Hildemaro",
+    "main_artist": "Hildemaro",
+    "album": "Amanecí Contigo Y Sin Tabú",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Hildemaro/Amanecí Contigo Y Sin Tabú/07 - Desde El Fondo De Mi Corazón.mp3"
+  },
+  {
+    "id": 196,
+    "title": "Amanecí Contigo",
+    "artist": "Hildemaro",
+    "main_artist": "Hildemaro",
+    "album": "Amanecí Contigo Y Sin Tabú",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Hildemaro/Amanecí Contigo Y Sin Tabú/02 - Amanecí Contigo.mp3"
+  },
+  {
+    "id": 197,
+    "title": "Cali Pachanguero",
+    "artist": "Grupo Niche",
+    "main_artist": "Grupo Niche",
+    "album": "Salsa vieja",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Grupo Niche/Salsa vieja/18 - Cali Pachanguero.mp3"
+  },
+  {
+    "id": 198,
+    "title": "25 Rosas",
+    "artist": "Paquito Guzmán",
+    "main_artist": "Paquito Guzmán",
+    "album": "Old School Original Salsa Classics",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Paquito Guzmán/Old School Original Salsa Classics/09 - 25 Rosas.mp3"
+  },
+  {
+    "id": 199,
+    "title": "La Guagua",
+    "artist": "Celia Cruz",
+    "main_artist": "Celia Cruz",
+    "album": "Para La Eternidad",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Celia Cruz/Para La Eternidad/06 - La Guagua.mp3"
+  },
+  {
+    "id": 200,
+    "title": "Azúcar Negra",
+    "artist": "Celia Cruz",
+    "main_artist": "Celia Cruz",
+    "album": "Azúcar Negra",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Celia Cruz/Azúcar Negra/01 - Azúcar Negra.mp3"
+  },
+  {
+    "id": 201,
+    "title": "Fuego A La Jicotea",
+    "artist": "Marvin Santiago",
+    "main_artist": "Marvin Santiago",
+    "album": "Old School Original Salsa Classics",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Marvin Santiago/Old School Original Salsa Classics/06 - Fuego A La Jicotea.mp3"
+  },
+  {
+    "id": 202,
+    "title": "Todo Tiene Su Final",
+    "artist": "Domingo Quiñones",
+    "main_artist": "Domingo Quiñones",
+    "album": "Quien Mato A Hector Lavoe",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Domingo Quiñones/Quien Mato A Hector Lavoe/10 - Todo Tiene Su Final.mp3"
+  },
+  {
+    "id": 203,
+    "title": "El Cantante",
+    "artist": "Domingo Quiñones",
+    "main_artist": "Domingo Quiñones",
+    "album": "Quien Mato A Hector Lavoe",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Domingo Quiñones/Quien Mato A Hector Lavoe/01 - El Cantante.mp3"
+  },
+  {
+    "id": 204,
+    "title": "CAMPEÓN",
+    "artist": "Neo Pistea",
+    "main_artist": "Neo Pistea",
+    "album": "NEO",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Neo Pistea/NEO/06 - CAMPEÓN.mp3"
+  },
+  {
+    "id": 205,
+    "title": "Vivir Lo Nuestro",
+    "artist": "India, Marc Anthony",
+    "main_artist": "India",
+    "album": "Desde Un Principio / From The Beginning",
+    "original_path": "/storage/emulated/0/Music/Monochrome/India, Marc Anthony/Desde Un Principio _ From The Beginning/15 - Vivir Lo Nuestro.mp3"
+  },
+  {
+    "id": 206,
+    "title": "COQUETA",
+    "artist": "Fuerza Regida, Grupo Frontera",
+    "main_artist": "Fuerza Regida",
+    "album": "MALA MÍA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Fuerza Regida, Grupo Frontera/MALA MÍA/04 - COQUETA.mp3"
+  },
+  {
+    "id": 207,
+    "title": "Tokyo",
+    "artist": "JHAYCO",
+    "main_artist": "JHAYCO",
+    "album": "Timelezz",
+    "original_path": "/storage/emulated/0/Music/Monochrome/JHAYCO/Timelezz/02 - Tokyo.mp3"
+  },
+  {
+    "id": 208,
+    "title": "En Mi Cuarto",
+    "artist": "JHAYCO, Skrillex",
+    "main_artist": "JHAYCO",
+    "album": "En Mi Cuarto",
+    "original_path": "/storage/emulated/0/Music/Monochrome/JHAYCO, Skrillex/En Mi Cuarto/01 - En Mi Cuarto.mp3"
+  },
+  {
+    "id": 209,
+    "title": "Llamado de Emergencia",
+    "artist": "Daddy Yankee",
+    "main_artist": "Daddy Yankee",
+    "album": "Talento de Barrio",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Daddy Yankee/Talento de Barrio/05 - Llamado de Emergencia.mp3"
+  },
+  {
+    "id": 210,
+    "title": "¿Qué Tengo Que Hacer?",
+    "artist": "Daddy Yankee",
+    "main_artist": "Daddy Yankee",
+    "album": "Talento de Barrio",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Daddy Yankee/Talento de Barrio/08 - ¿Qué Tengo Que Hacer_.mp3"
+  },
+  {
+    "id": 211,
+    "title": "Corazón Sin Cara",
+    "artist": "Prince Royce",
+    "main_artist": "Prince Royce",
+    "album": "Prince Royce",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Prince Royce/Prince Royce/02 - Corazón Sin Cara.mp3"
+  },
+  {
+    "id": 212,
+    "title": "La Carretera",
+    "artist": "Prince Royce",
+    "main_artist": "Prince Royce",
+    "album": "La Carretera",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Prince Royce/La Carretera/01 - La Carretera.mp3"
+  },
+  {
+    "id": 213,
+    "title": "Amor Tumbado",
+    "artist": "Natanael Cano",
+    "main_artist": "Natanael Cano",
+    "album": "Mi Nuevo Yo",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Natanael Cano/Mi Nuevo Yo/01 - Amor Tumbado.mp3"
+  },
+  {
+    "id": 214,
+    "title": "El Drip",
+    "artist": "Natanael Cano",
+    "main_artist": "Natanael Cano",
+    "album": "Corridos Tumbados",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Natanael Cano/Corridos Tumbados/01 - El Drip.mp3"
+  },
+  {
+    "id": 215,
+    "title": "Fvck Luv",
+    "artist": "Duki, C.R.O",
+    "main_artist": "Duki",
+    "album": "Fvck Luv",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Duki, C.R.O/Fvck Luv/01 - Fvck Luv.mp3"
+  },
+  {
+    "id": 216,
+    "title": "Pursuit Of Happiness",
+    "artist": "Kid Cudi, MGMT, Ratatat",
+    "main_artist": "Kid Cudi",
+    "album": "Pursuit Of Happiness (Extended Steve Aoki Remix (Explicit))",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Kid Cudi, MGMT, Ratatat/Pursuit Of Happiness (Extended Steve Aoki Remix (Explicit))/01 - Pursuit Of Happiness.mp3"
+  },
+  {
+    "id": 217,
+    "title": "Waiting For Love",
+    "artist": "Avicii",
+    "main_artist": "Avicii",
+    "album": "Stories",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Avicii/Stories/01 - Waiting For Love.mp3"
+  },
+  {
+    "id": 218,
+    "title": "Vuelve",
+    "artist": "Daddy Yankee, Bad Bunny",
+    "main_artist": "Daddy Yankee",
+    "album": "Vuelve",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Daddy Yankee, Bad Bunny/Vuelve/01 - Vuelve.mp3"
+  },
+  {
+    "id": 219,
+    "title": "Doma",
+    "artist": "Jósean Log",
+    "main_artist": "Jósean Log",
+    "album": "Háblate de Mí",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Jósean Log/Háblate de Mí/03 - Doma.mp3"
+  },
+  {
+    "id": 220,
+    "title": "Need You",
+    "artist": "Travis Thompson",
+    "main_artist": "Travis Thompson",
+    "album": "RUNAWAYS",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Travis Thompson/RUNAWAYS/05 - Need You.mp3"
+  },
+  {
+    "id": 221,
+    "title": "Summer Days (feat. Macklemore & Patrick Stump of Fall Out Boy)",
+    "artist": "Martin Garrix, Macklemore, Fall Out Boy",
+    "main_artist": "Martin Garrix",
+    "album": "Summer Days (feat. Macklemore & Patrick Stump of Fall Out Boy)",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Martin Garrix, Macklemore, Fall Out Boy/Summer Days (feat. Macklemore & Patrick Stump of Fall Out Boy)/01 - Summer Days (feat. Macklemore & Patrick Stump of Fall Out Boy).mp3"
+  },
+  {
+    "id": 222,
+    "title": "CAEN LAS ESTRELLAS",
+    "artist": "Nicki Nicole, YSY A",
+    "main_artist": "Nicki Nicole",
+    "album": "ALMA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Nicki Nicole, YSY A/ALMA/09 - CAEN LAS ESTRELLAS.mp3"
+  },
+  {
+    "id": 223,
+    "title": "Toa la Vida",
+    "artist": "Nicki Nicole, Mora",
+    "main_artist": "Nicki Nicole",
+    "album": "Toa la Vida",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Nicki Nicole, Mora/Toa la Vida/01 - Toa la Vida.mp3"
+  },
+  {
+    "id": 224,
+    "title": "Rangos II",
+    "artist": "Pekeño 77, Cazzu, Neo Pistea, C.R.O, Bhavi, Homer el Mero Mero",
+    "main_artist": "Pekeño 77",
+    "album": "SIN PRONTUARIO",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Pekeño 77, Cazzu, Neo Pistea, C.R.O, Bhavi, Homer el Mero Mero/SIN PRONTUARIO/03 - Rangos II.mp3"
+  },
+  {
+    "id": 225,
+    "title": "Tu Gato Bellaco",
+    "artist": "Milo Mae",
+    "main_artist": "Milo Mae",
+    "album": "Tu Gato Bellaco",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Milo Mae/Tu Gato Bellaco/01 - Tu Gato Bellaco.mp3"
+  },
+  {
+    "id": 226,
+    "title": "Reggaeton De Antes",
+    "artist": "Milo Mae, Kenny Die",
+    "main_artist": "Milo Mae",
+    "album": "Reggaeton De Antes",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Milo Mae, Kenny Die/Reggaeton De Antes/01 - Reggaeton De Antes.mp3"
+  },
+  {
+    "id": 227,
+    "title": "Sola",
+    "artist": "Anuel AA",
+    "main_artist": "Anuel AA",
+    "album": "Sola (Remix) [feat. Daddy Yankee, Wisin, Farruko & Zion & Lennox]",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Anuel AA/Sola (Remix) [feat. Daddy Yankee, Wisin, Farruko & Zion & Lennox]/01 - Sola.mp3"
+  },
+  {
+    "id": 228,
+    "title": "El Gordo Trae El Mando",
+    "artist": "Chino Pacas",
+    "main_artist": "Chino Pacas",
+    "album": "El Gordo Trae El Mando",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Chino Pacas/El Gordo Trae El Mando/01 - El Gordo Trae El Mando.mp3"
+  },
+  {
+    "id": 229,
+    "title": "DUMBAI",
+    "artist": "CA7RIEL, Paco Amoroso",
+    "main_artist": "CA7RIEL",
+    "album": "BAÑO MARÍA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/CA7RIEL, Paco Amoroso/BAÑO MARÍA/02 - DUMBAI.mp3"
+  },
+  {
+    "id": 230,
+    "title": "Alto Troyanaje",
+    "artist": "Waldokinc El Troyano",
+    "main_artist": "Waldokinc El Troyano",
+    "album": "Nivel 2",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Waldokinc El Troyano/Nivel 2/02 - Alto Troyanaje.mp3"
+  },
+  {
+    "id": 231,
+    "title": "Cantina",
+    "artist": "Waldokinc El Troyano",
+    "main_artist": "Waldokinc El Troyano",
+    "album": "Cantina",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Waldokinc El Troyano/Cantina/01 - Cantina.mp3"
+  },
+  {
+    "id": 232,
+    "title": "Rikijimo",
+    "artist": "Waldokinc El Troyano",
+    "main_artist": "Waldokinc El Troyano",
+    "album": "Llegó El Abusante",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Waldokinc El Troyano/Llegó El Abusante/10 - Rikijimo.mp3"
+  },
+  {
+    "id": 233,
+    "title": "Las 12",
+    "artist": "Mackie, Kevin Roldan",
+    "main_artist": "Mackie",
+    "album": "Las 12",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mackie, Kevin Roldan/Las 12/01 - Las 12.mp3"
+  },
+  {
+    "id": 234,
+    "title": "ALAKRAN",
+    "artist": "Feid",
+    "main_artist": "Feid",
+    "album": "FERXXOCALIPSIS",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Feid/FERXXOCALIPSIS/01 - ALAKRAN.mp3"
+  },
+  {
+    "id": 235,
+    "title": "Tokyo",
+    "artist": "Villanosam",
+    "main_artist": "Villanosam",
+    "album": "Tokyo",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Villanosam/Tokyo/01 - Tokyo.mp3"
+  },
+  {
+    "id": 236,
+    "title": "Desenfocao'",
+    "artist": "Rauw Alejandro",
+    "main_artist": "Rauw Alejandro",
+    "album": "VICE VERSA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Rauw Alejandro/VICE VERSA/09 - Desenfocao'.mp3"
+  },
+  {
+    "id": 237,
+    "title": "Mi Corazoncito",
+    "artist": "Aventura",
+    "main_artist": "Aventura",
+    "album": "K.O.B. Live",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Aventura/K.O.B. Live/03 - Mi Corazoncito.mp3"
+  },
+  {
+    "id": 238,
+    "title": "Desencuentro (feat. Soko)",
+    "artist": "Residente, Soko",
+    "main_artist": "Residente",
+    "album": "Residente",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Residente, Soko/Residente/07 - Desencuentro (feat. Soko).mp3"
+  },
+  {
+    "id": 239,
+    "title": "La Cantina",
+    "artist": "Gianny",
+    "main_artist": "Gianny",
+    "album": "Indígena",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Gianny/Indígena/01 - La Cantina.mp3"
+  },
+  {
+    "id": 240,
+    "title": "Contando Lunares (feat. Cruzzi)",
+    "artist": "Don Patricio, Cruzzi",
+    "main_artist": "Don Patricio",
+    "album": "La Dura Vida del Joven Rapero",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Don Patricio, Cruzzi/La Dura Vida del Joven Rapero/04 - Contando Lunares (feat. Cruzzi).mp3"
+  },
+  {
+    "id": 241,
+    "title": "Sig Sauer",
+    "artist": "Homer el Mero Mero, Negro Dub, Pekeño 77",
+    "main_artist": "Homer el Mero Mero",
+    "album": "Sig Sauer",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Homer el Mero Mero, Negro Dub, Pekeño 77/Sig Sauer/01 - Sig Sauer.mp3"
+  },
+  {
+    "id": 242,
+    "title": "Bichiyal",
+    "artist": "Bad Bunny, Yaviah",
+    "main_artist": "Bad Bunny",
+    "album": "YHLQMDLG",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Bad Bunny, Yaviah/YHLQMDLG/06 - Bichiyal.mp3"
+  },
+  {
+    "id": 243,
+    "title": "Que Malo",
+    "artist": "Bad Bunny, Ñengo Flow",
+    "main_artist": "Bad Bunny",
+    "album": "YHLQMDLG",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Bad Bunny, Ñengo Flow/YHLQMDLG/09 - Que Malo.mp3"
+  },
+  {
+    "id": 244,
+    "title": "Bar La Perla",
+    "artist": "Ilan Amores",
+    "main_artist": "Ilan Amores",
+    "album": "Caballo Negro",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Ilan Amores/Caballo Negro/03 - Bar La Perla.mp3"
+  },
+  {
+    "id": 245,
+    "title": "Una Vez",
+    "artist": "Bad Bunny, Mora",
+    "main_artist": "Bad Bunny",
+    "album": "YHLQMDLG",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Bad Bunny, Mora/YHLQMDLG/13 - Una Vez.mp3"
+  },
+  {
+    "id": 246,
+    "title": "Hablamos Mañana",
+    "artist": "Bad Bunny, Duki, Pablo Chill-E",
+    "main_artist": "Bad Bunny",
+    "album": "YHLQMDLG",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Bad Bunny, Duki, Pablo Chill-E/YHLQMDLG/19 - Hablamos Mañana.mp3"
+  },
+  {
+    "id": 247,
+    "title": "P FKN R",
+    "artist": "Bad Bunny, Kendo Kaponi, arcangel",
+    "main_artist": "Bad Bunny",
+    "album": "YHLQMDLG",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Bad Bunny, Kendo Kaponi, arcangel/YHLQMDLG/18 - P FKN R.mp3"
+  },
+  {
+    "id": 248,
+    "title": "MEMORIAS",
+    "artist": "Mora, JHAYCO",
+    "main_artist": "Mora",
+    "album": "MICRODOSIS",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora, JHAYCO/MICRODOSIS/03 - MEMORIAS.mp3"
+  },
+  {
+    "id": 249,
+    "title": "FATAL FANTASSY",
+    "artist": "Alvaro Diaz, Tainy",
+    "main_artist": "Alvaro Diaz",
+    "album": "FATAL FANTASSY",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Alvaro Diaz, Tainy/FATAL FANTASSY/01 - FATAL FANTASSY.mp3"
+  },
+  {
+    "id": 250,
+    "title": "PLAYA PRIVADA",
+    "artist": "Mora, Elena Rose",
+    "main_artist": "Mora",
+    "album": "MICRODOSIS",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Mora, Elena Rose/MICRODOSIS/09 - PLAYA PRIVADA.mp3"
+  },
+  {
+    "id": 251,
+    "title": "SIN PODERES",
+    "artist": "Alvaro Diaz, Young Cister",
+    "main_artist": "Alvaro Diaz",
+    "album": "SAYONARA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Alvaro Diaz, Young Cister/SAYONARA/09 - SIN PODERES.mp3"
+  },
+  {
+    "id": 252,
+    "title": "1000CANCIONES",
+    "artist": "Alvaro Diaz, Sen Senra",
+    "main_artist": "Alvaro Diaz",
+    "album": "1000CANCIONES",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Alvaro Diaz, Sen Senra/1000CANCIONES/01 - 1000CANCIONES.mp3"
+  },
+  {
+    "id": 253,
+    "title": "MAMI 100PRE SABE (INTERLUDE)",
+    "artist": "Alvaro Diaz, NSQK",
+    "main_artist": "Alvaro Diaz",
+    "album": "SAYONARA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Alvaro Diaz, NSQK/SAYONARA/10 - MAMI 100PRE SABE (INTERLUDE).mp3"
+  },
+  {
+    "id": 254,
+    "title": "A MI NOMBRE",
+    "artist": "Alvaro Diaz, Mora",
+    "main_artist": "Alvaro Diaz",
+    "album": "SAYONARA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Alvaro Diaz, Mora/SAYONARA/12 - A MI NOMBRE.mp3"
+  },
+  {
+    "id": 255,
+    "title": "Buscarte Lejos",
+    "artist": "Duki, Bizarrap",
+    "main_artist": "Duki",
+    "album": "AMERI",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Duki, Bizarrap/AMERI/04 - Buscarte Lejos.mp3"
+  },
+  {
+    "id": 256,
+    "title": "Nueva Era",
+    "artist": "Duki, Myke Towers",
+    "main_artist": "Duki",
+    "album": "AMERI",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Duki, Myke Towers/AMERI/02 - Nueva Era.mp3"
+  },
+  {
+    "id": 257,
+    "title": "GIVENCHY",
+    "artist": "Duki",
+    "main_artist": "Duki",
+    "album": "GIVENCHY",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Duki/GIVENCHY/01 - GIVENCHY.mp3"
+  },
+  {
+    "id": 258,
+    "title": "Militar",
+    "artist": "El De Las R's",
+    "main_artist": "El De Las R's",
+    "album": "Belico Y Enamorado",
+    "original_path": "/storage/emulated/0/Music/Monochrome/El De Las R's/Belico Y Enamorado/13 - Militar.mp3"
+  },
+  {
+    "id": 259,
+    "title": "Hello Cotto",
+    "artist": "Duki",
+    "main_artist": "Duki",
+    "album": "Hello Cotto",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Duki/Hello Cotto/01 - Hello Cotto.mp3"
+  },
+  {
+    "id": 260,
+    "title": "CULPA",
+    "artist": "Wos, Ricardo Mollo",
+    "main_artist": "Wos",
+    "album": "OSCURO ÉXTASIS",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Wos, Ricardo Mollo/OSCURO ÉXTASIS/03 - CULPA.mp3"
+  },
+  {
+    "id": 261,
+    "title": "Textos Fríos",
+    "artist": "Jay Wheeler, Mora",
+    "main_artist": "Jay Wheeler",
+    "album": "Música Buena Para Días Malos",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Jay Wheeler, Mora/Música Buena Para Días Malos/04 - Textos Fríos.mp3"
+  },
+  {
+    "id": 262,
+    "title": "PARA AMARTE A TI (TT VERSION)",
+    "artist": "KHEA, Luisa, Lautaro Lopez",
+    "main_artist": "KHEA",
+    "album": "SEROTONINA (DELUXE)",
+    "original_path": "/storage/emulated/0/Music/Monochrome/KHEA, Luisa, Lautaro Lopez/SEROTONINA (DELUXE)/05 - PARA AMARTE A TI (TT VERSION).mp3"
+  },
+  {
+    "id": 263,
+    "title": "hARAkiRi",
+    "artist": "Duki, C.R.O, Zecca",
+    "main_artist": "Duki",
+    "album": "hARAkiRi",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Duki, C.R.O, Zecca/hARAkiRi/01 - hARAkiRi.mp3"
+  },
+  {
+    "id": 264,
+    "title": "IA",
+    "artist": "Clarent, Mora",
+    "main_artist": "Clarent",
+    "album": "IA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Clarent, Mora/IA/01 - IA.mp3"
+  },
+  {
+    "id": 265,
+    "title": "Masalveo",
+    "artist": "Jombriel",
+    "main_artist": "Jombriel",
+    "album": "JOMBRIEL DE LA SUERTE",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Jombriel/JOMBRIEL DE LA SUERTE/02 - Masalveo.mp3"
+  },
+  {
+    "id": 266,
+    "title": "Sold Out Dates",
+    "artist": "Duki",
+    "main_artist": "Duki",
+    "album": "Sold Out Dates",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Duki/Sold Out Dates/01 - Sold Out Dates.mp3"
+  },
+  {
+    "id": 267,
+    "title": "After House",
+    "artist": "C.R.O, Cazzu",
+    "main_artist": "C.R.O",
+    "album": "After House",
+    "original_path": "/storage/emulated/0/Music/Monochrome/C.R.O, Cazzu/After House/01 - After House.mp3"
+  },
+  {
+    "id": 268,
+    "title": "En la Oscuridad",
+    "artist": "Tiago PZK, Emkier",
+    "main_artist": "Tiago PZK",
+    "album": "En la Oscuridad",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Tiago PZK, Emkier/En la Oscuridad/01 - En la Oscuridad.mp3"
+  },
+  {
+    "id": 269,
+    "title": "Lloraras",
+    "artist": "Oscar D'León",
+    "main_artist": "Oscar D'León",
+    "album": "Traicionera (Baile Total)",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Oscar D'León/Traicionera (Baile Total)/10 - Lloraras.mp3"
+  },
+  {
+    "id": 270,
+    "title": "El Manicero",
+    "artist": "Oscar D'León",
+    "main_artist": "Oscar D'León",
+    "album": "Ayer, Hoy Y Siempre, Vol. 2",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Oscar D'León/Ayer, Hoy Y Siempre, Vol. 2/07 - El Manicero.mp3"
+  },
+  {
+    "id": 271,
+    "title": "Sonido Bestial",
+    "artist": "Richie Ray, Bobby Cruz",
+    "main_artist": "Richie Ray",
+    "album": "A Lifetime of Hits... (Live At Centro de Bellas Artes, San Juan, Puerto Rico.)",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Richie Ray, Bobby Cruz/A Lifetime of Hits... (Live At Centro de Bellas Artes, San Juan, Puerto Rico.)/01 - Sonido Bestial.mp3"
+  },
+  {
+    "id": 272,
+    "title": "Aguzate",
+    "artist": "Richie Ray, Bobby Cruz",
+    "main_artist": "Richie Ray",
+    "album": "Un Sonido Bestial El Concierto (En Vivo)",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Richie Ray, Bobby Cruz/Un Sonido Bestial El Concierto (En Vivo)/04 - Aguzate.mp3"
+  },
+  {
+    "id": 273,
+    "title": "Ven Devórame Otra Vez",
+    "artist": "Lalo Rodríguez",
+    "main_artist": "Lalo Rodríguez",
+    "album": "Ven Devórame Otra Vez (Baile Total)",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Lalo Rodríguez/Ven Devórame Otra Vez (Baile Total)/01 - Ven Devórame Otra Vez.mp3"
+  },
+  {
+    "id": 274,
+    "title": "Ella Es",
+    "artist": "Tony Vega",
+    "main_artist": "Tony Vega",
+    "album": "The Best Of Tony Vega",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Tony Vega/The Best Of Tony Vega/04 - Ella Es.mp3"
+  },
+  {
+    "id": 275,
+    "title": "Vete Con Él",
+    "artist": "David Pabón",
+    "main_artist": "David Pabón",
+    "album": "12 Favoritas",
+    "original_path": "/storage/emulated/0/Music/Monochrome/David Pabón/12 Favoritas/07 - Vete Con Él.mp3"
+  },
+  {
+    "id": 276,
+    "title": "Como Lo Haces Conmigo",
+    "artist": "David Pabón",
+    "main_artist": "David Pabón",
+    "album": "Salsa sensual",
+    "original_path": "/storage/emulated/0/Music/Monochrome/David Pabón/Salsa sensual/28 - Como Lo Haces Conmigo.mp3"
+  },
+  {
+    "id": 277,
+    "title": "Aquél Viejo Motel",
+    "artist": "David Pabón",
+    "main_artist": "David Pabón",
+    "album": "12 Favoritas",
+    "original_path": "/storage/emulated/0/Music/Monochrome/David Pabón/12 Favoritas/01 - Aquél Viejo Motel.mp3"
+  },
+  {
+    "id": 278,
+    "title": "Fabricando Fantasías",
+    "artist": "Tito Nieves",
+    "main_artist": "Tito Nieves",
+    "album": "Fabricando Fantasías",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Tito Nieves/Fabricando Fantasías/01 - Fabricando Fantasías.mp3"
+  },
+  {
+    "id": 279,
+    "title": "Lobo Domesticado",
+    "artist": "Tommy Olivencia",
+    "main_artist": "Tommy Olivencia",
+    "album": "Old School Original Salsa Classics",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Tommy Olivencia/Old School Original Salsa Classics/07 - Lobo Domesticado.mp3"
+  },
+  {
+    "id": 280,
+    "title": "Esa Que Yo Conocí",
+    "artist": "Willie Rosario",
+    "main_artist": "Willie Rosario",
+    "album": "El Rey Del Ritmo",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Willie Rosario/El Rey Del Ritmo/04 - Esa Que Yo Conocí.mp3"
+  },
+  {
+    "id": 281,
+    "title": "Periquito Pin Pin",
+    "artist": "Héctor Tricoche",
+    "main_artist": "Héctor Tricoche",
+    "album": "12 Favoritas",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Héctor Tricoche/12 Favoritas/06 - Periquito Pin Pin.mp3"
+  },
+  {
+    "id": 282,
+    "title": "Descarga La Moderna",
+    "artist": "Ray Barretto",
+    "main_artist": "Ray Barretto",
+    "album": "Carnaval",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Ray Barretto/Carnaval/04 - Descarga La Moderna.mp3"
+  },
+  {
+    "id": 283,
+    "title": "ANSIEDAD",
+    "artist": "Fuerza Regida",
+    "main_artist": "Fuerza Regida",
+    "album": "111XPANTIA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Fuerza Regida/111XPANTIA/07 - ANSIEDAD.mp3"
+  },
+  {
+    "id": 284,
+    "title": "caperuza",
+    "artist": "Fuerza Regida",
+    "main_artist": "Fuerza Regida",
+    "album": "111XPANTIA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Fuerza Regida/111XPANTIA/12 - caperuza.mp3"
+  },
+  {
+    "id": 285,
+    "title": "Marlboro Rojo",
+    "artist": "Fuerza Regida",
+    "main_artist": "Fuerza Regida",
+    "album": "111XPANTIA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Fuerza Regida/111XPANTIA/09 - Marlboro Rojo.mp3"
+  },
+  {
+    "id": 286,
+    "title": "Por Esos Ojos",
+    "artist": "Fuerza Regida",
+    "main_artist": "Fuerza Regida",
+    "album": "Por Esos Ojos",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Fuerza Regida/Por Esos Ojos/01 - Por Esos Ojos.mp3"
+  },
+  {
+    "id": 287,
+    "title": "EXCESOS",
+    "artist": "Fuerza Regida",
+    "main_artist": "Fuerza Regida",
+    "album": "Pa las Baby's Y Belikeada",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Fuerza Regida/Pa las Baby's Y Belikeada/10 - EXCESOS.mp3"
+  },
+  {
+    "id": 288,
+    "title": "CRAZYZ",
+    "artist": "Fuerza Regida",
+    "main_artist": "Fuerza Regida",
+    "album": "Pa las Baby's Y Belikeada",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Fuerza Regida/Pa las Baby's Y Belikeada/06 - CRAZYZ.mp3"
+  },
+  {
+    "id": 289,
+    "title": "BARBIEZ",
+    "artist": "Fuerza Regida",
+    "main_artist": "Fuerza Regida",
+    "album": "Pa las Baby's Y Belikeada",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Fuerza Regida/Pa las Baby's Y Belikeada/17 - BARBIEZ.mp3"
+  },
+  {
+    "id": 290,
+    "title": "Dardos",
+    "artist": "Romeo Santos, Prince Royce",
+    "main_artist": "Romeo Santos",
+    "album": "Better Late Than Never",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Romeo Santos, Prince Royce/Better Late Than Never/05 - Dardos.mp3"
+  },
+  {
+    "id": 291,
+    "title": "Por Amar A Ciegas",
+    "artist": "arcangel",
+    "main_artist": "arcangel",
+    "album": "El Fenomeno",
+    "original_path": "/storage/emulated/0/Music/Monochrome/arcangel/El Fenomeno/02 - Por Amar A Ciegas.mp3"
+  },
+  {
+    "id": 292,
+    "title": "Pa' Que La Pases Bien",
+    "artist": "arcangel",
+    "main_artist": "arcangel",
+    "album": "El Fenomeno",
+    "original_path": "/storage/emulated/0/Music/Monochrome/arcangel/El Fenomeno/15 - Pa' Que La Pases Bien.mp3"
+  },
+  {
+    "id": 293,
+    "title": "Hace Mucho Tiempo",
+    "artist": "arcangel",
+    "main_artist": "arcangel",
+    "album": "Hace Mucho Tiempo",
+    "original_path": "/storage/emulated/0/Music/Monochrome/arcangel/Hace Mucho Tiempo/01 - Hace Mucho Tiempo.mp3"
+  },
+  {
+    "id": 294,
+    "title": "Toda",
+    "artist": "Alex Rose, Rauw Alejandro, Lenny Tavárez, Lyanno, Cazzu",
+    "main_artist": "Alex Rose",
+    "album": "Toda (Remix)",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Alex Rose, Rauw Alejandro, Lenny Tavárez, Lyanno, Cazzu/Toda (Remix)/01 - Toda.mp3"
+  },
+  {
+    "id": 295,
+    "title": "Dispuestos a morir",
+    "artist": "Natos y Waor, Homer el Mero Mero, C.R.O",
+    "main_artist": "Natos y Waor",
+    "album": "Dispuestos a morir",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Natos y Waor, Homer el Mero Mero, C.R.O/Dispuestos a morir/01 - Dispuestos a morir.mp3"
+  },
+  {
+    "id": 296,
+    "title": "Esa Mujer",
+    "artist": "Tony Vega",
+    "main_artist": "Tony Vega",
+    "album": "Old School Salsa Classics Vol. 3",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Tony Vega/Old School Salsa Classics Vol. 3/03 - Esa Mujer.mp3"
+  },
+  {
+    "id": 297,
+    "title": "dopamina",
+    "artist": "Peso Pluma, Tito Double P",
+    "main_artist": "Peso Pluma",
+    "album": "DINASTÍA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Peso Pluma, Tito Double P/DINASTÍA/02 - dopamina.mp3"
+  },
+  {
+    "id": 298,
+    "title": "Somebody That I Used To Know",
+    "artist": "Gotye, Kimbra",
+    "main_artist": "Gotye",
+    "album": "Making Mirrors",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Gotye, Kimbra/Making Mirrors/03 - Somebody That I Used To Know.mp3"
+  },
+  {
+    "id": 299,
+    "title": "El Doctorado",
+    "artist": "Tony Dize",
+    "main_artist": "Tony Dize",
+    "album": "El Doctorado",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Tony Dize/El Doctorado/01 - El Doctorado.mp3"
+  },
+  {
+    "id": 300,
+    "title": "Se Corre la Bola",
+    "artist": "Juan Ingaramo, YSY A",
+    "main_artist": "Juan Ingaramo",
+    "album": "La Batalla",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Juan Ingaramo, YSY A/La Batalla/09 - Se Corre la Bola.mp3"
+  },
+  {
+    "id": 301,
+    "title": "Permitame",
+    "artist": "Tony Dize, Yandel",
+    "main_artist": "Tony Dize",
+    "album": "Latin Party",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Tony Dize, Yandel/Latin Party/02 - Permitame.mp3"
+  },
+  {
+    "id": 302,
+    "title": "My Space",
+    "artist": "Don Omar, Wisin & Yandel",
+    "main_artist": "Don Omar",
+    "album": "Los Bandoleros Reloaded",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Don Omar, Wisin & Yandel/Los Bandoleros Reloaded/03 - My Space.mp3"
+  },
+  {
+    "id": 303,
+    "title": "CANGURO",
+    "artist": "Wos",
+    "main_artist": "Wos",
+    "album": "CANGURO",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Wos/CANGURO/01 - CANGURO.mp3"
+  },
+  {
+    "id": 304,
+    "title": "FRESCO",
+    "artist": "Wos",
+    "main_artist": "Wos",
+    "album": "CARAVANA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Wos/CARAVANA/02 - FRESCO.mp3"
+  },
+  {
+    "id": 305,
+    "title": "LUZ DELITO",
+    "artist": "Wos",
+    "main_artist": "Wos",
+    "album": "CARAVANA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Wos/CARAVANA/05 - LUZ DELITO.mp3"
+  },
+  {
+    "id": 306,
+    "title": "MELÓN VINO",
+    "artist": "Wos",
+    "main_artist": "Wos",
+    "album": "MELÓN VINO",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Wos/MELÓN VINO/01 - MELÓN VINO.mp3"
+  },
+  {
+    "id": 307,
+    "title": "OKUPA",
+    "artist": "Wos",
+    "main_artist": "Wos",
+    "album": "CARAVANA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Wos/CARAVANA/06 - OKUPA.mp3"
+  },
+  {
+    "id": 308,
+    "title": "MORFEO",
+    "artist": "Wos",
+    "main_artist": "Wos",
+    "album": "DESCARTABLE",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Wos/DESCARTABLE/06 - MORFEO.mp3"
+  },
+  {
+    "id": 309,
+    "title": "DESCARTABLE",
+    "artist": "Wos",
+    "main_artist": "Wos",
+    "album": "DESCARTABLE",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Wos/DESCARTABLE/01 - DESCARTABLE.mp3"
+  },
+  {
+    "id": 310,
+    "title": "Tu Boda",
+    "artist": "Oscar Maydon, Fuerza Regida",
+    "main_artist": "Oscar Maydon",
+    "album": "Tu Boda",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Oscar Maydon, Fuerza Regida/Tu Boda/01 - Tu Boda.mp3"
+  },
+  {
+    "id": 311,
+    "title": "Algo Musical",
+    "artist": "Ñejo & Dalmata, arcangel",
+    "main_artist": "Ñejo",
+    "album": "Broke & Famous",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Ñejo & Dalmata, arcangel/Broke & Famous/05 - Algo Musical.mp3"
+  },
+  {
+    "id": 312,
+    "title": "malibU",
+    "artist": "rusowsky",
+    "main_artist": "rusowsky",
+    "album": "DAISY",
+    "original_path": "/storage/emulated/0/Music/Monochrome/rusowsky/DAISY/08 - malibU.mp3"
+  },
+  {
+    "id": 313,
+    "title": "Tu Nombre",
+    "artist": "Selecta, C.R.O, Recycled J",
+    "main_artist": "Selecta",
+    "album": "El Niño",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Selecta, C.R.O, Recycled J/El Niño/13 - Tu Nombre.mp3"
+  },
+  {
+    "id": 314,
+    "title": "1204",
+    "artist": "De la rose, Mora",
+    "main_artist": "De la rose",
+    "album": "FX De La Rose",
+    "original_path": "/storage/emulated/0/Music/Monochrome/De la rose, Mora/FX De La Rose/03 - 1204.mp3"
+  },
+  {
+    "id": 315,
+    "title": "NUEVA YORK",
+    "artist": "Blessd, Los Money Makers, ProdMonja",
+    "main_artist": "Blessd",
+    "album": "TRINIDAD BENDITA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Blessd, Los Money Makers, ProdMonja/TRINIDAD BENDITA/04 - NUEVA YORK.mp3"
+  },
+  {
+    "id": 316,
+    "title": "BADGYAL",
+    "artist": "SAIKO, JC Reyes, Dei V",
+    "main_artist": "SAIKO",
+    "album": "SAKURA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/SAIKO, JC Reyes, Dei V/SAKURA/13 - BADGYAL.mp3"
+  },
+  {
+    "id": 317,
+    "title": "Como vos lo haces",
+    "artist": "Emanero",
+    "main_artist": "Emanero",
+    "album": "Chernobyl",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Emanero/Chernobyl/03 - Como vos lo haces.mp3"
+  },
+  {
+    "id": 318,
+    "title": "ATORRANTE - con Los Palmeras",
+    "artist": "Emanero, Ulises Bueno, Migrantes, Los Palmeras",
+    "main_artist": "Emanero",
+    "album": "ATORRANTE - con Los Palmeras",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Emanero, Ulises Bueno, Migrantes, Los Palmeras/ATORRANTE - con Los Palmeras/01 - ATORRANTE - con Los Palmeras.mp3"
+  },
+  {
+    "id": 319,
+    "title": "Whisky",
+    "artist": "Emanero",
+    "main_artist": "Emanero",
+    "album": "Whisky",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Emanero/Whisky/01 - Whisky.mp3"
+  },
+  {
+    "id": 320,
+    "title": "BANDIDO",
+    "artist": "Emanero, FMK, Rusherking, Estani",
+    "main_artist": "Emanero",
+    "album": "BANDIDO",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Emanero, FMK, Rusherking, Estani/BANDIDO/01 - BANDIDO.mp3"
+  },
+  {
+    "id": 321,
+    "title": "OCASO",
+    "artist": "Bhavi, C.R.O, KHEA, Neo Pistea",
+    "main_artist": "Bhavi",
+    "album": "OCASO",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Bhavi, C.R.O, KHEA, Neo Pistea/OCASO/01 - OCASO.mp3"
+  },
+  {
+    "id": 322,
+    "title": "Life Goes On",
+    "artist": "Oliver Tree",
+    "main_artist": "Oliver Tree",
+    "album": "Ugly is Beautiful: Shorter, Thicker & Uglier (Deluxe)",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Oliver Tree/Ugly is Beautiful_ Shorter, Thicker & Uglier (Deluxe)/01 - Life Goes On.mp3"
+  },
+  {
+    "id": 323,
+    "title": "Corner Store (feat. Dave B & Travis Thompson)",
+    "artist": "Macklemore, Dave B, Travis Thompson",
+    "main_artist": "Macklemore",
+    "album": "GEMINI",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Macklemore, Dave B, Travis Thompson/GEMINI/13 - Corner Store (feat. Dave B & Travis Thompson).mp3"
+  },
+  {
+    "id": 324,
+    "title": "HIJO UNICO",
+    "artist": "Bhavi",
+    "main_artist": "Bhavi",
+    "album": "CINEMA",
+    "original_path": "/storage/emulated/0/Music/Bhavi/CINEMA/05 - HIJO UNICO.mp3"
+  },
+  {
+    "id": 325,
+    "title": "La Boda",
+    "artist": "Aventura",
+    "main_artist": "Aventura",
+    "album": "God's Project (Digital Only)",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Aventura/God's Project (Digital Only)/03 - La Boda.mp3"
+  },
+  {
+    "id": 326,
+    "title": "El Perdedor",
+    "artist": "Aventura",
+    "main_artist": "Aventura",
+    "album": "Todavía Me Amas: Lo Mejor de Aventura (Deluxe Edition)",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Aventura/Todavía Me Amas_ Lo Mejor de Aventura (Deluxe Edition)/02 - El Perdedor.mp3"
+  },
+  {
+    "id": 327,
+    "title": "Dile al Amor",
+    "artist": "Aventura",
+    "main_artist": "Aventura",
+    "album": "Todavía Me Amas: Lo Mejor de Aventura (Deluxe Edition)",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Aventura/Todavía Me Amas_ Lo Mejor de Aventura (Deluxe Edition)/03 - Dile al Amor.mp3"
+  },
+  {
+    "id": 328,
+    "title": "Todavía Me Amas",
+    "artist": "Aventura",
+    "main_artist": "Aventura",
+    "album": "Todavía Me Amas: Lo Mejor de Aventura (Deluxe Edition)",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Aventura/Todavía Me Amas_ Lo Mejor de Aventura (Deluxe Edition)/05 - Todavía Me Amas.mp3"
+  },
+  {
+    "id": 329,
+    "title": "Su Veneno",
+    "artist": "Aventura",
+    "main_artist": "Aventura",
+    "album": "Todavía Me Amas: Lo Mejor de Aventura (Deluxe Edition)",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Aventura/Todavía Me Amas_ Lo Mejor de Aventura (Deluxe Edition)/06 - Su Veneno.mp3"
+  },
+  {
+    "id": 330,
+    "title": "Los Infieles",
+    "artist": "Aventura",
+    "main_artist": "Aventura",
+    "album": "Todavía Me Amas: Lo Mejor de Aventura (Deluxe Edition)",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Aventura/Todavía Me Amas_ Lo Mejor de Aventura (Deluxe Edition)/07 - Los Infieles.mp3"
+  },
+  {
+    "id": 331,
+    "title": "El Malo",
+    "artist": "Aventura",
+    "main_artist": "Aventura",
+    "album": "Todavía Me Amas: Lo Mejor de Aventura (Deluxe Edition)",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Aventura/Todavía Me Amas_ Lo Mejor de Aventura (Deluxe Edition)/08 - El Malo.mp3"
+  },
+  {
+    "id": 332,
+    "title": "Un Beso",
+    "artist": "Aventura",
+    "main_artist": "Aventura",
+    "album": "Todavía Me Amas: Lo Mejor de Aventura (Deluxe Edition)",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Aventura/Todavía Me Amas_ Lo Mejor de Aventura (Deluxe Edition)/09 - Un Beso.mp3"
+  },
+  {
+    "id": 333,
+    "title": "Por un Segundo",
+    "artist": "Aventura",
+    "main_artist": "Aventura",
+    "album": "Todavía Me Amas: Lo Mejor de Aventura (Deluxe Edition)",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Aventura/Todavía Me Amas_ Lo Mejor de Aventura (Deluxe Edition)/10 - Por un Segundo.mp3"
+  },
+  {
+    "id": 334,
+    "title": "Enséñame a Olvidar",
+    "artist": "Aventura",
+    "main_artist": "Aventura",
+    "album": "Todavía Me Amas: Lo Mejor de Aventura (Deluxe Edition)",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Aventura/Todavía Me Amas_ Lo Mejor de Aventura (Deluxe Edition)/11 - Enséñame a Olvidar.mp3"
+  },
+  {
+    "id": 335,
+    "title": "Mi Niña Cambió",
+    "artist": "Aventura",
+    "main_artist": "Aventura",
+    "album": "Todavía Me Amas: Lo Mejor de Aventura (Deluxe Edition)",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Aventura/Todavía Me Amas_ Lo Mejor de Aventura (Deluxe Edition)/12 - Mi Niña Cambió.mp3"
+  },
+  {
+    "id": 336,
+    "title": "Amor de Madre",
+    "artist": "Aventura",
+    "main_artist": "Aventura",
+    "album": "Todavía Me Amas: Lo Mejor de Aventura (Deluxe Edition)",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Aventura/Todavía Me Amas_ Lo Mejor de Aventura (Deluxe Edition)/13 - Amor de Madre.mp3"
+  },
+  {
+    "id": 337,
+    "title": "Cuando Volveras",
+    "artist": "Aventura",
+    "main_artist": "Aventura",
+    "album": "Todavía Me Amas: Lo Mejor de Aventura (Deluxe Edition)",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Aventura/Todavía Me Amas_ Lo Mejor de Aventura (Deluxe Edition)/14 - Cuando Volveras.mp3"
+  },
+  {
+    "id": 338,
+    "title": "Hermanita",
+    "artist": "Aventura",
+    "main_artist": "Aventura",
+    "album": "Todavía Me Amas: Lo Mejor de Aventura (Deluxe Edition)",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Aventura/Todavía Me Amas_ Lo Mejor de Aventura (Deluxe Edition)/15 - Hermanita.mp3"
+  },
+  {
+    "id": 339,
+    "title": "La Boda",
+    "artist": "Aventura",
+    "main_artist": "Aventura",
+    "album": "Todavía Me Amas: Lo Mejor de Aventura (Deluxe Edition)",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Aventura/Todavía Me Amas_ Lo Mejor de Aventura (Deluxe Edition)/16 - La Boda.mp3"
+  },
+  {
+    "id": 340,
+    "title": "Llorar",
+    "artist": "Aventura",
+    "main_artist": "Aventura",
+    "album": "Todavía Me Amas: Lo Mejor de Aventura (Deluxe Edition)",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Aventura/Todavía Me Amas_ Lo Mejor de Aventura (Deluxe Edition)/17 - Llorar.mp3"
+  },
+  {
+    "id": 341,
+    "title": "Yo Quisiera Amarla",
+    "artist": "Aventura",
+    "main_artist": "Aventura",
+    "album": "Todavía Me Amas: Lo Mejor de Aventura (Deluxe Edition)",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Aventura/Todavía Me Amas_ Lo Mejor de Aventura (Deluxe Edition)/18 - Yo Quisiera Amarla.mp3"
+  },
+  {
+    "id": 342,
+    "title": "Mi Corazoncito",
+    "artist": "Aventura",
+    "main_artist": "Aventura",
+    "album": "Todavía Me Amas: Lo Mejor de Aventura (Deluxe Edition)",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Aventura/Todavía Me Amas_ Lo Mejor de Aventura (Deluxe Edition)/19 - Mi Corazoncito.mp3"
+  },
+  {
+    "id": 343,
+    "title": "Te Invito",
+    "artist": "Aventura",
+    "main_artist": "Aventura",
+    "album": "Todavía Me Amas: Lo Mejor de Aventura (Deluxe Edition)",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Aventura/Todavía Me Amas_ Lo Mejor de Aventura (Deluxe Edition)/20 - Te Invito.mp3"
+  },
+  {
+    "id": 344,
+    "title": "Angelito",
+    "artist": "Aventura",
+    "main_artist": "Aventura",
+    "album": "Todavía Me Amas: Lo Mejor de Aventura (Deluxe Edition)",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Aventura/Todavía Me Amas_ Lo Mejor de Aventura (Deluxe Edition)/21 - Angelito.mp3"
+  },
+  {
+    "id": 345,
+    "title": "Lágrimas",
+    "artist": "Aventura",
+    "main_artist": "Aventura",
+    "album": "Todavía Me Amas: Lo Mejor de Aventura (Deluxe Edition)",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Aventura/Todavía Me Amas_ Lo Mejor de Aventura (Deluxe Edition)/22 - Lágrimas.mp3"
+  },
+  {
+    "id": 346,
+    "title": "Si Te Vas 2.0",
+    "artist": "LIT killah, Paulo Londra, KHEA, Ramma",
+    "main_artist": "LIT killah",
+    "album": "Si Te Vas 2.0",
+    "original_path": "/storage/emulated/0/Music/Monochrome/LIT killah, Paulo Londra, KHEA, Ramma/Si Te Vas 2.0/01 - Si Te Vas 2.0.mp3"
+  },
+  {
+    "id": 347,
+    "title": "Whatever It Takes",
+    "artist": "Imagine Dragons",
+    "main_artist": "Imagine Dragons",
+    "album": "Evolve",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Imagine Dragons/Evolve/03 - Whatever It Takes.mp3"
+  },
+  {
+    "id": 348,
+    "title": "Obsesión (feat. Judy Santos)",
+    "artist": "Aventura, Judy Santos",
+    "main_artist": "Aventura",
+    "album": "Todavía Me Amas: Lo Mejor de Aventura (Deluxe Edition)",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Aventura, Judy Santos/Todavía Me Amas_ Lo Mejor de Aventura (Deluxe Edition)/01 - Obsesión (feat. Judy Santos).mp3"
+  },
+  {
+    "id": 349,
+    "title": "Ella y Yo (feat. Don Omar)",
+    "artist": "Aventura, Don Omar",
+    "main_artist": "Aventura",
+    "album": "Todavía Me Amas: Lo Mejor de Aventura (Deluxe Edition)",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Aventura, Don Omar/Todavía Me Amas_ Lo Mejor de Aventura (Deluxe Edition)/04 - Ella y Yo (feat. Don Omar).mp3"
+  },
+  {
+    "id": 350,
+    "title": "My Voy",
+    "artist": "Aventura, Hector Acosta El Torito",
+    "main_artist": "Aventura",
+    "album": "Todavía Me Amas: Lo Mejor de Aventura (Deluxe Edition)",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Aventura, Hector Acosta El Torito/Todavía Me Amas_ Lo Mejor de Aventura (Deluxe Edition)/23 - My Voy.mp3"
+  },
+  {
+    "id": 351,
+    "title": "MALASNOTICIAS.",
+    "artist": "Alvaro Díaz",
+    "main_artist": "Alvaro Díaz",
+    "album": "OMAKASE",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Alvaro Díaz/OMAKASE/01 - MALASNOTICIAS..mp3"
+  },
+  {
+    "id": 352,
+    "title": "Sunflower (Spider-Man: Into the Spider-Verse)",
+    "artist": "Bo Marcus",
+    "main_artist": "Bo Marcus",
+    "album": "Sunflower (Spider-Man: Into the Spider-Verse)",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Bo Marcus/Sunflower (Spider-Man_ Into the Spider-Verse)/01 - Sunflower (Spider-Man_ Into the Spider-Verse).mp3"
+  },
+  {
+    "id": 353,
+    "title": "LO QUE LE PASÓ A HAWAii",
+    "artist": "Bad Bunny",
+    "main_artist": "Bad Bunny",
+    "album": "DeBÍ TiRAR MáS FOToS",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Bad Bunny/DeBÍ TiRAR MáS FOToS/14 - LO QUE LE PASÓ A HAWAii.mp3"
+  },
+  {
+    "id": 354,
+    "title": "Cali Pachanguero",
+    "artist": "Grupo Niche",
+    "main_artist": "Grupo Niche",
+    "album": "Sólo Hits",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Grupo Niche/Sólo Hits/01 - Cali Pachanguero.mp3"
+  },
+  {
+    "id": 355,
+    "title": "MELÓN VINO",
+    "artist": "Wos",
+    "main_artist": "Wos",
+    "album": "CARAVANA",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Wos/CARAVANA/04 - MELÓN VINO.mp3"
+  },
+  {
+    "id": 356,
+    "title": "Cuervos",
+    "artist": "C.R.O",
+    "main_artist": "C.R.O",
+    "album": "Cuervos",
+    "original_path": "/storage/emulated/0/Music/Monochrome/C.R.O/Cuervos/01 - Cuervos.mp3"
+  },
+  {
+    "id": 357,
+    "title": "Keta",
+    "artist": "C.R.O",
+    "main_artist": "C.R.O",
+    "album": "Cuervos",
+    "original_path": "/storage/emulated/0/Music/Monochrome/C.R.O/Cuervos/02 - Keta.mp3"
+  },
+  {
+    "id": 358,
+    "title": "Money",
+    "artist": "C.R.O",
+    "main_artist": "C.R.O",
+    "album": "Cuervos",
+    "original_path": "/storage/emulated/0/Music/Monochrome/C.R.O/Cuervos/04 - Money.mp3"
+  },
+  {
+    "id": 359,
+    "title": "Vete",
+    "artist": "Bad Bunny",
+    "main_artist": "Bad Bunny",
+    "album": "YHLQMDLG",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Bad Bunny/YHLQMDLG/10 - Vete.mp3"
+  },
+  {
+    "id": 360,
+    "title": "<3",
+    "artist": "Bad Bunny",
+    "main_artist": "Bad Bunny",
+    "album": "YHLQMDLG",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Bad Bunny/YHLQMDLG/20 - _3.mp3"
+  },
+  {
+    "id": 361,
+    "title": "Amorfoda",
+    "artist": "Bad Bunny",
+    "main_artist": "Bad Bunny",
+    "album": "Amorfoda",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Bad Bunny/Amorfoda/01 - Amorfoda.mp3"
+  },
+  {
+    "id": 362,
+    "title": "TU SANCHO",
+    "artist": "Fuerza Regida",
+    "main_artist": "Fuerza Regida",
+    "album": "111XPANTIA (Deluxe)",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Fuerza Regida/111XPANTIA (Deluxe)/08 - TU SANCHO.mp3"
+  },
+  {
+    "id": 363,
+    "title": "ADIVINO",
+    "artist": "Myke Towers, Bad Bunny",
+    "main_artist": "Myke Towers",
+    "album": "ADIVINO",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Myke Towers, Bad Bunny/ADIVINO/01 - ADIVINO.mp3"
+  },
+  {
+    "id": 364,
+    "title": "Next To Me",
+    "artist": "Imagine Dragons",
+    "main_artist": "Imagine Dragons",
+    "album": "Evolve",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Imagine Dragons/Evolve/01 - Next To Me.mp3"
+  },
+  {
+    "id": 365,
+    "title": "Cómo Le Digo",
+    "artist": "KHEA, Omar Varela, ASAN",
+    "main_artist": "KHEA",
+    "album": "Cómo Le Digo",
+    "original_path": "/storage/emulated/0/Music/Monochrome/KHEA, Omar Varela, ASAN/Cómo Le Digo/01 - Cómo Le Digo.mp3"
+  },
+  {
+    "id": 366,
+    "title": "Tu Luna",
+    "artist": "Varios Artistas",
+    "main_artist": "Varios Artistas",
+    "album": "Monochrome",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Tu Luna.mp3"
+  },
+  {
+    "id": 367,
+    "title": "QLOO",
+    "artist": "Young Cister",
+    "main_artist": "Young Cister",
+    "album": "Single",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Young Cister/QLOO_.flac"
+  },
+  {
+    "id": 368,
+    "title": "TOP 5",
+    "artist": "Duki",
+    "main_artist": "Duki",
+    "album": "Single",
+    "original_path": "/storage/emulated/0/Music/Monochrome/Duki/TOP 5.flac"
+  }
+]
