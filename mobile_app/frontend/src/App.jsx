@@ -21,7 +21,10 @@ import {
   deleteHistory as apiDeleteHistory,
   getStreamUrl,
   findMatchingTrack,
-  requestAudioPermissions
+  requestAudioPermissions,
+  checkStoragePermission,
+  requestStoragePermission,
+  extractCleanUrl
 } from './apiClient';
 
 const CALIDADES = [
@@ -59,6 +62,11 @@ export default function App() {
   const [audioDuration, setAudioDuration] = useState(0);
   const [audioCurrentTime, setAudioCurrentTime] = useState(0);
   const audioRef = useRef(null);
+
+  // Permiso de almacenamiento completo y filtros de biblioteca
+  const [hasStoragePermission, setHasStoragePermission] = useState(true);
+  const [selectedArtistFilter, setSelectedArtistFilter] = useState('ALL');
+  const [librarySortBy, setLibrarySortBy] = useState('title'); // 'title' | 'artist' | 'recent'
 
   // Reproductor de vista previa (30s) para resultados de búsqueda
   const [previewTrackId, setPreviewTrackId] = useState(null);
@@ -108,6 +116,16 @@ export default function App() {
   const initEngine = async () => {
     const status = await getEngineStatus();
     setEngineInfo(status);
+    const hasPerm = await checkStoragePermission();
+    setHasStoragePermission(hasPerm);
+  };
+
+  const handleRequestStoragePermission = async () => {
+    await requestStoragePermission();
+    setTimeout(async () => {
+      const hasPerm = await checkStoragePermission();
+      setHasStoragePermission(hasPerm);
+    }, 1500);
   };
 
   const loadLibraryData = async () => {
@@ -129,17 +147,46 @@ export default function App() {
     }
   };
 
-  // Filtrado en vivo de biblioteca local
+  // Extracción dinámica de artistas con conteo de canciones
+  const artistStats = useMemo(() => {
+    const map = {};
+    libraryTracks.forEach(t => {
+      const a = (t.artist || 'Desconocido').trim();
+      map[a] = (map[a] || 0) + 1;
+    });
+    return Object.entries(map)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+  }, [libraryTracks]);
+
+  // Filtrado y ordenamiento dinámico de biblioteca local
   const filteredLibraryTracks = useMemo(() => {
-    if (!librarySearchQuery.trim()) return libraryTracks;
-    const q = librarySearchQuery.toLowerCase().trim();
-    return libraryTracks.filter(t => 
-      (t.title && t.title.toLowerCase().includes(q)) ||
-      (t.artist && t.artist.toLowerCase().includes(q)) ||
-      (t.album && t.album.toLowerCase().includes(q)) ||
-      (t.folder && t.folder.toLowerCase().includes(q))
-    );
-  }, [libraryTracks, librarySearchQuery]);
+    let list = [...libraryTracks];
+
+    if (selectedArtistFilter !== 'ALL') {
+      list = list.filter(t => (t.artist || '').trim().toLowerCase() === selectedArtistFilter.toLowerCase());
+    }
+
+    if (librarySearchQuery.trim()) {
+      const q = librarySearchQuery.toLowerCase().trim();
+      list = list.filter(t => 
+        (t.title && t.title.toLowerCase().includes(q)) ||
+        (t.artist && t.artist.toLowerCase().includes(q)) ||
+        (t.album && t.album.toLowerCase().includes(q)) ||
+        (t.folder && t.folder.toLowerCase().includes(q))
+      );
+    }
+
+    if (librarySortBy === 'title') {
+      list.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+    } else if (librarySortBy === 'artist') {
+      list.sort((a, b) => (a.artist || '').localeCompare(b.artist || '') || (a.title || '').localeCompare(b.title || ''));
+    } else if (librarySortBy === 'recent') {
+      list.sort((a, b) => (b.lastModified || 0) - (a.lastModified || 0));
+    }
+
+    return list;
+  }, [libraryTracks, selectedArtistFilter, librarySearchQuery, librarySortBy]);
 
   // Almacenamiento total calculado
   const totalLibrarySizeMb = useMemo(() => {
@@ -147,14 +194,16 @@ export default function App() {
     return Math.round(sum * 10) / 10;
   }, [libraryTracks]);
 
-  // Buscar canciones (directo en iTunes API)
+  // Buscar canciones (directo en iTunes API + YouTube Music Nativo)
   const handleSearch = async (e) => {
     if (e) e.preventDefault();
-    const term = query.trim();
-    if (!term) return;
+    const raw = query.trim();
+    if (!raw) return;
 
-    if (term.startsWith('http://') || term.startsWith('https://')) {
-      handleDownloadItem({ url: term, title: 'Enlace directo de YouTube', artist: '' });
+    // Detectar si el texto contiene una URL limpia (ej: mensaje compartido desde YouTube Music)
+    const cleanUrl = extractCleanUrl(raw);
+    if (cleanUrl) {
+      handleDownloadItem({ url: cleanUrl, title: 'Enlace directo de YouTube Music', artist: '' });
       return;
     }
 
@@ -165,12 +214,37 @@ export default function App() {
     }
 
     try {
-      const results = await searchMusic(term);
+      const results = await searchMusic(raw);
       setSearchResults(results);
     } catch (err) {
       console.error('Error buscando:', err);
     } finally {
       setIsSearching(false);
+    }
+  };
+
+  // Eliminación instantánea y optimista (0 ms)
+  const handleDeleteTrack = async (track, e) => {
+    if (e) e.stopPropagation();
+    if (!confirm(`¿Eliminar "${track.title}" de tu dispositivo?`)) return;
+
+    // 1. Desaparece de inmediato de la pantalla (optimistic update)
+    setLibraryTracks(prev => prev.filter(t => t.path !== track.path));
+
+    // 2. Detener reproducción si era la que estaba sonando
+    if (currentTrack && currentTrack.path === track.path) {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+      setIsPlaying(false);
+      setCurrentTrack(null);
+    }
+
+    // 3. Purgar físicamente del almacenamiento y MediaStore en segundo plano
+    try {
+      await apiDeleteTrack(track);
+    } catch (err) {
+      console.error('Error purgando pista:', err);
     }
   };
 
@@ -314,6 +388,25 @@ export default function App() {
         <div className="mx-4 mt-3 p-3 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2 shadow-lg animate-fade-in">
           <Check className="w-4 h-4 text-emerald-400 shrink-0" />
           <span className="font-medium truncate">{downloadSuccessMessage}</span>
+        </div>
+      )}
+
+      {/* Banner de solicitud de permiso de almacenamiento completo */}
+      {!hasStoragePermission && (
+        <div className="mx-4 mt-3 p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 text-amber-200 text-xs flex items-center justify-between gap-3 shadow-lg animate-fade-in">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <AlertCircle className="w-5 h-5 text-amber-400 shrink-0" />
+            <div className="min-w-0">
+              <p className="font-semibold text-white truncate">Permiso de Archivos Requerido</p>
+              <p className="text-[11px] text-amber-300/80 leading-tight">Para guardar música con carátula oficial y borrar sin restricciones.</p>
+            </div>
+          </div>
+          <button
+            onClick={handleRequestStoragePermission}
+            className="px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-semibold text-xs active:scale-95 transition-all shadow-md shrink-0"
+          >
+            Permitir
+          </button>
         </div>
       )}
 
@@ -601,6 +694,54 @@ export default function App() {
               )}
             </div>
 
+            {/* Chips deslizables de artistas estilo Apple Glass */}
+            {artistStats.length > 1 && (
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 -mx-4 px-4 scroll-smooth no-scrollbar">
+                <button
+                  onClick={() => setSelectedArtistFilter('ALL')}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold shrink-0 transition-all apple-press ${
+                    selectedArtistFilter === 'ALL'
+                      ? 'bg-rose-500 text-white shadow-md shadow-rose-500/30'
+                      : 'bg-white/5 hover:bg-white/10 text-zinc-300 border border-white/10'
+                  }`}
+                >
+                  Todos ({libraryTracks.length})
+                </button>
+                {artistStats.map(({ name, count }) => (
+                  <button
+                    key={name}
+                    onClick={() => setSelectedArtistFilter(selectedArtistFilter === name ? 'ALL' : name)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-medium shrink-0 transition-all apple-press ${
+                      selectedArtistFilter === name
+                        ? 'bg-rose-500 text-white shadow-md shadow-rose-500/30'
+                        : 'bg-white/5 hover:bg-white/10 text-zinc-300 border border-white/10'
+                    }`}
+                  >
+                    {name} ({count})
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Barra de opciones y ordenamiento */}
+            <div className="flex items-center justify-between text-xs px-1 text-zinc-400">
+              <span className="text-[11px] truncate">
+                {selectedArtistFilter !== 'ALL' ? `Filtrado por: ${selectedArtistFilter}` : `${filteredLibraryTracks.length} canciones`}
+              </span>
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  onClick={() => setLibrarySortBy(prev => prev === 'title' ? 'artist' : prev === 'artist' ? 'recent' : 'title')}
+                  className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-[11px] text-zinc-300 active:scale-95 transition-all"
+                  title="Cambiar criterio de orden"
+                >
+                  <Filter className="w-3 h-3 text-rose-400" />
+                  <span>
+                    {librarySortBy === 'title' ? 'A-Z Título' : librarySortBy === 'artist' ? 'A-Z Artista' : 'Recientes'}
+                  </span>
+                </button>
+              </div>
+            </div>
+
             {filteredLibraryTracks.length === 0 ? (
               <div className="py-16 text-center text-zinc-500">
                 <Music className="w-10 h-10 mx-auto mb-2 text-zinc-600" />
@@ -648,14 +789,9 @@ export default function App() {
                           {track.size_mb} MB
                         </span>
                         <button
-                          onClick={async (e) => {
-                            e.stopPropagation();
-                            if (confirm(`¿Eliminar ${track.title}?`)) {
-                              await apiDeleteTrack(track);
-                              loadLibraryData();
-                            }
-                          }}
+                          onClick={(e) => handleDeleteTrack(track, e)}
                           className="p-1.5 rounded-lg text-zinc-500 hover:text-rose-400 active:scale-90"
+                          title="Eliminar de tu teléfono"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>

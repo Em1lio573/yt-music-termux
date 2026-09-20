@@ -121,6 +121,8 @@ export async function searchMusic(query) {
   const q = (query || '').trim();
   if (!q) return [];
 
+  let results = [];
+
   // Intento 1: iTunes API directa en el cliente
   try {
     const itunesUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(q)}&entity=song&limit=25`;
@@ -132,7 +134,7 @@ export async function searchMusic(query) {
     if (res.ok) {
       const data = await res.json();
       if (data.results && data.results.length > 0) {
-        return data.results.map(item => {
+        results = data.results.map(item => {
           const durationSec = (item.trackTimeMillis || 0) / 1000;
           const cover = (item.artworkUrl100 || '')
             .replace('100x100bb', '1200x1200bb')
@@ -153,11 +155,25 @@ export async function searchMusic(query) {
       }
     }
   } catch (err) {
-    console.warn('Fallo búsqueda directa de iTunes, intentando backend:', err);
+    console.warn('Fallo búsqueda directa de iTunes:', err);
   }
 
-  // Intento 2: Backend /api/search (si estuviera disponible)
-  if (!isNativeApp()) {
+  // Intento 2: Búsqueda nativa directa en YouTube Music si iTunes dio pocos o ningún resultado
+  if (results.length < 3 && isNativeApp() && Capacitor.Plugins.NativeDownloader?.searchMusic) {
+    try {
+      const nativeRes = await Capacitor.Plugins.NativeDownloader.searchMusic({ query: q });
+      if (nativeRes && nativeRes.results && nativeRes.results.length > 0) {
+        const existingTitles = new Set(results.map(r => normalizeText(r.title)));
+        const newItems = nativeRes.results.filter(item => !existingTitles.has(normalizeText(item.title)));
+        results = [...results, ...newItems];
+      }
+    } catch (e) {
+      console.warn('Fallo búsqueda nativa de YouTube Music:', e);
+    }
+  }
+
+  // Intento 3: Servidor backend (si estuviera disponible y no es nativo)
+  if (results.length === 0 && !isNativeApp()) {
     try {
       const server = getStoredServerUrl();
       const res = await fetch(`${server}/api/search?q=${encodeURIComponent(q)}`);
@@ -180,7 +196,7 @@ export async function searchMusic(query) {
     }
   }
 
-  return [];
+  return results;
 }
 
 /**
@@ -416,4 +432,41 @@ export async function requestAudioPermissions() {
     }
   }
   return null;
+}
+
+/**
+ * Verifica si la app posee permiso total de almacenamiento (MANAGE_EXTERNAL_STORAGE)
+ */
+export async function checkStoragePermission() {
+  if (isNativeApp() && Capacitor.Plugins.NativeDownloader?.checkStoragePermission) {
+    try {
+      const res = await Capacitor.Plugins.NativeDownloader.checkStoragePermission();
+      return res.hasPermission !== false;
+    } catch (e) {
+      console.warn('Error verificando permisos de almacenamiento:', e);
+    }
+  }
+  return true;
+}
+
+/**
+ * Solicita acceso total a todos los archivos abriendo Ajustes de Android
+ */
+export async function requestStoragePermission() {
+  if (isNativeApp() && Capacitor.Plugins.NativeDownloader?.requestStoragePermission) {
+    try {
+      return await Capacitor.Plugins.NativeDownloader.requestStoragePermission();
+    } catch (e) {
+      console.warn('Error solicitando permisos de almacenamiento:', e);
+    }
+  }
+}
+
+/**
+ * Extrae una URL limpia de un texto compartido (ej: "Escucha canción https://...")
+ */
+export function extractCleanUrl(text) {
+  if (!text) return null;
+  const match = text.match(/https?:\/\/[^\s]+/i);
+  return match ? match[0] : null;
 }

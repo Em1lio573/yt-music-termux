@@ -4,10 +4,12 @@ import android.Manifest;
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.media.MediaScannerConnection;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.util.Log;
 
 import com.getcapacitor.JSArray;
@@ -23,7 +25,14 @@ import com.yausername.youtubedl_android.YoutubeDL;
 import com.yausername.youtubedl_android.YoutubeDLRequest;
 import com.yausername.youtubedl_android.YoutubeDLResponse;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -93,6 +102,11 @@ public class NativeDownloaderPlugin extends Plugin {
         JSObject ret = new JSObject();
         ret.put("isNative", true);
         ret.put("initialized", isInitialized);
+        boolean hasStorage = true;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            hasStorage = Environment.isExternalStorageManager();
+        }
+        ret.put("hasFullStorage", hasStorage);
         try {
             if (isInitialized) {
                 ret.put("version", YoutubeDL.getInstance().versionName(getContext()));
@@ -104,6 +118,119 @@ public class NativeDownloaderPlugin extends Plugin {
         }
         ret.put("musicDirectory", getMusicDirectory().getAbsolutePath());
         call.resolve(ret);
+    }
+
+    @PluginMethod
+    public void checkStoragePermission(PluginCall call) {
+        JSObject ret = new JSObject();
+        boolean hasPermission = true;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            hasPermission = Environment.isExternalStorageManager();
+        }
+        ret.put("hasPermission", hasPermission);
+        call.resolve(ret);
+    }
+
+    @PluginMethod
+    public void requestStoragePermission(PluginCall call) {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                if (!Environment.isExternalStorageManager()) {
+                    Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                    intent.setData(Uri.parse("package:" + getContext().getPackageName()));
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    getContext().startActivity(intent);
+                }
+            }
+            JSObject ret = new JSObject();
+            ret.put("requested", true);
+            call.resolve(ret);
+        } catch (Exception e) {
+            try {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                getContext().startActivity(intent);
+                JSObject ret = new JSObject();
+                ret.put("requested", true);
+                call.resolve(ret);
+            } catch (Exception ex) {
+                call.reject("Error abriendo pantalla de permisos: " + ex.getMessage());
+            }
+        }
+    }
+
+    @PluginMethod
+    public void searchMusic(PluginCall call) {
+        String query = call.getString("query", "").trim();
+        if (query.isEmpty()) {
+            call.reject("Consulta de búsqueda requerida");
+            return;
+        }
+
+        executor.execute(() -> {
+            try {
+                if (!isInitialized) {
+                    FFmpeg.getInstance().init(getContext());
+                    YoutubeDL.getInstance().init(getContext());
+                    isInitialized = true;
+                }
+
+                YoutubeDLRequest request = new YoutubeDLRequest("ytsearch10:" + query);
+                request.addOption("--dump-single-json");
+                request.addOption("--flat-playlist");
+                request.addOption("--no-warnings");
+                request.addOption("--ignore-errors");
+
+                YoutubeDLResponse response = YoutubeDL.getInstance().execute(request);
+                String jsonStr = response.getOut();
+                
+                JSArray results = new JSArray();
+                if (jsonStr != null && !jsonStr.trim().isEmpty()) {
+                    JSONObject root = new JSONObject(jsonStr);
+                    JSONArray entries = root.optJSONArray("entries");
+                    if (entries != null) {
+                        for (int i = 0; i < entries.length(); i++) {
+                            JSONObject e = entries.getJSONObject(i);
+                            String id = e.optString("id", "");
+                            String title = e.optString("title", "");
+                            String uploader = e.optString("uploader", "YouTube Music");
+                            if (uploader.endsWith(" - Topic")) {
+                                uploader = uploader.replace(" - Topic", "").trim();
+                            }
+                            double duration = e.optDouble("duration", 0.0);
+                            String durationStr = formatDuration(duration);
+                            
+                            String cover = "https://music.youtube.com/img/favicon_144.png";
+                            JSONArray thumbs = e.optJSONArray("thumbnails");
+                            if (thumbs != null && thumbs.length() > 0) {
+                                cover = thumbs.getJSONObject(thumbs.length() - 1).optString("url", cover);
+                            }
+
+                            JSObject item = new JSObject();
+                            item.put("id", id.isEmpty() ? "ytm_" + i : id);
+                            item.put("title", title);
+                            item.put("artist", uploader);
+                            item.put("album", "YouTube Music");
+                            item.put("duration", duration);
+                            item.put("duration_str", durationStr);
+                            item.put("cover", cover);
+                            item.put("url", "https://music.youtube.com/watch?v=" + id);
+                            item.put("source", "ytm_native");
+                            results.put(item);
+                        }
+                    }
+                }
+
+                JSObject ret = new JSObject();
+                ret.put("results", results);
+                call.resolve(ret);
+            } catch (Exception e) {
+                Log.e(TAG, "Error en búsqueda nativa: " + e.getMessage(), e);
+                JSObject ret = new JSObject();
+                ret.put("results", new JSArray());
+                call.resolve(ret);
+            }
+        });
     }
 
     @PluginMethod
@@ -121,6 +248,7 @@ public class NativeDownloaderPlugin extends Plugin {
         }
 
         executor.execute(() -> {
+            File tempDir = null;
             try {
                 if (!isInitialized) {
                     emitTerminal("[Motor] Inicializando binarios nativos de Python y FFmpeg...");
@@ -134,44 +262,70 @@ public class NativeDownloaderPlugin extends Plugin {
                     musicDir.mkdirs();
                 }
 
-                String targetQuery = rawUrl;
-                if (!targetQuery.contains("watch?v=") && !targetQuery.contains("youtu.be/")) {
+                // 1. Sanitizar URL y enlaces compartidos desde apps de YouTube / YouTube Music
+                String cleanUrl = rawUrl;
+                Matcher urlMatcher = Pattern.compile("https?://[^\\s]+").matcher(rawUrl);
+                if (urlMatcher.find()) {
+                    cleanUrl = urlMatcher.group(0);
+                }
+
+                boolean isSingleTrack = false;
+                if (cleanUrl.contains("watch?v=")) {
+                    isSingleTrack = true;
+                    cleanUrl = cleanUrl.replaceAll("([?&])list=RD[^&]*", "");
+                    cleanUrl = cleanUrl.replaceAll("([?&])si=[^&]*", "");
+                    cleanUrl = cleanUrl.replaceAll("&feature=[^&]*", "");
+                    if (cleanUrl.contains("?&")) cleanUrl = cleanUrl.replace("?&", "?");
+                } else if (cleanUrl.contains("youtu.be/")) {
+                    isSingleTrack = true;
+                    cleanUrl = cleanUrl.replaceAll("([?&])si=[^&]*", "");
+                }
+
+                String targetQuery = cleanUrl;
+                if (!isSingleTrack && !cleanUrl.contains("playlist?list=")) {
                     if (!artist.isEmpty() && !title.isEmpty()) {
                         targetQuery = "ytsearch1:" + artist + " " + title;
                     }
                 }
 
+                // 2. Aislar descarga y conversiones en el directorio de caché privado para evitar [Errno 1]
+                File cacheBase = getContext().getCacheDir();
+                tempDir = new File(cacheBase, "ytm_dl_" + System.currentTimeMillis());
+                if (!tempDir.exists()) {
+                    tempDir.mkdirs();
+                }
+
                 emitTerminal("[yt-dlp] Iniciando descarga para: " + (artist.isEmpty() ? targetQuery : artist + " - " + title));
-                emitTerminal("[yt-dlp] Carpeta destino: " + musicDir.getAbsolutePath());
+                emitTerminal("[Motor] Procesando en espacio seguro para evitar restricciones de Scoped Storage");
 
                 YoutubeDLRequest request = new YoutubeDLRequest(targetQuery);
-                // Plantilla de salida limpia
-                request.addOption("-o", musicDir.getAbsolutePath() + "/%(artist,uploader)s/%(title)s.%(ext)s");
+                request.addOption("-P", "home:" + tempDir.getAbsolutePath());
+                request.addOption("-P", "temp:" + tempDir.getAbsolutePath());
+                request.addOption("-o", "%(artist,uploader)s - %(title)s.%(ext)s");
+
+                if (isSingleTrack) {
+                    request.addOption("--no-playlist");
+                }
                 
                 // Extracción con opciones reales de YouTube Music
                 request.addOption("-x");
                 if ("m4a".equals(quality)) {
-                    // M4A / AAC Nativo (~128-140 kbps itag 140) - Extracción directa sin recodificar
                     request.addOption("-f", "ba[ext=m4a]/ba");
                     request.addOption("--audio-format", "m4a");
                     emitTerminal("[yt-dlp] Formato: M4A / AAC Nativo (~128 kbps) - Extracción directa");
                 } else if ("m4a_256".equals(quality)) {
-                    // M4A Premium (256 kbps itag 141 si hay sesión Premium, con fallback a 140)
                     request.addOption("-f", "141/ba[ext=m4a]/ba");
                     request.addOption("--audio-format", "m4a");
                     emitTerminal("[yt-dlp] Formato: M4A Premium (256 kbps con fallback nativo)");
                 } else if ("mp3_320".equals(quality)) {
-                    // MP3 320 kbps (Transcodificación LAME con FFmpeg para estéreos antiguos)
                     request.addOption("--audio-format", "mp3");
                     request.addOption("--audio-quality", "320K");
                     emitTerminal("[ffmpeg] Formato: MP3 320 kbps (Transcodificación de compatibilidad)");
                 } else if ("data_saver".equals(quality)) {
-                    // Opus Ahorro de Datos (~70 kbps itags 250/249)
                     request.addOption("-f", "250/249/ba[abr<=80]/ba");
                     request.addOption("--audio-format", "opus");
                     emitTerminal("[yt-dlp] Formato: Opus Ahorro de Datos (~70 kbps)");
                 } else {
-                    // Opus Nativo (~160 kbps itag 251) - Recomendado / Máxima fidelidad de YouTube Music
                     request.addOption("-f", "ba[ext=opus]/ba[ext=webm]/ba");
                     request.addOption("--audio-format", "opus");
                     emitTerminal("[yt-dlp] Formato: Opus Nativo (~160 kbps) - Extracción directa sin pérdida");
@@ -204,9 +358,42 @@ public class NativeDownloaderPlugin extends Plugin {
                     }
                 );
 
-                emitTerminal("[Sistema] ✔ Descarga completada con éxito");
+                // 3. Localizar archivo de audio descargado y moverlo a la Biblioteca organizada
+                File[] audioFiles = tempDir.listFiles((dir, name) -> {
+                    String n = name.toLowerCase();
+                    return n.endsWith(".opus") || n.endsWith(".m4a") || n.endsWith(".mp3") 
+                        || n.endsWith(".flac") || n.endsWith(".ogg") || n.endsWith(".wav");
+                });
 
-                // Escaneo de medios de Android para que aparezca en cualquier reproductor
+                if (audioFiles != null && audioFiles.length > 0) {
+                    for (File audioFile : audioFiles) {
+                        String finalArtist = !artist.isEmpty() ? sanitizeDirName(artist) : "YouTube Music";
+                        String finalAlbum = !album.isEmpty() ? sanitizeDirName(album) : "Sencillos";
+
+                        if (artist.isEmpty()) {
+                            String nameNoExt = audioFile.getName().replaceFirst("[.][^.]+$", "");
+                            if (nameNoExt.contains(" - ")) {
+                                String[] parts = nameNoExt.split(" - ", 2);
+                                finalArtist = sanitizeDirName(parts[0]);
+                            }
+                        }
+
+                        File targetArtistDir = new File(musicDir, finalArtist);
+                        File targetAlbumDir = new File(targetArtistDir, finalAlbum);
+                        targetAlbumDir.mkdirs();
+
+                        File finalDest = new File(targetAlbumDir, audioFile.getName());
+                        boolean moved = audioFile.renameTo(finalDest);
+                        if (!moved) {
+                            copyFile(audioFile, finalDest);
+                            audioFile.delete();
+                        }
+
+                        MediaScannerConnection.scanFile(getContext(), new String[]{finalDest.getAbsolutePath()}, null, null);
+                    }
+                }
+
+                emitTerminal("[Sistema] ✔ Descarga completada y organizada en tu biblioteca");
                 scanMediaFiles(musicDir);
 
                 JSObject res = new JSObject();
@@ -219,6 +406,10 @@ public class NativeDownloaderPlugin extends Plugin {
                 Log.e(TAG, "Error en descarga nativa: " + e.getMessage(), e);
                 emitTerminal("[Error] Falló la descarga: " + e.getMessage());
                 call.reject("Error en descarga nativa: " + e.getMessage(), e);
+            } finally {
+                if (tempDir != null && tempDir.exists()) {
+                    deleteDirectoryRecursive(tempDir);
+                }
             }
         });
     }
@@ -323,18 +514,27 @@ public class NativeDownloaderPlugin extends Plugin {
         }
         try {
             File f = new File(path);
-            if (f.exists() && f.delete()) {
-                MediaScannerConnection.scanFile(getContext(), new String[]{path}, null, null);
-                JSObject ret = new JSObject();
-                ret.put("success", true);
-                call.resolve(ret);
-                return;
+            if (f.exists()) {
+                f.delete();
             }
+
+            // Purgar de MediaStore para evitar que quede como pista fantasma
+            try {
+                ContentResolver resolver = getContext().getContentResolver();
+                Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+                resolver.delete(uri, MediaStore.Audio.Media.DATA + " = ?", new String[]{path});
+            } catch (Exception ex) {
+                Log.w(TAG, "Error purgando de MediaStore: " + ex.getMessage());
+            }
+
+            MediaScannerConnection.scanFile(getContext(), new String[]{path}, null, null);
+
+            JSObject ret = new JSObject();
+            ret.put("success", true);
+            call.resolve(ret);
         } catch (Exception e) {
             call.reject(e.getMessage());
-            return;
         }
-        call.reject("No se pudo eliminar el archivo");
     }
 
     private void scanDirRecursive(File dir, JSArray tracks, Set<String> seenPaths) {
@@ -422,6 +622,47 @@ public class NativeDownloaderPlugin extends Plugin {
             return "Aplicando metadatos ID3 oficiales...";
         }
         return "Procesando...";
+    }
+
+    private void copyFile(File src, File dst) {
+        try (InputStream in = new FileInputStream(src); OutputStream out = new FileOutputStream(dst)) {
+            byte[] buf = new byte[8192];
+            int len;
+            while ((len = in.read(buf)) > 0) {
+                out.write(buf, 0, len);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error copiando archivo: " + e.getMessage());
+        }
+    }
+
+    private void deleteDirectoryRecursive(File dir) {
+        if (dir == null || !dir.exists()) return;
+        File[] files = dir.listFiles();
+        if (files != null) {
+            for (File f : files) {
+                if (f.isDirectory()) {
+                    deleteDirectoryRecursive(f);
+                } else {
+                    f.delete();
+                }
+            }
+        }
+        dir.delete();
+    }
+
+    private String sanitizeDirName(String name) {
+        if (name == null || name.trim().isEmpty()) return "Desconocido";
+        String clean = name.replaceAll("[/\\\\:*?\"<>|]", "").replaceAll("\\s+", " ").trim();
+        return clean.isEmpty() ? "Desconocido" : clean;
+    }
+
+    private String formatDuration(double sec) {
+        if (sec <= 0) return "0:00";
+        int totalSec = (int) Math.round(sec);
+        int m = totalSec / 60;
+        int s = totalSec % 60;
+        return m + ":" + (s < 10 ? "0" : "") + s;
     }
 
     private File getMusicDirectory() {
