@@ -38,9 +38,24 @@ EOF
 # También copiamos una copia de respaldo en bin por seguridad
 cp "$SCRIPT_PYTHON" ~/bin/yt_downloader_core.py
 
+# Crear lanzador para la App Móvil (Apple Design)
+SCRIPT_MOBILE="$DIR_ACTUAL/mobile_app/start_app.py"
+cat << EOF > ~/bin/music-app
+#!/bin/bash
+MOBILE_SCRIPT="$SCRIPT_MOBILE"
+if [ -f "\$MOBILE_SCRIPT" ]; then
+    exec python3 "\$MOBILE_SCRIPT" "\$@"
+elif [ -f "\$HOME/yt-music-termux/mobile_app/start_app.py" ]; then
+    exec python3 "\$HOME/yt-music-termux/mobile_app/start_app.py" "\$@"
+elif [ -f "\$HOME/Documentos/yt-music-termux/mobile_app/start_app.py" ]; then
+    exec python3 "\$HOME/Documentos/yt-music-termux/mobile_app/start_app.py" "\$@"
+fi
+EOF
+
 # Dar permisos de ejecución
 chmod +x ~/bin/termux-url-opener
 chmod +x ~/bin/yt_downloader_core.py
+chmod +x ~/bin/music-app
 
 echo -e "\033[92m"
 echo "=========================================================="

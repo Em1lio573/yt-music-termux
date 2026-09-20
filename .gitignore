@@ -5,3 +5,8 @@ __pycache__/
 .cookies.txt
 test_library/
 .system_generated/
+node_modules/
+mobile_app/frontend/node_modules/
+.agents/
+skills-lock.json
+

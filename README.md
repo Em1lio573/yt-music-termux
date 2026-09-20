@@ -93,11 +93,36 @@ El script de instalación (`setup.sh`) configura todo automáticamente, pero uti
 
 ---
 
+## 📱 Aplicación Móvil (Apple Design PWA)
+
+El proyecto incluye una aplicación móvil con interfaz **Apple Design System** (iOS Human Interface Guidelines):
+- **Estética de Vidrio Esmerilado**: Translucidez (`backdrop-filter: blur(20px)`), físicas de resorte suaves y tipografía SF Pro.
+- **Instalable en la Pantalla de Inicio**: Funciona a pantalla completa como una app nativa en Android e iOS (PWA standalone).
+- **Reproductor Integrado**: Escucha tus canciones descargadas directamente desde la aplicación móvil.
+- **Buscador & Selector de Calidad Táctil**: Chips interactivos para elegir entre Original Nativo, M4A, MP3 320k y FLAC con un solo toque.
+- **Progreso en Vivo**: Barra de estado animada con velocidad, ETA y porcentaje transmitido por SSE.
+
+### ¿Cómo iniciar la app móvil?
+En Termux o en tu terminal:
+```bash
+music-app
+# o también:
+python3 mobile_app/start_app.py
+```
+El script mostrará la URL local (`http://localhost:8000`) y la URL de red WiFi (`http://192.168.X.X:8000`).
+1. Ábrela en tu teléfono móvil.
+2. En el menú del navegador, toca **"Instalar aplicación"** o **"Añadir a pantalla de inicio"**.
+3. ¡Disfruta de la aplicación a pantalla completa!
+
+---
+
 ## 📁 Estructura de Archivos y Rutas
 
 | Elemento | Ruta |
 |---|---|
 | 🎵 Biblioteca de Música | `~/storage/music/Biblioteca/` |
+| 📱 App Móvil (Apple Design) | `~/Documentos/yt-music-termux/mobile_app/` |
+| 🚀 Lanzador de App Móvil | `~/bin/music-app` |
 | ⚙️ Archivo de Configuración | `~/.config/yt-music-termux/config.json` |
 | 📋 Historial de Descargas | `~/.historial_descargas_youtube.txt` |
 | 🍪 Cookies de YouTube | `~/.cookies.txt` |
