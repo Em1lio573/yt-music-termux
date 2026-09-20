@@ -49,41 +49,24 @@ jobs:
           sed -i 's/VERSION_21/VERSION_17/g' mobile_app/frontend/android/capacitor-cordova-android-plugins/build.gradle 2>/dev/null || true
           sed -i 's/VERSION_21/VERSION_17/g' mobile_app/frontend/node_modules/@capacitor/android/capacitor/build.gradle 2>/dev/null || true
 
-      - name: Sync Capacitor
+      - name: Copy Web Assets to Android (Capacitor)
         working-directory: mobile_app/frontend
-        run: |
-          chmod +x android/gradlew
-          npx cap sync android --verbose 2>&1 | tee /tmp/sync.log
-          SYNC_STATUS=${PIPESTATUS[0]}
-          if [ $SYNC_STATUS -ne 0 ]; then
-            ERROR_MSG=$(grep -E '(FAILURE|FAILED|Error|error|Exception)' /tmp/sync.log | head -n 5 | tr '\n' ' -- ')
-            echo "::error title=CapSyncFailure::$ERROR_MSG"
-            tail -n 60 /tmp/sync.log
-            exit $SYNC_STATUS
-          fi
-          sed -i 's/VERSION_21/VERSION_17/g' android/app/capacitor.build.gradle 2>/dev/null || true
+        run: npx cap copy android
 
       - name: Build APK with Gradle
         working-directory: mobile_app/frontend/android
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon --stacktrace -Dorg.gradle.java.home="$JAVA_HOME" 2>&1 | tee /tmp/gradle.log
-          GRADLE_STATUS=${PIPESTATUS[0]}
-          if [ $GRADLE_STATUS -ne 0 ]; then
-            ERROR_MSG=$(grep -E '(FAILURE|FAILED|Error|Caused by)' /tmp/gradle.log | head -n 5 | tr '\n' ' -- ')
-            echo "::error title=GradleFailure::$ERROR_MSG"
-            tail -n 60 /tmp/gradle.log
-            exit $GRADLE_STATUS
-          fi
+          ./gradlew assembleDebug --no-daemon --stacktrace -Dorg.gradle.java.home="$JAVA_HOME"
 
       - name: Verify & Copy APK
         run: |
-          APK_FILE=$(find . -name "*.apk" -not -path "*/.*" | head -n 1)
-          if [ -z "$APK_FILE" ]; then
-            echo "No se encontró ningún APK generado"
+          APK_FILE="mobile_app/frontend/android/app/build/outputs/apk/debug/app-debug.apk"
+          if [ ! -f "$APK_FILE" ]; then
+            echo "Error: No se encontró $APK_FILE"
             exit 1
           fi
-          echo "APK encontrado en: $APK_FILE"
+          echo "APK generado con éxito: $APK_FILE"
           cp "$APK_FILE" YT-Music-Pro.apk
           ls -lh YT-Music-Pro.apk
 
