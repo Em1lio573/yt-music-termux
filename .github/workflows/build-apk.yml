@@ -45,6 +45,17 @@ jobs:
         run: |
           echo "sdk.dir=${ANDROID_HOME}" > mobile_app/frontend/android/local.properties
           cat mobile_app/frontend/android/local.properties
+          mkdir -p mobile_app/frontend/android/capacitor-cordova-android-plugins
+          if [ ! -f mobile_app/frontend/android/capacitor-cordova-android-plugins/cordova.variables.gradle ]; then
+            cat << 'EOF' > mobile_app/frontend/android/capacitor-cordova-android-plugins/cordova.variables.gradle
+// Generado para plugins cordova
+ext {
+  cdvMinSdkVersion = project.hasProperty('minSdkVersion') ? rootProject.ext.minSdkVersion : 24
+  cdvPluginPostBuildExtras = []
+  cordovaConfig = [:]
+}
+EOF
+          fi
           sed -i 's/VERSION_21/VERSION_17/g' mobile_app/frontend/android/app/build.gradle 2>/dev/null || true
           sed -i 's/VERSION_21/VERSION_17/g' mobile_app/frontend/android/app/capacitor.build.gradle 2>/dev/null || true
           sed -i 's/VERSION_21/VERSION_17/g' mobile_app/frontend/android/capacitor-cordova-android-plugins/build.gradle 2>/dev/null || true
@@ -56,6 +67,15 @@ jobs:
           chmod +x android/gradlew
           npx cap sync android --verbose 2>&1 | tee /tmp/sync.log || (echo "### Capacitor Sync Failed" >> $GITHUB_STEP_SUMMARY && echo '```' >> $GITHUB_STEP_SUMMARY && cat /tmp/sync.log >> $GITHUB_STEP_SUMMARY && echo '```' >> $GITHUB_STEP_SUMMARY && exit 1)
           sed -i 's/VERSION_21/VERSION_17/g' android/app/capacitor.build.gradle 2>/dev/null || true
+          if [ ! -f android/capacitor-cordova-android-plugins/cordova.variables.gradle ]; then
+            cat << 'EOF' > android/capacitor-cordova-android-plugins/cordova.variables.gradle
+ext {
+  cdvMinSdkVersion = project.hasProperty('minSdkVersion') ? rootProject.ext.minSdkVersion : 24
+  cdvPluginPostBuildExtras = []
+  cordovaConfig = [:]
+}
+EOF
+          fi
 
       - name: Build APK with Gradle
         working-directory: mobile_app/frontend/android
