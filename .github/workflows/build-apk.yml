@@ -44,18 +44,6 @@ jobs:
       - name: Configure Android Project & Compatibility
         run: |
           echo "sdk.dir=${ANDROID_HOME}" > mobile_app/frontend/android/local.properties
-          cat mobile_app/frontend/android/local.properties
-          mkdir -p mobile_app/frontend/android/capacitor-cordova-android-plugins
-          if [ ! -f mobile_app/frontend/android/capacitor-cordova-android-plugins/cordova.variables.gradle ]; then
-            cat << 'EOF' > mobile_app/frontend/android/capacitor-cordova-android-plugins/cordova.variables.gradle
-// Generado para plugins cordova
-ext {
-  cdvMinSdkVersion = project.hasProperty('minSdkVersion') ? rootProject.ext.minSdkVersion : 24
-  cdvPluginPostBuildExtras = []
-  cordovaConfig = [:]
-}
-EOF
-          fi
           sed -i 's/VERSION_21/VERSION_17/g' mobile_app/frontend/android/app/build.gradle 2>/dev/null || true
           sed -i 's/VERSION_21/VERSION_17/g' mobile_app/frontend/android/app/capacitor.build.gradle 2>/dev/null || true
           sed -i 's/VERSION_21/VERSION_17/g' mobile_app/frontend/android/capacitor-cordova-android-plugins/build.gradle 2>/dev/null || true
@@ -65,37 +53,20 @@ EOF
         working-directory: mobile_app/frontend
         run: |
           chmod +x android/gradlew
-          npx cap sync android --verbose 2>&1 | tee /tmp/sync.log || (echo "### Capacitor Sync Failed" >> $GITHUB_STEP_SUMMARY && echo '```' >> $GITHUB_STEP_SUMMARY && cat /tmp/sync.log >> $GITHUB_STEP_SUMMARY && echo '```' >> $GITHUB_STEP_SUMMARY && exit 1)
+          npx cap sync android --verbose
           sed -i 's/VERSION_21/VERSION_17/g' android/app/capacitor.build.gradle 2>/dev/null || true
-          if [ ! -f android/capacitor-cordova-android-plugins/cordova.variables.gradle ]; then
-            cat << 'EOF' > android/capacitor-cordova-android-plugins/cordova.variables.gradle
-ext {
-  cdvMinSdkVersion = project.hasProperty('minSdkVersion') ? rootProject.ext.minSdkVersion : 24
-  cdvPluginPostBuildExtras = []
-  cordovaConfig = [:]
-}
-EOF
-          fi
 
       - name: Build APK with Gradle
         working-directory: mobile_app/frontend/android
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon --stacktrace -Dorg.gradle.java.home="$JAVA_HOME" 2>&1 | tee /tmp/gradle.log
-          GRADLE_STATUS=${PIPESTATUS[0]}
-          if [ $GRADLE_STATUS -ne 0 ]; then
-            ERROR_MSG=$(grep -E '(FAILURE|FAILED|Error|Caused by)' /tmp/gradle.log | head -n 10 | tr '\n' ' -- ')
-            echo "::error title=GradleFailure::$ERROR_MSG"
-            tail -n 60 /tmp/gradle.log
-            exit $GRADLE_STATUS
-          fi
+          ./gradlew assembleDebug --no-daemon --stacktrace -Dorg.gradle.java.home="$JAVA_HOME"
 
       - name: Verify & Copy APK
         run: |
           APK_FILE=$(find . -name "*.apk" -not -path "*/.*" | head -n 1)
           if [ -z "$APK_FILE" ]; then
-            echo "No se encontró ningún APK generado. Contenido de build:"
-            find mobile_app/frontend/android/app/build -maxdepth 4 2>/dev/null || true
+            echo "No se encontró ningún APK generado"
             exit 1
           fi
           echo "APK encontrado en: $APK_FILE"
