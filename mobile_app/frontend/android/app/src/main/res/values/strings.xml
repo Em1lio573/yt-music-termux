@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">YT Music Pro</string>
+    <string name="title_activity_main">YT Music Pro</string>
+    <string name="package_name">com.emilio.ytmusic</string>
+    <string name="custom_url_scheme">com.emilio.ytmusic</string>
+</resources>

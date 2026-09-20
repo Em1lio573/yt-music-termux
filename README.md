@@ -93,26 +93,35 @@ El script de instalación (`setup.sh`) configura todo automáticamente, pero uti
 
 ---
 
-## 📱 Aplicación Móvil (Apple Design PWA)
+## 📱 Aplicación Móvil Nativa de Android (APK) & PWA (Apple Design)
 
-El proyecto incluye una aplicación móvil con interfaz **Apple Design System** (iOS Human Interface Guidelines):
+El proyecto incluye una aplicación móvil nativa con interfaz **Apple Design System** (iOS Human Interface Guidelines):
 - **Estética de Vidrio Esmerilado**: Translucidez (`backdrop-filter: blur(20px)`), físicas de resorte suaves y tipografía SF Pro.
-- **Instalable en la Pantalla de Inicio**: Funciona a pantalla completa como una app nativa en Android e iOS (PWA standalone).
+- **APK Nativo de Android Listo**: Compilado directamente en `./YT-Music-Pro.apk` (4 MB) listo para instalar en cualquier móvil Android.
 - **Reproductor Integrado**: Escucha tus canciones descargadas directamente desde la aplicación móvil.
 - **Buscador & Selector de Calidad Táctil**: Chips interactivos para elegir entre Original Nativo, M4A, MP3 320k y FLAC con un solo toque.
 - **Progreso en Vivo**: Barra de estado animada con velocidad, ETA y porcentaje transmitido por SSE.
 
-### ¿Cómo iniciar la app móvil?
-En Termux o en tu terminal:
+### 📥 1. Instalar el APK Nativo en tu Teléfono:
+1. Copia o transfiere el archivo `YT-Music-Pro.apk` a tu teléfono Android (por WhatsApp, Telegram, cable USB o descarga directa de GitHub).
+2. Toca el archivo `.apk` en tu teléfono y selecciona **"Instalar"**.
+3. ¡Listo! Ya tienes la app instalada en tu cajón de aplicaciones de Android.
+
+### 🔨 ¿Cómo recompilar el APK tú mismo?
+Puedes recompilar el archivo APK cuando quieras ejecutando:
+```bash
+bash build_apk.sh
+```
+El script compilará la interfaz con Vite y empaquetará el APK nativo con Gradle en `./YT-Music-Pro.apk`.
+
+### 🌐 2. Modo Web / PWA (Servidor Local Termux):
+Si prefieres usarla directamente conectada a Termux:
 ```bash
 music-app
 # o también:
 python3 mobile_app/start_app.py
 ```
-El script mostrará la URL local (`http://localhost:8000`) y la URL de red WiFi (`http://192.168.X.X:8000`).
-1. Ábrela en tu teléfono móvil.
-2. En el menú del navegador, toca **"Instalar aplicación"** o **"Añadir a pantalla de inicio"**.
-3. ¡Disfruta de la aplicación a pantalla completa!
+El script mostrará la URL local (`http://localhost:8000`) y la URL de red WiFi (`http://192.168.X.X:8000`). En el navegador de tu móvil puedes tocar **"Añadir a pantalla de inicio"** para usarla en pantalla completa.
 
 ---
 
