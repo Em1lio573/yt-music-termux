@@ -23,10 +23,10 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Set up Node.js 20
+      - name: Set up Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v4
@@ -51,14 +51,7 @@ jobs:
 
       - name: Copy Web Assets to Android (Capacitor)
         working-directory: mobile_app/frontend
-        run: |
-          npx cap copy android 2>&1 | tee /tmp/copy.log || true
-          cat /tmp/copy.log
-          if [ ! -f android/app/src/main/assets/public/index.html ]; then
-            ERR=$(cat /tmp/copy.log | head -n 10 | tr '\n' ' ')
-            echo "::error title=CopyFailed::$ERR"
-            exit 1
-          fi
+        run: npx cap copy android
 
       - name: Build APK with Gradle
         working-directory: mobile_app/frontend/android
