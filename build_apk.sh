@@ -27,6 +27,11 @@ npm run build
 echo -e "\033[93m2. Sincronizando plataforma Android (Capacitor)...\033[0m"
 npx cap sync android
 
+# Asegurar compatibilidad con Java 17 en archivos generados por Capacitor
+sed -i 's/VERSION_21/VERSION_17/g' android/app/capacitor.build.gradle 2>/dev/null || true
+sed -i 's/VERSION_21/VERSION_17/g' android/capacitor-cordova-android-plugins/build.gradle 2>/dev/null || true
+sed -i 's/VERSION_21/VERSION_17/g' node_modules/@capacitor/android/capacitor/build.gradle 2>/dev/null || true
+
 echo -e "\033[93m3. Compilando APK con Gradle...\033[0m"
 cd android
 ./gradlew assembleDebug
