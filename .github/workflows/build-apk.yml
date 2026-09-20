@@ -65,7 +65,14 @@ jobs:
 
       - name: Verify & Copy APK
         run: |
-          cp mobile_app/frontend/android/app/build/outputs/apk/debug/app-debug.apk YT-Music-Pro.apk
+          APK_FILE=$(find . -name "*.apk" -not -path "*/.*" | head -n 1)
+          if [ -z "$APK_FILE" ]; then
+            echo "No se encontró ningún APK generado. Contenido de build:"
+            find mobile_app/frontend/android/app/build -maxdepth 4 2>/dev/null || true
+            exit 1
+          fi
+          echo "APK encontrado en: $APK_FILE"
+          cp "$APK_FILE" YT-Music-Pro.apk
           ls -lh YT-Music-Pro.apk
 
       - name: Upload APK Artifact
