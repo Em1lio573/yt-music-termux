@@ -5,6 +5,10 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+env:
+  ANDROID_HOME: /usr/local/lib/android/sdk
+  ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -13,11 +17,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up JDK 21
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '21'
+          java-version: '17'
 
       - name: Set up Node.js 20
         uses: actions/setup-node@v4
@@ -37,20 +41,27 @@ jobs:
         working-directory: mobile_app/frontend
         run: npm run build
 
-      - name: Configure Android SDK properties
+      - name: Configure Android Project & Compatibility
         run: |
-          echo "sdk.dir=$ANDROID_HOME" > mobile_app/frontend/android/local.properties
+          echo "sdk.dir=${ANDROID_HOME}" > mobile_app/frontend/android/local.properties
           cat mobile_app/frontend/android/local.properties
+          sed -i 's/VERSION_21/VERSION_17/g' mobile_app/frontend/android/app/build.gradle 2>/dev/null || true
+          sed -i 's/VERSION_21/VERSION_17/g' mobile_app/frontend/android/app/capacitor.build.gradle 2>/dev/null || true
+          sed -i 's/VERSION_21/VERSION_17/g' mobile_app/frontend/android/capacitor-cordova-android-plugins/build.gradle 2>/dev/null || true
+          sed -i 's/VERSION_21/VERSION_17/g' mobile_app/frontend/node_modules/@capacitor/android/capacitor/build.gradle 2>/dev/null || true
 
       - name: Sync Capacitor
         working-directory: mobile_app/frontend
-        run: npx cap sync android --verbose
+        run: |
+          chmod +x android/gradlew
+          npx cap sync android --verbose 2>&1 | tee /tmp/sync.log || (echo "### Capacitor Sync Failed" >> $GITHUB_STEP_SUMMARY && echo '```' >> $GITHUB_STEP_SUMMARY && cat /tmp/sync.log >> $GITHUB_STEP_SUMMARY && echo '```' >> $GITHUB_STEP_SUMMARY && exit 1)
+          sed -i 's/VERSION_21/VERSION_17/g' android/app/capacitor.build.gradle 2>/dev/null || true
 
       - name: Build APK with Gradle
         working-directory: mobile_app/frontend/android
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon --stacktrace -Dorg.gradle.java.home="$JAVA_HOME"
+          ./gradlew assembleDebug --no-daemon --stacktrace -Dorg.gradle.java.home="$JAVA_HOME" 2>&1 | tee /tmp/gradle.log || (echo "### Gradle Build Failed" >> $GITHUB_STEP_SUMMARY && echo '```' >> $GITHUB_STEP_SUMMARY && tail -n 100 /tmp/gradle.log >> $GITHUB_STEP_SUMMARY && echo '```' >> $GITHUB_STEP_SUMMARY && exit 1)
 
       - name: Verify & Copy APK
         run: |
