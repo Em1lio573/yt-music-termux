@@ -61,7 +61,14 @@ jobs:
         working-directory: mobile_app/frontend/android
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon --stacktrace -Dorg.gradle.java.home="$JAVA_HOME" 2>&1 | tee /tmp/gradle.log || (echo "### Gradle Build Failed" >> $GITHUB_STEP_SUMMARY && echo '```' >> $GITHUB_STEP_SUMMARY && tail -n 100 /tmp/gradle.log >> $GITHUB_STEP_SUMMARY && echo '```' >> $GITHUB_STEP_SUMMARY && exit 1)
+          ./gradlew assembleDebug --no-daemon --stacktrace -Dorg.gradle.java.home="$JAVA_HOME" 2>&1 | tee /tmp/gradle.log
+          GRADLE_STATUS=${PIPESTATUS[0]}
+          if [ $GRADLE_STATUS -ne 0 ]; then
+            ERROR_MSG=$(grep -E '(FAILURE|FAILED|Error|Caused by)' /tmp/gradle.log | head -n 10 | tr '\n' ' -- ')
+            echo "::error title=GradleFailure::$ERROR_MSG"
+            tail -n 60 /tmp/gradle.log
+            exit $GRADLE_STATUS
+          fi
 
       - name: Verify & Copy APK
         run: |
