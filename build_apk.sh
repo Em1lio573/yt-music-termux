@@ -5,14 +5,16 @@ set -e
 
 DIR_ACTUAL="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Detectar JDK 17
-if [ -d "/home/emi/.jdk/jdk-17.0.12+7" ]; then
-    export JAVA_HOME="/home/emi/.jdk/jdk-17.0.12+7"
-elif [ -d "/home/emi/StudioProjects/KALA_Terminal/sdk/jdk" ]; then
-    export JAVA_HOME="/home/emi/StudioProjects/KALA_Terminal/sdk/jdk"
+# Detectar JDK 17 si no está configurado
+if [ -z "$JAVA_HOME" ]; then
+    if [ -d "/home/emi/.jdk/jdk-17.0.12+7" ]; then
+        export JAVA_HOME="/home/emi/.jdk/jdk-17.0.12+7"
+    elif [ -d "/home/emi/StudioProjects/KALA_Terminal/sdk/jdk" ]; then
+        export JAVA_HOME="/home/emi/StudioProjects/KALA_Terminal/sdk/jdk"
+    fi
 fi
 
-export ANDROID_HOME="${ANDROID_HOME:-/home/emi/Android/Sdk}"
+export ANDROID_HOME="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/home/emi/Android/Sdk}}"
 export PATH="$JAVA_HOME/bin:$PATH"
 
 echo -e "\033[96m=== Compilando APK Nativo de Android (Apple Design) ===\033[0m"
@@ -20,6 +22,11 @@ echo "Java: $(javac -version)"
 echo "Android SDK: $ANDROID_HOME"
 
 cd "$DIR_ACTUAL/mobile_app/frontend"
+
+if [ ! -d "node_modules" ]; then
+    echo -e "\033[93mInstalando dependencias de Node.js...\033[0m"
+    npm install
+fi
 
 echo -e "\033[93m1. Compilando interfaz web (Vite)...\033[0m"
 npm run build
@@ -34,6 +41,7 @@ sed -i 's/VERSION_21/VERSION_17/g' node_modules/@capacitor/android/capacitor/bui
 
 echo -e "\033[93m3. Compilando APK con Gradle...\033[0m"
 cd android
+chmod +x gradlew
 ./gradlew assembleDebug
 
 APK_ORIGEN="app/build/outputs/apk/debug/app-debug.apk"
