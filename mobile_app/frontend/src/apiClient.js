@@ -148,7 +148,7 @@ export async function searchMusic(query) {
             duration_str: formatDuration(durationSec),
             cover: cover || 'https://music.youtube.com/img/favicon_144.png',
             previewUrl: item.previewUrl || null,
-            url: `https://music.youtube.com/search?q=${encodeURIComponent((item.artistName || '') + ' ' + (item.trackName || ''))}`,
+            url: '',
             source: 'itunes'
           };
         });
@@ -469,4 +469,62 @@ export function extractCleanUrl(text) {
   if (!text) return null;
   const match = text.match(/https?:\/\/[^\s]+/i);
   return match ? match[0] : null;
+}
+
+/**
+ * Abre el inicio de sesión nativo de YouTube en un WebView seguro
+ */
+export async function openYouTubeLogin() {
+  if (isNativeApp() && Capacitor.Plugins.NativeDownloader?.openYouTubeLogin) {
+    try {
+      return await Capacitor.Plugins.NativeDownloader.openYouTubeLogin();
+    } catch (e) {
+      console.warn('Error en openYouTubeLogin:', e);
+      throw e;
+    }
+  }
+  return { completed: false };
+}
+
+/**
+ * Consulta el estado actual de las cookies de YouTube en el dispositivo
+ */
+export async function getCookieStatus() {
+  if (isNativeApp() && Capacitor.Plugins.NativeDownloader?.getCookieStatus) {
+    try {
+      return await Capacitor.Plugins.NativeDownloader.getCookieStatus();
+    } catch (e) {
+      console.warn('Error en getCookieStatus:', e);
+    }
+  }
+  return { hasCookies: false, size: 0, lastModified: 0 };
+}
+
+/**
+ * Guarda texto sin formato en formato Netscape de cookies.txt
+ */
+export async function saveCookiesText(content) {
+  if (isNativeApp() && Capacitor.Plugins.NativeDownloader?.saveCookiesText) {
+    try {
+      return await Capacitor.Plugins.NativeDownloader.saveCookiesText({ content });
+    } catch (e) {
+      console.warn('Error en saveCookiesText:', e);
+      throw e;
+    }
+  }
+  return { success: false };
+}
+
+/**
+ * Elimina las cookies guardadas y borra la sesión
+ */
+export async function clearCookies() {
+  if (isNativeApp() && Capacitor.Plugins.NativeDownloader?.clearCookies) {
+    try {
+      return await Capacitor.Plugins.NativeDownloader.clearCookies();
+    } catch (e) {
+      console.warn('Error en clearCookies:', e);
+    }
+  }
+  return { cleared: true };
 }
