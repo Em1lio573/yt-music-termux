@@ -45,10 +45,8 @@ import com.emilio.ytmusic.web.WebTrack
 import java.lang.ref.WeakReference
 
 private val WEB_DOWNLOAD_QUALITIES = listOf(
-    "native" to "Opus Nativo (~160k)",
-    "m4a_256" to "M4A 256k (Hi-Fi)",
-    "m4a" to "M4A AAC (Universal)",
-    "mp3_320" to "MP3 320k"
+    "native" to "Opus Nativo (~160k • Recomendado)",
+    "m4a" to "M4A AAC (128k / 256k Premium)"
 )
 
 @SuppressLint("SetJavaScriptEnabled")
@@ -150,9 +148,7 @@ fun WebMusicScreen(
                         ) {
                             Text(
                                 text = when (downloaderState.selectedQuality) {
-                                    "m4a_256" -> "256k"
-                                    "m4a" -> "M4A"
-                                    "mp3_320" -> "MP3"
+                                    "m4a", "m4a_256" -> "M4A"
                                     else -> "Opus"
                                 },
                                 color = AppleRose,

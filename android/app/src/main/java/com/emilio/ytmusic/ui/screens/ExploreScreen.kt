@@ -34,9 +34,7 @@ import uniffi.ytmusic_core.TrackMetadata
 
 val QUALITIES_LIST = listOf(
     "native" to "Opus Nativo (~160k)",
-    "m4a_256" to "M4A 256k (Hi-Fi)",
-    "m4a" to "M4A AAC (Universal)",
-    "mp3_320" to "MP3 320k"
+    "m4a" to "M4A AAC (128k / 256k Premium)"
 )
 
 private val QUICK_DISCOVERY_TAGS = listOf(
