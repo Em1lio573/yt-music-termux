@@ -292,7 +292,18 @@ export async function fetchLibrary() {
   if (isNativeApp()) {
     try {
       const res = await Capacitor.Plugins.NativeDownloader.getLibrary();
-      return res.tracks || [];
+      return (res.tracks || []).map(t => {
+        let coverUrl = null;
+        if (t.coverPath) {
+          coverUrl = `${Capacitor.convertFileSrc(t.coverPath)}?t=${t.lastModified || 0}`;
+        } else if (t.cover) {
+          coverUrl = t.cover;
+        }
+        return {
+          ...t,
+          cover: coverUrl
+        };
+      });
     } catch (e) {
       console.warn('Error leyendo biblioteca nativa:', e);
       return [];
@@ -468,7 +479,132 @@ export async function requestStoragePermission() {
 export function extractCleanUrl(text) {
   if (!text) return null;
   const match = text.match(/https?:\/\/[^\s]+/i);
-  return match ? match[0] : null;
+  if (!match) return null;
+  let url = match[0];
+  url = url.replace(/([?&])list=RD[^&]*/g, '');
+  url = url.replace(/([?&])si=[^&]*/g, '');
+  url = url.replace(/([?&])feature=[^&]*/g, '');
+  if (url.includes('?&')) url = url.replace('?&', '?');
+  if (url.endsWith('?') || url.endsWith('&')) url = url.slice(0, -1);
+  return url;
+}
+
+/**
+ * Resuelve metadatos completos y oficiales de un enlace de YouTube o YouTube Music
+ */
+export async function resolveTrackFromUrl(url) {
+  if (!url) return null;
+  const clean = extractCleanUrl(url) || url.trim();
+
+  // 1. Intento nativo en Android (sin restricciones CORS)
+  if (isNativeApp() && Capacitor.Plugins.NativeDownloader?.resolveUrlMetadata) {
+    try {
+      const res = await Capacitor.Plugins.NativeDownloader.resolveUrlMetadata({ url: clean });
+      if (res && res.title) {
+        return {
+          id: res.id || String(Date.now()),
+          title: res.title,
+          artist: res.artist || 'YouTube Music',
+          album: res.album || 'Sencillos',
+          duration: res.duration || 0,
+          duration_str: res.duration_str || formatDuration(res.duration),
+          cover: res.cover || 'https://music.youtube.com/img/favicon_144.png',
+          previewUrl: null,
+          url: res.url || clean,
+          source: 'url_resolved'
+        };
+      }
+    } catch (e) {
+      console.warn('resolveUrlMetadata nativo falló:', e);
+    }
+  }
+
+  // 2. Intento oEmbed directo en cliente
+  try {
+    let oembedTarget = clean;
+    if (oembedTarget.includes('music.youtube.com')) {
+      oembedTarget = oembedTarget.replace('music.youtube.com', 'www.youtube.com');
+    }
+    const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(oembedTarget)}&format=json`;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 4000);
+    const resp = await fetch(oembedUrl, { signal: controller.signal });
+    clearTimeout(timer);
+
+    if (resp.ok) {
+      const data = await resp.json();
+      const rawTitle = data.title || '';
+      const rawAuthor = data.author_name || '';
+      const thumb = data.thumbnail_url || '';
+
+      let cleanTitle = rawTitle
+        .replace(/&amp;/g, '&')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .replace(/\s*\|\s*(official|video|audio|music video|letra|lyric|en vivo|live|remastered).*$/i, '')
+        .replace(/[\(\[\{]\s*(official\s*(music\s*)?video|video\s*oficial|audio\s*oficial|official\s*audio|lyric\s*video|visualizer|video\s*clip|en\s*vivo|live|4k\s*remaster|letra|remix|hd|4k|mv)[^\)\]\}]*[\)\]\}]/gi, '')
+        .replace(/["״'”]+/g, '')
+        .trim();
+
+      let artist = rawAuthor.replace(/\s*-\s*Topic$/i, '').replace(/(vevo|official|channel)$/i, '').trim();
+      let title = cleanTitle;
+
+      const delimiters = [' - ', ' \u2013 ', ' \u2014 ', ' || ', ' | ', ' : ', ' • ', ' · '];
+      for (const d of delimiters) {
+        if (cleanTitle.includes(d)) {
+          const parts = cleanTitle.split(d);
+          if (parts[0]?.trim() && parts[1]?.trim()) {
+            artist = parts[0].trim();
+            title = parts.slice(1).join(d).trim();
+            break;
+          }
+        }
+      }
+
+      let officialCover = null;
+      let officialAlbum = 'Sencillos';
+      let officialDuration = 0;
+
+      try {
+        const itunesUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(`${artist} ${title}`)}&entity=song&limit=5`;
+        const itRes = await fetch(itunesUrl);
+        if (itRes.ok) {
+          const itData = await itRes.json();
+          if (itData.results && itData.results.length > 0) {
+            const tWords = title.toLowerCase().replace(/[^a-z0-9áéíóúñ]/g, ' ').split(/\s+/).filter(w => w.length > 2);
+            for (const cand of itData.results) {
+              const candNorm = (cand.trackName || '').toLowerCase();
+              if (tWords.length === 0 || tWords.some(w => candNorm.includes(w))) {
+                title = cand.trackName || title;
+                artist = cand.artistName || artist;
+                officialAlbum = cand.collectionName || officialAlbum;
+                officialCover = (cand.artworkUrl100 || '').replace('100x100bb', '1200x1200bb').replace('60x60bb', '1200x1200bb');
+                officialDuration = (cand.trackTimeMillis || 0) / 1000;
+                break;
+              }
+            }
+          }
+        }
+      } catch (err) {}
+
+      return {
+        id: String(Date.now()),
+        title: title,
+        artist: artist,
+        album: officialAlbum,
+        duration: officialDuration,
+        duration_str: formatDuration(officialDuration),
+        cover: officialCover || thumb || 'https://music.youtube.com/img/favicon_144.png',
+        previewUrl: null,
+        url: clean,
+        source: 'url_resolved'
+      };
+    }
+  } catch (e) {
+    console.warn('oEmbed directo falló:', e);
+  }
+
+  return null;
 }
 
 /**
@@ -528,3 +664,500 @@ export async function clearCookies() {
   }
   return { cleared: true };
 }
+
+/**
+ * Actualiza el binario de yt-dlp a la última versión disponible desde GitHub
+ */
+export async function updateEngine() {
+  if (isNativeApp() && Capacitor.Plugins.NativeDownloader?.updateEngine) {
+    try {
+      return await Capacitor.Plugins.NativeDownloader.updateEngine();
+    } catch (e) {
+      console.warn('Error actualizando motor yt-dlp:', e);
+      throw e;
+    }
+  }
+  return { success: false, version: 'No disponible' };
+}
+
+/**
+ * Limpia términos de búsqueda para matching de alta precisión en iTunes y Deezer
+ */
+function cleanQueryTerm(term) {
+  if (!term) return '';
+  return term
+    .replace(/\(.*?(official|video|audio|remix|feat|ft|letra|lyric|prod).*?\)/gi, '')
+    .replace(/\[.*?(official|video|audio|remix|feat|ft|letra|lyric|prod).*?\]/gi, '')
+    .replace(/^[0-9]+[\s._-]+/, '')
+    .replace(/[/\\:*?"<>|]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
+ * Busca carátula oficial en Apple / iTunes (1200x1200px)
+ */
+async function searchItunesCover(artist, title, isAlbum = false) {
+  const cleanA = cleanQueryTerm(artist);
+  const cleanT = cleanQueryTerm(title);
+  const query = `${cleanA} ${cleanT}`.trim();
+  if (!query) return null;
+
+  const entity = isAlbum ? 'album' : 'song';
+  const url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=${entity}&limit=5`;
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 4000);
+    const res = await fetch(url, { signal: controller.signal });
+    clearTimeout(timer);
+
+    if (res.ok) {
+      const data = await res.json();
+      if (data.results && data.results.length > 0) {
+        const tWords = (title || '').toLowerCase().replace(/[^a-z0-9áéíóúñ]/g, ' ').split(/\s+/).filter(w => w.length > 2);
+        for (const item of data.results) {
+          const cand = isAlbum ? (item.collectionName || '') : (item.trackName || '');
+          const candNorm = cand.toLowerCase();
+          if (tWords.length === 0 || tWords.some(w => candNorm.includes(w))) {
+            const art = item.artworkUrl100 || '';
+            if (art) {
+              return art.replace('100x100bb', '1200x1200bb').replace('60x60bb', '1200x1200bb');
+            }
+          }
+        }
+      }
+    }
+  } catch (e) {}
+  return null;
+}
+
+/**
+ * Busca carátula en Deezer API como respaldo de alta resolución (1000x1000px)
+ */
+async function searchDeezerCover(artist, title, isAlbum = false) {
+  const cleanA = cleanQueryTerm(artist);
+  const cleanT = cleanQueryTerm(title);
+  const query = `${cleanA} ${cleanT}`.trim();
+  if (!query) return null;
+
+  const endpoint = isAlbum
+    ? `https://api.deezer.com/search/album?q=${encodeURIComponent(query)}&limit=5`
+    : `https://api.deezer.com/search?q=${encodeURIComponent(query)}&limit=5`;
+
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 4000);
+    const res = await fetch(endpoint, { signal: controller.signal });
+    clearTimeout(timer);
+
+    if (res.ok) {
+      const data = await res.json();
+      const items = data.data || [];
+      if (items.length > 0) {
+        const tWords = (title || '').toLowerCase().replace(/[^a-z0-9áéíóúñ]/g, ' ').split(/\s+/).filter(w => w.length > 2);
+        for (const item of items) {
+          const cand = isAlbum ? (item.title || '') : (item.title || '');
+          const candNorm = cand.toLowerCase();
+          if (tWords.length === 0 || tWords.some(w => candNorm.includes(w))) {
+            if (isAlbum && item.cover_xl) {
+              return item.cover_xl;
+            } else if (item.album && item.album.cover_xl) {
+              return item.album.cover_xl;
+            } else if (item.cover_xl) {
+              return item.cover_xl;
+            }
+          }
+        }
+      }
+    }
+  } catch (e) {}
+  return null;
+}
+
+/**
+ * Encuentra la mejor carátula cuadrada oficial combinando Apple y Deezer
+ */
+export async function findBestOfficialCover(artist, title, album, isAlbum = false) {
+  // En app nativa, el método Java busca en iTunes y Deezer directamente sin restricciones de CORS
+  if (isNativeApp() && Capacitor.Plugins.NativeDownloader?.searchCover) {
+    try {
+      const res = await Capacitor.Plugins.NativeDownloader.searchCover({ artist, title, album, isAlbum });
+      if (res && res.cover) {
+        return res.cover;
+      }
+    } catch (e) {
+      console.warn('searchCover nativo falló, recurriendo a web:', e);
+    }
+  }
+
+  let cover = await searchItunesCover(artist, isAlbum ? album : title, isAlbum);
+  if (cover) return cover;
+
+  if (isAlbum && title) {
+    cover = await searchItunesCover(artist, title, false);
+    if (cover) return cover;
+  }
+
+  cover = await searchDeezerCover(artist, isAlbum ? album : title, isAlbum);
+  if (cover) return cover;
+
+  if (isAlbum && title) {
+    cover = await searchDeezerCover(artist, title, false);
+    if (cover) return cover;
+  }
+
+  return null;
+}
+
+/**
+ * Busca múltiples candidatos de carátulas para el selector visual manual
+ */
+export async function apiSearchCoverCandidates(artist, title, album = '') {
+  if (isNativeApp() && Capacitor.Plugins.NativeDownloader?.searchCoverCandidates) {
+    try {
+      const res = await Capacitor.Plugins.NativeDownloader.searchCoverCandidates({ artist, title, album });
+      if (res && res.candidates && res.candidates.length > 0) {
+        return res.candidates;
+      }
+    } catch (e) {
+      console.warn('searchCoverCandidates nativo fallo:', e);
+    }
+  }
+
+  const list = [];
+  try {
+    const q = encodeURIComponent(`${artist} ${title}`.trim());
+    const [itRes, dzRes] = await Promise.allSettled([
+      fetch(`https://itunes.apple.com/search?term=${q}&entity=song&limit=4`),
+      fetch(`https://api.deezer.com/search/track?q=${q}&limit=4`)
+    ]);
+    if (itRes.status === 'fulfilled' && itRes.value.ok) {
+      const itData = await itRes.value.json();
+      (itData.results || []).forEach(item => {
+        if (item.artworkUrl100) {
+          list.push({
+            title: item.trackName || title,
+            artist: item.artistName || artist,
+            album: item.collectionName || '',
+            cover: item.artworkUrl100.replace('/100x100bb.jpg', '/1200x1200bb.jpg').replace('/100x100bb.png', '/1200x1200bb.png'),
+            source: 'Apple Music'
+          });
+        }
+      });
+    }
+    if (dzRes.status === 'fulfilled' && dzRes.value.ok) {
+      const dzData = await dzRes.value.json();
+      (dzData.data || []).forEach(item => {
+        const c = item.album?.cover_xl || item.cover_xl || item.album?.cover_big;
+        if (c) {
+          list.push({
+            title: item.title || title,
+            artist: item.artist?.name || artist,
+            album: item.album?.title || '',
+            cover: c,
+            source: 'Deezer'
+          });
+        }
+      });
+    }
+  } catch (e) {}
+  return list;
+}
+
+/**
+ * Obtiene sugerencias de búsqueda en tiempo real
+ */
+export async function apiGetSearchSuggestions(query) {
+  if (!query || !query.trim()) return [];
+  if (isNativeApp() && Capacitor.Plugins.NativeDownloader?.getSearchSuggestions) {
+    try {
+      const res = await Capacitor.Plugins.NativeDownloader.getSearchSuggestions({ query: query.trim() });
+      if (res && res.suggestions) {
+        return res.suggestions;
+      }
+    } catch (e) {}
+  }
+  return [];
+}
+
+/**
+ * Actualiza la carátula de una pista individual
+ */
+export async function apiUpdateTrackCover(path, artist, title, album, coverUrl) {
+  if (!isNativeApp() || !Capacitor.Plugins.NativeDownloader?.updateTrackCover) {
+    return { success: false };
+  }
+  return await Capacitor.Plugins.NativeDownloader.updateTrackCover({
+    path,
+    artist,
+    title,
+    album,
+    coverUrl
+  });
+}
+
+/**
+ * Sincroniza todas las carátulas oficiales de la biblioteca local
+ */
+export async function syncLibraryCovers(tracks, onProgress, abortSignal) {
+  if (!isNativeApp() || !tracks || tracks.length === 0) {
+    return { updated: 0, total: 0 };
+  }
+
+  const albumGroups = new Map();
+  for (const t of tracks) {
+    if (!t.path) continue;
+    const dir = t.path.substring(0, t.path.lastIndexOf('/'));
+    if (!albumGroups.has(dir)) {
+      albumGroups.set(dir, []);
+    }
+    albumGroups.get(dir).push(t);
+  }
+
+  const totalGroups = albumGroups.size;
+  let currentGroup = 0;
+  let updatedCount = 0;
+
+  for (const [dir, groupTracks] of albumGroups.entries()) {
+    if (abortSignal?.aborted) break;
+    currentGroup++;
+
+    const sample = groupTracks[0];
+    const artist = sample.artist || '';
+    const album = sample.album || sample.folder || '';
+    const isSingleFolder = /sencillo|single|musica|biblioteca|download/i.test(album);
+
+    onProgress?.({
+      current: currentGroup,
+      total: totalGroups,
+      artist,
+      item: isSingleFolder ? (sample.title || 'Sencillo') : album,
+      percent: Math.round((currentGroup / totalGroups) * 100)
+    });
+
+    try {
+      if (isSingleFolder) {
+        for (const t of groupTracks) {
+          if (abortSignal?.aborted) break;
+          const coverUrl = await findBestOfficialCover(t.artist, t.title, t.album, false);
+          if (coverUrl) {
+            await Capacitor.Plugins.NativeDownloader.updateTrackCover({
+              path: t.path,
+              artist: t.artist,
+              title: t.title,
+              album: t.album,
+              coverUrl
+            });
+            updatedCount++;
+          }
+        }
+      } else {
+        let coverUrl = await findBestOfficialCover(artist, sample.title, album, true);
+        if (coverUrl) {
+          await Capacitor.Plugins.NativeDownloader.updateTrackCover({
+            path: dir,
+            artist,
+            album,
+            coverUrl
+          });
+          updatedCount += groupTracks.length;
+        } else {
+          for (const t of groupTracks) {
+            if (abortSignal?.aborted) break;
+            const singleCover = await findBestOfficialCover(t.artist, t.title, t.album, false);
+            if (singleCover) {
+              await Capacitor.Plugins.NativeDownloader.updateTrackCover({
+                path: t.path,
+                artist: t.artist,
+                title: t.title,
+                album: t.album,
+                coverUrl: singleCover
+              });
+              updatedCount++;
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('Error sincronizando carpeta:', dir, e);
+    }
+  }
+
+  return { updated: updatedCount, total: tracks.length };
+}
+
+/**
+ * Parsea texto de letras en formato LRC a un array ordenado de líneas con timestamps en segundos
+ */
+export function parseLrcLyrics(lrcText) {
+  if (!lrcText) return [];
+  const lines = lrcText.split('\n');
+  const result = [];
+  const timeRegex = /\[(\d{1,2}):(\d{2})(?:\.(\d{1,3}))?\]/g;
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    if (/^\[(ti|ar|al|by|offset|length|re|ve):/i.test(trimmed)) continue;
+
+    let match;
+    const timestamps = [];
+    timeRegex.lastIndex = 0;
+    while ((match = timeRegex.exec(trimmed)) !== null) {
+      const minutes = parseInt(match[1], 10);
+      const seconds = parseInt(match[2], 10);
+      const millis = match[3] ? parseFloat('0.' + match[3]) : 0;
+      timestamps.push(minutes * 60 + seconds + millis);
+    }
+
+    const text = trimmed.replace(timeRegex, '').trim();
+    if (timestamps.length > 0) {
+      for (const time of timestamps) {
+        result.push({ time, text });
+      }
+    } else if (text) {
+      result.push({ time: -1, text });
+    }
+  }
+
+  result.sort((a, b) => a.time - b.time);
+  return result;
+}
+
+/**
+ * Obtiene las letras de una canción (desde archivo local .lrc o mediante LRCLIB)
+ */
+export async function fetchTrackLyrics(track) {
+  if (!track) return null;
+
+  // 1. Si es app nativa, consultar plugin (lee .lrc local o descarga en segundo plano)
+  if (isNativeApp() && Capacitor.Plugins.NativeDownloader?.getLyrics) {
+    try {
+      const res = await Capacitor.Plugins.NativeDownloader.getLyrics({
+        path: track.path || '',
+        artist: track.artist || '',
+        title: track.title || ''
+      });
+      if (res && (res.syncedLyrics || res.plainLyrics)) {
+        return {
+          syncedLyrics: res.syncedLyrics || '',
+          plainLyrics: res.plainLyrics || '',
+          parsed: parseLrcLyrics(res.syncedLyrics || res.plainLyrics || ''),
+          source: res.source || 'native'
+        };
+      }
+    } catch (e) {
+      console.warn('getLyrics nativo falló:', e);
+    }
+  }
+
+  // 2. Consulta directa a LRCLIB en cliente / web
+  const artist = cleanQueryTerm(track.artist || '');
+  const title = cleanQueryTerm(track.title || '');
+  if (!title) return null;
+
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 5000);
+    const getUrl = `https://lrclib.net/api/get?artist_name=${encodeURIComponent(artist)}&track_name=${encodeURIComponent(title)}`;
+    const res = await fetch(getUrl, { signal: controller.signal });
+    clearTimeout(timer);
+
+    if (res.ok) {
+      const data = await res.json();
+      const synced = data.syncedLyrics || '';
+      const plain = data.plainLyrics || '';
+      if (synced || plain) {
+        return {
+          syncedLyrics: synced,
+          plainLyrics: plain,
+          parsed: parseLrcLyrics(synced || plain),
+          source: 'lrclib'
+        };
+      }
+    }
+  } catch (e) {}
+
+  // Intento de búsqueda general
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 5000);
+    const sUrl = `https://lrclib.net/api/search?q=${encodeURIComponent(`${artist} ${title}`)}`;
+    const res = await fetch(sUrl, { signal: controller.signal });
+    clearTimeout(timer);
+
+    if (res.ok) {
+      const list = await res.json();
+      if (Array.isArray(list) && list.length > 0) {
+        const first = list[0];
+        const synced = first.syncedLyrics || '';
+        const plain = first.plainLyrics || '';
+        if (synced || plain) {
+          return {
+            syncedLyrics: synced,
+            plainLyrics: plain,
+            parsed: parseLrcLyrics(synced || plain),
+            source: 'lrclib_search'
+          };
+        }
+      }
+    }
+  } catch (e) {}
+
+  return null;
+}
+
+/**
+ * Obtiene la configuración de carpetas y escaneo de biblioteca
+ */
+export async function getLibraryConfig() {
+  if (isNativeApp() && window.Capacitor?.Plugins?.NativeDownloader?.getLibraryConfig) {
+    try {
+      return await window.Capacitor.Plugins.NativeDownloader.getLibraryConfig();
+    } catch (e) {
+      console.warn('Error obteniendo config de biblioteca:', e);
+    }
+  }
+  return {
+    musicDirectory: '/storage/emulated/0/Music/Biblioteca',
+    customFolders: [],
+    scanMode: 'selected',
+    includeDownloads: false,
+    ignoreWhatsApp: true,
+    ignoreRecordings: true,
+    minDurationSec: 30,
+    detectedFolders: [
+      { path: '/storage/emulated/0/Music/Biblioteca', name: 'Biblioteca YT Music', desc: 'Carpeta organizada por Artista/Álbum', isDefault: true, audioCount: 0 }
+    ]
+  };
+}
+
+/**
+ * Guarda la configuración de carpetas y filtros de biblioteca
+ */
+export async function setLibraryConfig(config) {
+  if (isNativeApp() && window.Capacitor?.Plugins?.NativeDownloader?.setLibraryConfig) {
+    try {
+      return await window.Capacitor.Plugins.NativeDownloader.setLibraryConfig(config);
+    } catch (e) {
+      console.warn('Error guardando config de biblioteca:', e);
+      throw e;
+    }
+  }
+  return { success: true, musicDirectory: config.musicDirectory };
+}
+
+/**
+ * Lista subdirectorios en una ruta específica para el explorador de carpetas
+ */
+export async function listDirectories(path = '') {
+  if (isNativeApp() && window.Capacitor?.Plugins?.NativeDownloader?.listDirectories) {
+    try {
+      return await window.Capacitor.Plugins.NativeDownloader.listDirectories({ path });
+    } catch (e) {
+      console.warn('Error listando directorios:', e);
+    }
+  }
+  return { currentPath: path || '/storage/emulated/0', parentPath: null, directories: [] };
+}
+

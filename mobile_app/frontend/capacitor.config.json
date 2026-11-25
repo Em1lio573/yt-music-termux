@@ -1,5 +1,10 @@
 {
   "appId": "com.emilio.ytmusic",
   "appName": "YT Music Pro",
-  "webDir": "../dist"
+  "webDir": "../dist",
+  "plugins": {
+    "CapacitorHttp": {
+      "enabled": true
+    }
+  }
 }

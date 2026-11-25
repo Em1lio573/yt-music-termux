@@ -10,8 +10,12 @@ mobile_app/frontend/node_modules/
 .agents/
 skills-lock.json
 .gradle/
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+core-rust/target/
 mobile_app/frontend/android/.gradle/
 mobile_app/frontend/android/app/build/
 mobile_app/frontend/android/capacitor-cordova-android-plugins/build/
 *.apk
-

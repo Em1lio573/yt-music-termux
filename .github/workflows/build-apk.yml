@@ -1,9 +1,13 @@
-name: Build Android APK
+name: Build & Release Native Android APK
 
 on:
   push:
     branches: [ main ]
+    tags: [ 'v*' ]
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 env:
   ANDROID_HOME: /usr/local/lib/android/sdk
@@ -23,50 +27,25 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Set up Node.js 22
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
       - name: Setup Android SDK
         uses: android-actions/setup-android@v4
         with:
-          packages: 'platforms;android-36 build-tools;36.0.0'
+          packages: 'platforms;android-35 build-tools;35.0.0'
 
-      - name: Install Frontend Dependencies
-        working-directory: mobile_app/frontend
-        run: npm install
-
-      - name: Build Web Assets (Vite)
-        working-directory: mobile_app/frontend
-        run: npm run build
-
-      - name: Configure Android Project & Compatibility
+      - name: Build Native Android APK (Rust Core + Jetpack Compose)
+        working-directory: android
         run: |
-          echo "sdk.dir=${ANDROID_HOME}" > mobile_app/frontend/android/local.properties
-          sed -i 's/VERSION_21/VERSION_17/g' mobile_app/frontend/android/app/build.gradle 2>/dev/null || true
-          sed -i 's/VERSION_21/VERSION_17/g' mobile_app/frontend/android/app/capacitor.build.gradle 2>/dev/null || true
-          sed -i 's/VERSION_21/VERSION_17/g' mobile_app/frontend/android/capacitor-cordova-android-plugins/build.gradle 2>/dev/null || true
-          sed -i 's/VERSION_21/VERSION_17/g' mobile_app/frontend/node_modules/@capacitor/android/capacitor/build.gradle 2>/dev/null || true
-
-      - name: Copy Web Assets to Android (Capacitor)
-        working-directory: mobile_app/frontend
-        run: npx cap copy android
-
-      - name: Build APK with Gradle
-        working-directory: mobile_app/frontend/android
-        run: |
+          echo "sdk.dir=${ANDROID_HOME}" > local.properties
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon --stacktrace -Dorg.gradle.java.home="$JAVA_HOME"
+          ./gradlew assembleDebug --no-daemon --stacktrace
 
-      - name: Verify & Copy APK
+      - name: Prepare APK
         run: |
-          APK_FILE="mobile_app/frontend/android/app/build/outputs/apk/debug/app-debug.apk"
+          APK_FILE="android/app/build/outputs/apk/debug/app-debug.apk"
           if [ ! -f "$APK_FILE" ]; then
             echo "Error: No se encontró $APK_FILE"
             exit 1
           fi
-          echo "APK generado con éxito: $APK_FILE"
           cp "$APK_FILE" YT-Music-Pro.apk
           ls -lh YT-Music-Pro.apk
 
@@ -75,3 +54,22 @@ jobs:
         with:
           name: YT-Music-Pro-APK
           path: YT-Music-Pro.apk
+
+      - name: Publish GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "YouTube Music Pro ${{ github.ref_name }}"
+          body: |
+            ## YouTube Music Pro ${{ github.ref_name }} (100% Nativa: Rust NDK + Kotlin Jetpack Compose)
+
+            ### Novedades principales:
+            - **Arquitectura 100% Nativa:** Motor en Rust (descargas concurrentes, Innertube, Lofty tags) + UI en Kotlin Jetpack Compose con efectos Apple Design (`applePressEffect`, `appleGlass`, Now Playing a pantalla completa).
+            - **Reproductor Unificado (Local + Web Music):** Un solo coordinador de audio, una sola notificación/pantalla de bloqueo con carátula real, barra de progreso deslizable (`ACTION_SEEK_TO`), reproducción en segundo plano y pausa automática al desconectar audífonos.
+            - **Navegador Web Music Optimizado:** Bloqueo de anuncios y avisos invasivos, caché persistente de WebView (apertura instantánea entre pestañas) y botón de descarga integrado en cabecera.
+            - **Metadatos y Biblioteca Limpia:** Artista principal + secundarios completos, carátulas incrustadas (sin `.jpg` sueltos en tu Galería), limpieza automática de duplicados entre formatos y modos **Aleatorio** y **Aleatorio Inteligente** (ponderado por tus más escuchadas).
+            - **Audio DSP sin picos:** Suavizado anti-pop al adelantar/retroceder en la barra de progreso.
+          files: |
+            YT-Music-Pro.apk
+          draft: false
+          prerelease: false

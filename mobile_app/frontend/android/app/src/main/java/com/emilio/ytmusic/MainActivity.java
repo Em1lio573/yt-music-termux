@@ -5,6 +5,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.WindowManager;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -19,6 +20,29 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         registerPlugin(NativeDownloaderPlugin.class);
         super.onCreate(savedInstanceState);
+
+        // Interceptar gestos de retroceso del sistema (back gestures) y teclas físicas de Android
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (getBridge() != null && getBridge().getWebView() != null) {
+                    getBridge().getWebView().post(() -> {
+                        getBridge().getWebView().evaluateJavascript(
+                            "(function() { try { return (window.handleSystemBack && window.handleSystemBack()) ? 'handled' : 'unhandled'; } catch(e) { return 'unhandled'; } })()",
+                            result -> {
+                                if (result == null || result.contains("unhandled") || "null".equals(result)) {
+                                    runOnUiThread(() -> {
+                                        moveTaskToBack(true);
+                                    });
+                                }
+                            }
+                        );
+                    });
+                } else {
+                    moveTaskToBack(true);
+                }
+            }
+        });
 
         // Habilitar modo Edge-to-Edge bajo el notch y barras del sistema
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {

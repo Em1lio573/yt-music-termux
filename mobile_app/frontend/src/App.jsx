@@ -4,7 +4,9 @@ import {
   RefreshCw, Folder, Trash2, ShieldCheck, Sparkles, Sliders, ExternalLink,
   Volume2, AlertCircle, ArrowDownCircle, HardDrive, Radio, Terminal as TerminalIcon,
   ChevronDown, ChevronUp, Cpu, Smartphone, Disc, Filter, CheckCircle2,
-  UserCheck, FileText, X, Lock
+  UserCheck, FileText, X, Lock, Mic2, RotateCcw, RotateCw, SkipBack, SkipForward,
+  ClipboardPaste, Flame, SlidersHorizontal, Clock, Heart, MoreVertical, ListMusic, ListPlus,
+  WifiOff, Wifi
 } from 'lucide-react';
 import {
   isNativeApp,
@@ -12,6 +14,7 @@ import {
   getStoredServerUrl,
   setStoredServerUrl,
   testServerConnection,
+  formatDuration,
   searchMusic,
   requestDownload,
   subscribeDownloadEvents,
@@ -29,15 +32,28 @@ import {
   openYouTubeLogin,
   getCookieStatus,
   saveCookiesText,
-  clearCookies
+  clearCookies,
+  updateEngine,
+  syncLibraryCovers,
+  resolveTrackFromUrl,
+  fetchTrackLyrics,
+  parseLrcLyrics,
+  apiGetSearchSuggestions
 } from './apiClient';
+import NowPlayingSheet from './components/NowPlayingSheet';
+import MiniProgressBar from './components/MiniProgressBar';
+import CoverPickerModal from './components/CoverPickerModal';
+import PlaylistModal from './components/PlaylistModal';
+import FolderPickerModal from './components/FolderPickerModal';
+import DownloadQueueModal from './components/DownloadQueueModal';
+import { audioDsp } from './audioDsp';
 
 const CALIDADES = [
-  { id: 'native', nombre: 'Opus Nativo', badge: '~160 kbps VBR', desc: 'Máster oficial sin recodificar (Máxima fidelidad real de YouTube Music)', icon: '🎵', recommended: true },
-  { id: 'm4a', nombre: 'M4A / AAC', badge: '~128 kbps', desc: 'Nativo sin recodificar (Universal Apple, Android y estéreos modernos)', icon: '🎧' },
-  { id: 'm4a_256', nombre: 'M4A Premium', badge: '256 kbps', desc: 'Audio de alta fidelidad (Requiere cuenta YouTube Music Premium)', icon: '✨' },
-  { id: 'mp3_320', nombre: 'MP3 320k', badge: 'Transcodificado', desc: 'Para estéreos de auto antiguos que no leen Opus ni M4A', icon: '💿' },
-  { id: 'data_saver', nombre: 'Ahorro de Datos', badge: 'Opus ~70k', desc: 'Mínimo consumo de espacio de almacenamiento en el teléfono', icon: '⚡' }
+  { id: 'native', nombre: 'Opus Nativo', badge: '~160 kbps VBR', desc: 'Máster oficial sin recodificar (Máxima fidelidad real de YouTube Music)', recommended: true },
+  { id: 'm4a', nombre: 'M4A / AAC', badge: '~128 kbps', desc: 'Nativo sin recodificar (Universal Apple, Android y estéreos modernos)' },
+  { id: 'm4a_256', nombre: 'M4A Premium', badge: '256 kbps', desc: 'Audio de alta fidelidad (Requiere cuenta YouTube Music Premium)' },
+  { id: 'mp3_320', nombre: 'MP3 320k', badge: 'Transcodificado', desc: 'Para estéreos de auto antiguos que no leen Opus ni M4A' },
+  { id: 'data_saver', nombre: 'Ahorro de Datos', badge: 'Opus ~70k', desc: 'Mínimo consumo de espacio de almacenamiento en el teléfono' }
 ];
 
 export default function App() {
@@ -51,22 +67,87 @@ export default function App() {
   
   // Estado del motor de descargas
   const [engineInfo, setEngineInfo] = useState({ isNative: false, initialized: false, version: '' });
+
+  // Estado de conectividad de red (Online / Offline)
+  const [isOnline, setIsOnline] = useState(() => typeof navigator !== 'undefined' ? navigator.onLine : true);
+  const [showRestoredToast, setShowRestoredToast] = useState(false);
+  const [isCheckingConnection, setIsCheckingConnection] = useState(false);
+  const [offlineAttemptNotice, setOfflineAttemptNotice] = useState(false);
   
-  // Estado de descarga activa y terminal en vivo
-  const [downloadProgress, setDownloadProgress] = useState(null);
+  // Estado de cola de descargas múltiples y terminal en vivo
+  const [downloadQueue, setDownloadQueue] = useState([]);
+  const [showQueueModal, setShowQueueModal] = useState(false);
+  const isProcessingQueueRef = useRef(false);
   const [downloadSuccessMessage, setDownloadSuccessMessage] = useState('');
   const [terminalLines, setTerminalLines] = useState([]);
   const [showTerminal, setShowTerminal] = useState(false);
-  const terminalEndRef = useRef(null);
+  const terminalContainerRef = useRef(null);
+  const [showQualityDropdown, setShowQualityDropdown] = useState(false);
+
+  const activeDownload = useMemo(() => {
+    return downloadQueue.find(q => q.status === 'downloading') || 
+           downloadQueue.find(q => q.status === 'queued') ||
+           null;
+  }, [downloadQueue]);
+
+  const queuedDownloadsCount = useMemo(() => {
+    return downloadQueue.filter(q => q.status === 'queued').length;
+  }, [downloadQueue]);
   
-  // Biblioteca y Reproductor
+  // Biblioteca y Reproductor Pro Apple Music
   const [libraryTracks, setLibraryTracks] = useState([]);
   const [historyList, setHistoryList] = useState([]);
-  const [currentTrack, setCurrentTrack] = useState(null);
+  const [currentTrack, setCurrentTrack] = useState(() => {
+    try {
+      const saved = localStorage.getItem('ytm_last_track');
+      return saved ? JSON.parse(saved) : null;
+    } catch (e) {
+      return null;
+    }
+  });
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioDuration, setAudioDuration] = useState(0);
-  const [audioCurrentTime, setAudioCurrentTime] = useState(0);
   const audioRef = useRef(null);
+
+  // Cola de reproducción, modos y controles de audio
+  const [queue, setQueue] = useState([]);
+  const [queueIndex, setQueueIndex] = useState(0);
+  const [shuffle, setShuffle] = useState(false);
+  const [repeatMode, setRepeatMode] = useState('all'); // 'off' | 'all' | 'one'
+  const [volume, setVolume] = useState(() => {
+    try {
+      const v = localStorage.getItem('ytm_volume');
+      return v !== null ? parseFloat(v) : 1;
+    } catch (e) {
+      return 1;
+    }
+  });
+  const [isMuted, setIsMuted] = useState(false);
+  const [playbackRate, setPlaybackRate] = useState(1);
+  const [sleepTimer, setSleepTimer] = useState(null); // { minutesLeft: number, mode: 'timer'|'track' }
+
+  // Persistir última canción escuchada
+  useEffect(() => {
+    if (currentTrack) {
+      try {
+        localStorage.setItem('ytm_last_track', JSON.stringify({
+          title: currentTrack.title,
+          artist: currentTrack.artist,
+          album: currentTrack.album,
+          folder: currentTrack.folder,
+          cover: currentTrack.cover,
+          path: currentTrack.path,
+          duration_str: currentTrack.duration_str
+        }));
+      } catch (e) {}
+    }
+  }, [currentTrack]);
+
+  // Pantalla completa Now Playing estilo Apple Music (Portada, Letras, Cola)
+  const [showNowPlayingSheet, setShowNowPlayingSheet] = useState(false);
+  const [nowPlayingTab, setNowPlayingTab] = useState('artwork'); // 'artwork' | 'lyrics' | 'queue'
+  const [trackLyrics, setTrackLyrics] = useState(null);
+  const [isLoadingLyrics, setIsLoadingLyrics] = useState(false);
 
   // Permiso de almacenamiento completo y filtros de biblioteca
   const [hasStoragePermission, setHasStoragePermission] = useState(true);
@@ -83,6 +164,123 @@ export default function App() {
   const [previewTrackId, setPreviewTrackId] = useState(null);
   const previewAudioRef = useRef(new Audio());
 
+  // Sincronización masiva de carátulas oficiales 1200x1200px
+  const [isSyncingCovers, setIsSyncingCovers] = useState(false);
+  const [syncProgress, setSyncProgress] = useState({ current: 0, total: 0, artist: '', item: '', percent: 0 });
+  const [syncAbortController, setSyncAbortController] = useState(null);
+  const [syncSuccessMsg, setSyncSuccessMsg] = useState('');
+  const [urlResolvingStatus, setUrlResolvingStatus] = useState('');
+
+  // Favoritos y Listas de Reproducción personalizadas
+  const [favorites, setFavorites] = useState(() => {
+    try {
+      const saved = localStorage.getItem('ytm_favorites');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
+  });
+  const [playlists, setPlaylists] = useState(() => {
+    try {
+      const saved = localStorage.getItem('ytm_playlists');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
+  });
+  const [selectedPlaylistFilter, setSelectedPlaylistFilter] = useState('all'); // 'all' | 'favorites' | playlistId
+
+  // Modales de Carátula, Playlists y Carpetas
+  const [showCoverPicker, setShowCoverPicker] = useState(false);
+  const [coverPickerTrack, setCoverPickerTrack] = useState(null);
+  const [showPlaylistModal, setShowPlaylistModal] = useState(false);
+  const [playlistModalTrack, setPlaylistModalTrack] = useState(null);
+  const [showFolderModal, setShowFolderModal] = useState(false);
+  const [trackMenuOpen, setTrackMenuOpen] = useState(null); // track.path
+
+  // Autocompletado predictivo en Explorar
+  const [searchSuggestions, setSearchSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const suggestionsTimerRef = useRef(null);
+
+  // Gesto táctil horizontal en mini-reproductor
+  const miniSwipeStartX = useRef(0);
+
+  // Gestor para gestos de retroceso del sistema (Android Back Gestures)
+  const backStateRef = useRef({});
+  backStateRef.current = {
+    showNowPlayingSheet,
+    showCoverPicker,
+    showPlaylistModal,
+    showFolderModal,
+    showQueueModal,
+    showCookieModal,
+    showTerminal,
+    trackMenuOpen,
+    showSuggestions,
+    activeTab,
+    query,
+    searchResults
+  };
+
+  useEffect(() => {
+    window.handleSystemBack = () => {
+      const s = backStateRef.current;
+      if (s.showNowPlayingSheet) {
+        setShowNowPlayingSheet(false);
+        return true;
+      }
+      if (s.showCoverPicker) {
+        setShowCoverPicker(false);
+        setCoverPickerTrack(null);
+        return true;
+      }
+      if (s.showQueueModal) {
+        setShowQueueModal(false);
+        return true;
+      }
+      if (s.showFolderModal) {
+        setShowFolderModal(false);
+        return true;
+      }
+      if (s.showPlaylistModal) {
+        setShowPlaylistModal(false);
+        setPlaylistModalTrack(null);
+        return true;
+      }
+      if (s.showCookieModal) {
+        setShowCookieModal(false);
+        return true;
+      }
+      if (s.showTerminal) {
+        setShowTerminal(false);
+        return true;
+      }
+      if (s.trackMenuOpen) {
+        setTrackMenuOpen(null);
+        return true;
+      }
+      if (s.showSuggestions) {
+        setShowSuggestions(false);
+        return true;
+      }
+      if (s.activeTab !== 'explore') {
+        setActiveTab('explore');
+        return true;
+      }
+      if (s.query || (s.searchResults && s.searchResults.length > 0)) {
+        setQuery('');
+        setSearchResults([]);
+        return true;
+      }
+      return false;
+    };
+
+    return () => {
+      window.handleSystemBack = null;
+    };
+  }, []);
+
   // Inicialización
   useEffect(() => {
     initEngine();
@@ -93,12 +291,18 @@ export default function App() {
     const unsubscribe = subscribeDownloadEvents(
       (data) => {
         if (data.percent !== undefined) {
-          setDownloadProgress(prev => ({
-            ...prev,
-            percent: data.percent,
-            eta: data.eta || '--',
-            speed: data.speed || '',
-            statusText: data.statusText || 'Procesando descarga...'
+          setDownloadQueue(prev => prev.map(q => {
+            if (q.status === 'downloading') {
+              return {
+                ...q,
+                percent: data.percent,
+                eta: data.eta || (q.eta || '--'),
+                speed: data.speed !== undefined && data.speed !== '' ? data.speed : (q.speed || ''),
+                statusText: data.statusText || q.statusText,
+                stage: data.stage || q.stage
+              };
+            }
+            return q;
           }));
         }
       },
@@ -118,10 +322,65 @@ export default function App() {
     };
   }, []);
 
-  // Auto-scroll para la terminal en vivo
+  // Detección reactiva de conexión a Internet (Online / Offline)
   useEffect(() => {
-    if (showTerminal && terminalEndRef.current) {
-      terminalEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    let timer = null;
+    const handleOnline = () => {
+      setIsOnline(true);
+      setShowRestoredToast(true);
+      timer = setTimeout(() => setShowRestoredToast(false), 3500);
+    };
+    const handleOffline = () => {
+      setIsOnline(false);
+      setShowRestoredToast(false);
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      setIsOnline(false);
+    }
+
+    return () => {
+      if (timer) clearTimeout(timer);
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  // Comprobar estado real de red con solicitud liviana
+  const checkConnectionManually = async () => {
+    setIsCheckingConnection(true);
+    try {
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        setIsOnline(false);
+        setIsCheckingConnection(false);
+        return;
+      }
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000);
+      try {
+        await fetch('https://www.google.com/generate_204', { mode: 'no-cors', signal: controller.signal, cache: 'no-store' });
+        setIsOnline(true);
+        setShowRestoredToast(true);
+        setTimeout(() => setShowRestoredToast(false), 3500);
+      } catch (err) {
+        setIsOnline(false);
+      } finally {
+        clearTimeout(timeoutId);
+      }
+    } catch (e) {
+      setIsOnline(false);
+    } finally {
+      setIsCheckingConnection(false);
+    }
+  };
+
+  // Auto-scroll interno para la consola técnica SIN mover la ventana del usuario
+  useEffect(() => {
+    if (showTerminal && terminalContainerRef.current) {
+      terminalContainerRef.current.scrollTop = terminalContainerRef.current.scrollHeight;
     }
   }, [terminalLines, showTerminal]);
 
@@ -162,6 +421,21 @@ export default function App() {
     await loadCookieInfo();
   };
 
+  const [isUpdatingEngine, setIsUpdatingEngine] = useState(false);
+
+  const handleUpdateEngine = async () => {
+    setIsUpdatingEngine(true);
+    try {
+      const res = await updateEngine();
+      alert(`Motor yt-dlp actualizado con éxito a la versión ${res.version || 'reciente'}`);
+      await initEngine();
+    } catch (err) {
+      alert(`Error actualizando motor yt-dlp: ${err.message}`);
+    } finally {
+      setIsUpdatingEngine(false);
+    }
+  };
+
   const initEngine = async () => {
     const status = await getEngineStatus();
     setEngineInfo(status);
@@ -197,6 +471,52 @@ export default function App() {
     }
   };
 
+  // Sincronizar carátulas oficiales para toda la biblioteca
+  const handleSyncCovers = async () => {
+    if (isSyncingCovers || libraryTracks.length === 0) return;
+
+    if (isNativeApp()) {
+      const hasPerm = await checkStoragePermission();
+      if (!hasPerm) {
+        alert('Se requiere permiso de acceso a todos los archivos para guardar las carátulas en tu música. Por favor autorízalo en los ajustes.');
+        await requestStoragePermission();
+        return;
+      }
+    }
+
+    const controller = new AbortController();
+    setSyncAbortController(controller);
+    setIsSyncingCovers(true);
+    setSyncProgress({ current: 0, total: 0, artist: '', item: '', percent: 0 });
+    setSyncSuccessMsg('');
+
+    try {
+      const res = await syncLibraryCovers(
+        libraryTracks,
+        (p) => setSyncProgress(p),
+        controller.signal
+      );
+      if (!controller.signal.aborted) {
+        setSyncSuccessMsg(`Sincronización finalizada: se actualizaron ${res.updated} carátulas.`);
+        await loadLibraryData();
+        setTimeout(() => setSyncSuccessMsg(''), 8000);
+      }
+    } catch (err) {
+      console.warn('Error sincronizando carátulas:', err);
+    } finally {
+      setIsSyncingCovers(false);
+      setSyncAbortController(null);
+    }
+  };
+
+  const cancelSyncCovers = () => {
+    if (syncAbortController) {
+      syncAbortController.abort();
+      setIsSyncingCovers(false);
+      setSyncAbortController(null);
+    }
+  };
+
   // Extracción dinámica de artistas con conteo de canciones
   const artistStats = useMemo(() => {
     const map = {};
@@ -212,6 +532,17 @@ export default function App() {
   // Filtrado y ordenamiento dinámico de biblioteca local
   const filteredLibraryTracks = useMemo(() => {
     let list = [...libraryTracks];
+
+    if (selectedPlaylistFilter === 'favorites') {
+      const favSet = new Set(favorites);
+      list = list.filter(t => favSet.has(t.path));
+    } else if (selectedPlaylistFilter !== 'all') {
+      const pl = playlists.find(p => p.id === selectedPlaylistFilter);
+      if (pl && pl.tracks) {
+        const plSet = new Set(pl.tracks.map(t => t.path));
+        list = list.filter(t => plSet.has(t.path));
+      }
+    }
 
     if (selectedArtistFilter !== 'ALL') {
       list = list.filter(t => (t.artist || '').trim().toLowerCase() === selectedArtistFilter.toLowerCase());
@@ -236,7 +567,84 @@ export default function App() {
     }
 
     return list;
-  }, [libraryTracks, selectedArtistFilter, librarySearchQuery, librarySortBy]);
+  }, [libraryTracks, selectedPlaylistFilter, favorites, playlists, selectedArtistFilter, librarySearchQuery, librarySortBy]);
+
+  // Alternar favoritos con persistencia y respuesta háptica
+  const toggleFavorite = (track, e) => {
+    if (e) e.stopPropagation();
+    if (!track?.path) return;
+    if (window.navigator?.vibrate) window.navigator.vibrate(10);
+    setFavorites(prev => {
+      const exists = prev.includes(track.path);
+      const updated = exists ? prev.filter(p => p !== track.path) : [...prev, track.path];
+      try {
+        localStorage.setItem('ytm_favorites', JSON.stringify(updated));
+      } catch (err) {}
+      return updated;
+    });
+  };
+
+  // Gestión de Listas de Reproducción
+  const handleCreatePlaylist = (name) => {
+    const newPl = {
+      id: 'pl_' + Date.now(),
+      name,
+      tracks: [],
+      createdAt: Date.now()
+    };
+    setPlaylists(prev => {
+      const updated = [...prev, newPl];
+      try { localStorage.setItem('ytm_playlists', JSON.stringify(updated)); } catch (e) {}
+      return updated;
+    });
+    if (window.navigator?.vibrate) window.navigator.vibrate(10);
+  };
+
+  const handleAddToPlaylist = (playlistId, track) => {
+    setPlaylists(prev => {
+      const updated = prev.map(pl => {
+        if (pl.id === playlistId) {
+          const exists = pl.tracks.some(t => t.path === track.path);
+          if (!exists) {
+            return { ...pl, tracks: [...pl.tracks, track] };
+          }
+        }
+        return pl;
+      });
+      try { localStorage.setItem('ytm_playlists', JSON.stringify(updated)); } catch (e) {}
+      return updated;
+    });
+    if (window.navigator?.vibrate) window.navigator.vibrate(10);
+  };
+
+  const handleDeletePlaylist = (playlistId) => {
+    setPlaylists(prev => {
+      const updated = prev.filter(pl => pl.id !== playlistId);
+      try { localStorage.setItem('ytm_playlists', JSON.stringify(updated)); } catch (e) {}
+      return updated;
+    });
+    if (selectedPlaylistFilter === playlistId) setSelectedPlaylistFilter('all');
+  };
+
+  const handlePlayPlaylist = (playlist) => {
+    if (!playlist.tracks || playlist.tracks.length === 0) return;
+    setQueue(playlist.tracks);
+    setQueueIndex(0);
+    playTrack(playlist.tracks[0], playlist.tracks);
+  };
+
+  // Actualización inmediata de carátula en memoria
+  const handleCoverUpdated = (newCoverUrl, trackPath) => {
+    setLibraryTracks(prev => prev.map(t => {
+      if (t.path === trackPath) {
+        return { ...t, cover: newCoverUrl, coverPath: newCoverUrl };
+      }
+      return t;
+    }));
+    if (currentTrack?.path === trackPath) {
+      setCurrentTrack(prev => ({ ...prev, cover: newCoverUrl }));
+    }
+  };
 
   // Almacenamiento total calculado
   const totalLibrarySizeMb = useMemo(() => {
@@ -244,16 +652,93 @@ export default function App() {
     return Math.round(sum * 10) / 10;
   }, [libraryTracks]);
 
+  // Resolución automática de enlaces con estado visual
+  const autoResolveUrl = async (rawText) => {
+    const cleanUrl = extractCleanUrl(rawText);
+    if (!cleanUrl) return null;
+
+    if (!isOnline && typeof navigator !== 'undefined' && !navigator.onLine) {
+      setOfflineAttemptNotice(true);
+      setTimeout(() => setOfflineAttemptNotice(false), 4000);
+      return null;
+    }
+
+    setIsSearching(true);
+    setUrlResolvingStatus('Identificando canción y carátula oficial...');
+    try {
+      const resolved = await resolveTrackFromUrl(cleanUrl);
+      if (resolved) {
+        setSearchResults([resolved]);
+        return resolved;
+      }
+    } catch (err) {
+      console.warn('Error resolviendo enlace:', err);
+    } finally {
+      setIsSearching(false);
+      setUrlResolvingStatus('');
+    }
+    return null;
+  };
+
+  const handleQueryChange = (e) => {
+    const val = e.target.value;
+    setQuery(val);
+    const cleanUrl = extractCleanUrl(val);
+    if (cleanUrl) {
+      autoResolveUrl(cleanUrl);
+      setShowSuggestions(false);
+    } else if (val.trim().length >= 2) {
+      if (suggestionsTimerRef.current) clearTimeout(suggestionsTimerRef.current);
+      suggestionsTimerRef.current = setTimeout(async () => {
+        const sugs = await apiGetSearchSuggestions(val);
+        setSearchSuggestions(sugs);
+        setShowSuggestions(sugs.length > 0);
+      }, 150);
+    } else {
+      setShowSuggestions(false);
+    }
+  };
+
+  // Resolver automáticamente metadatos en cuanto el usuario pega un enlace en el input
+  const handlePaste = (e) => {
+    const pasted = e.clipboardData?.getData('text') || '';
+    const cleanUrl = extractCleanUrl(pasted);
+    if (cleanUrl) {
+      autoResolveUrl(cleanUrl);
+    }
+  };
+
   // Buscar canciones (directo en iTunes API + YouTube Music Nativo)
-  const handleSearch = async (e) => {
-    if (e) e.preventDefault();
-    const raw = query.trim();
+  const executeSearchQuery = async (rawQuery) => {
+    const raw = (rawQuery || '').trim();
     if (!raw) return;
 
-    // Detectar si el texto contiene una URL limpia (ej: mensaje compartido desde YouTube Music)
+    if (!isOnline && typeof navigator !== 'undefined' && !navigator.onLine) {
+      setOfflineAttemptNotice(true);
+      setTimeout(() => setOfflineAttemptNotice(false), 4000);
+      return;
+    }
+
+    // Detectar si el texto contiene una URL (YouTube / YouTube Music)
     const cleanUrl = extractCleanUrl(raw);
     if (cleanUrl) {
-      handleDownloadItem({ url: cleanUrl, title: 'Enlace directo de YouTube Music', artist: '' });
+      setIsSearching(true);
+      try {
+        let targetTrack = searchResults.find(r => r.url === cleanUrl || r.url?.includes(cleanUrl));
+        if (!targetTrack) {
+          targetTrack = await autoResolveUrl(cleanUrl);
+        }
+        if (targetTrack) {
+          handleDownloadItem(targetTrack);
+        } else {
+          handleDownloadItem({ url: cleanUrl, title: 'Descarga YouTube', artist: 'YouTube' });
+        }
+      } catch (err) {
+        console.error('Error identificando enlace:', err);
+        handleDownloadItem({ url: cleanUrl, title: 'Descarga YouTube', artist: 'YouTube' });
+      } finally {
+        setIsSearching(false);
+      }
       return;
     }
 
@@ -270,6 +755,29 @@ export default function App() {
       console.error('Error buscando:', err);
     } finally {
       setIsSearching(false);
+    }
+  };
+
+  const handleSearch = (e) => {
+    if (e) e.preventDefault();
+    executeSearchQuery(query);
+  };
+
+  const handlePasteFromClipboard = async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text && text.trim()) {
+        const val = text.trim();
+        setQuery(val);
+        const cleanUrl = extractCleanUrl(val);
+        if (cleanUrl) {
+          autoResolveUrl(cleanUrl);
+        } else {
+          executeSearchQuery(val);
+        }
+      }
+    } catch (err) {
+      console.warn('No se pudo leer el portapapeles:', err);
     }
   };
 
@@ -303,6 +811,12 @@ export default function App() {
     e.stopPropagation();
     if (!item.previewUrl) return;
 
+    if (!isOnline && typeof navigator !== 'undefined' && !navigator.onLine) {
+      setOfflineAttemptNotice(true);
+      setTimeout(() => setOfflineAttemptNotice(false), 4000);
+      return;
+    }
+
     if (previewTrackId === item.id) {
       previewAudioRef.current.pause();
       setPreviewTrackId(null);
@@ -317,46 +831,210 @@ export default function App() {
     }
   };
 
-  // Iniciar descarga autónoma en el teléfono
-  const handleDownloadItem = async (item) => {
-    const songTitle = item.artist ? `${item.artist} - ${item.title}` : (item.title || 'Iniciando...');
-    
-    setDownloadProgress({
-      percent: 0,
-      speed: 'Iniciando motor...',
-      eta: '--',
-      title: songTitle,
-      statusText: 'Preparando descarga en alta fidelidad...'
-    });
-    setTerminalLines([
-      `[Motor] Iniciando descarga local autónoma`,
-      `[Tema] ${songTitle}`,
-      `[Calidad] ${selectedQuality.toUpperCase()}`
+  // Motor de procesamiento secuencial de la cola de descargas
+  const processNextQueueItem = async (queueItem) => {
+    if (isProcessingQueueRef.current) return;
+    isProcessingQueueRef.current = true;
+
+    const { id, item, quality } = queueItem;
+    const songTitle = item.title || 'Tema';
+    const artistName = item.artist || '';
+    const fullDisplayName = artistName ? `${artistName} - ${songTitle}` : songTitle;
+
+    setDownloadQueue(prev => prev.map(q => 
+      q.id === id ? { ...q, status: 'downloading', stage: 'init', statusText: 'Iniciando descarga en alta fidelidad...', percent: 0 } : q
+    ));
+
+    setTerminalLines(prev => [
+      ...prev,
+      `[Cola] Iniciando descarga: ${fullDisplayName} (${quality.toUpperCase()})`
     ]);
-    setShowTerminal(true);
 
     try {
-      const res = await requestDownload(item, selectedQuality);
-      addHistoryEntry(songTitle);
-
-      setDownloadProgress(null);
-      setDownloadSuccessMessage(`✔ ¡Descargado! ${songTitle}`);
-      setTimeout(() => setDownloadSuccessMessage(''), 6000);
+      await requestDownload(item, quality);
+      addHistoryEntry(fullDisplayName);
       loadLibraryData();
+
+      setDownloadQueue(prev => prev.map(q => 
+        q.id === id ? { 
+          ...q, 
+          status: 'done', 
+          percent: 100, 
+          stage: 'done', 
+          statusText: '¡Descarga completada y guardada!' 
+        } : q
+      ));
+
+      setDownloadSuccessMessage(`Descarga completada: ${fullDisplayName}`);
+      setTimeout(() => setDownloadSuccessMessage(''), 4500);
 
       setTerminalLines(prev => [
         ...prev,
-        `[Sistema] ✔ Archivo guardado y registrado en el reproductor de Android`
+        `[Cola] Éxito: ${fullDisplayName} guardado en el teléfono`
       ]);
     } catch (err) {
-      setDownloadProgress(null);
-      setTerminalLines(prev => [...prev, `[Error] ${err.message}`]);
-      alert('Error en descarga: ' + err.message);
+      const msg = err.message || 'Error desconocido';
+      setTerminalLines(prev => [...prev, `[Cola Error] ${fullDisplayName}: ${msg}`]);
+
+      setDownloadQueue(prev => prev.map(q => 
+        q.id === id ? { 
+          ...q, 
+          status: 'error', 
+          stage: 'error', 
+          statusText: 'Error: ' + msg,
+          errorMsg: msg 
+        } : q
+      ));
+
+      if (msg.includes('antibot') || msg.includes('bot') || msg.includes('verificación') || msg.includes('Sign in')) {
+        const wantsLogin = confirm('YouTube requiere verificación antibot en tu red Wi-Fi actual.\n\n¿Deseas iniciar sesión en Ajustes para descargar con cookies?');
+        if (wantsLogin) {
+          handleOpenLogin();
+        }
+      }
+    } finally {
+      isProcessingQueueRef.current = false;
+      // Desencadenar la comprobación del siguiente ítem pendiente en la cola
+      setDownloadQueue(prev => [...prev]);
     }
   };
 
-  // Control de reproducción de biblioteca local
-  const playTrack = (track) => {
+  // Procesar automáticamente el siguiente ítem queued en la cola
+  useEffect(() => {
+    if (isProcessingQueueRef.current) return;
+    const nextItem = downloadQueue.find(q => q.status === 'queued');
+    if (nextItem) {
+      processNextQueueItem(nextItem);
+    }
+  }, [downloadQueue]);
+
+  // Añadir una o múltiples canciones a la cola de descargas
+  const handleDownloadItem = (item) => {
+    if (!isOnline && typeof navigator !== 'undefined' && !navigator.onLine) {
+      setOfflineAttemptNotice(true);
+      setTimeout(() => setOfflineAttemptNotice(false), 4000);
+      return;
+    }
+
+    const songTitle = item.title || 'Tema';
+    const artistName = item.artist || '';
+    const fullDisplayName = artistName ? `${artistName} - ${songTitle}` : songTitle;
+    const downloadId = item.id || item.url || (fullDisplayName + '_' + Date.now());
+
+    // Si ya existe en la cola activa, abrir la vista de la cola
+    const existing = downloadQueue.find(q => q.id === downloadId || (q.item?.url && item.url && q.item.url === item.url));
+    if (existing && (existing.status === 'queued' || existing.status === 'downloading')) {
+      setShowQueueModal(true);
+      return;
+    }
+
+    if (window.navigator?.vibrate) window.navigator.vibrate(12);
+
+    const newEntry = {
+      id: downloadId,
+      item: { ...item },
+      quality: selectedQuality,
+      status: 'queued',
+      percent: 0,
+      speed: '',
+      eta: '--',
+      stage: 'queued',
+      statusText: 'En espera en la cola...',
+      errorMsg: null,
+      addedAt: Date.now()
+    };
+
+    setDownloadQueue(prev => [...prev, newEntry]);
+    setDownloadSuccessMessage(`Añadida a la cola: ${fullDisplayName}`);
+    setTimeout(() => setDownloadSuccessMessage(''), 3000);
+  };
+
+  const handleRemoveQueueItem = (id) => {
+    if (window.navigator?.vibrate) window.navigator.vibrate(10);
+    setDownloadQueue(prev => prev.filter(q => q.id !== id));
+  };
+
+  const handleClearCompletedQueue = () => {
+    if (window.navigator?.vibrate) window.navigator.vibrate(10);
+    setDownloadQueue(prev => prev.filter(q => q.status !== 'done'));
+  };
+
+  const handleRetryQueueItem = (id) => {
+    if (window.navigator?.vibrate) window.navigator.vibrate(12);
+    setDownloadQueue(prev => prev.map(q => 
+      q.id === id ? { ...q, status: 'queued', stage: 'queued', percent: 0, errorMsg: null, statusText: 'Reintentando...' } : q
+    ));
+  };
+
+  const handleDownloadAllResults = () => {
+    if (!searchResults || searchResults.length === 0) return;
+    let addedCount = 0;
+    searchResults.forEach(item => {
+      const alreadyInQueue = downloadQueue.some(q => 
+        (q.status === 'queued' || q.status === 'downloading') && 
+        (q.id === item.id || (q.item?.url && item.url && q.item.url === item.url))
+      );
+      const alreadyInLib = findMatchingTrack(item, libraryTracks);
+      if (!alreadyInQueue && !alreadyInLib) {
+        handleDownloadItem(item);
+        addedCount++;
+      }
+    });
+    if (addedCount > 0) {
+      setShowQueueModal(true);
+    }
+  };
+
+  // Helper para sincronizar posición en Android MediaSession
+  const updateMediaSessionPosition = (current, total, rate = 1) => {
+    if (!('mediaSession' in navigator) || !('setPositionState' in navigator.mediaSession)) return;
+    if (!total || isNaN(total) || total <= 0) return;
+    try {
+      navigator.mediaSession.setPositionState({
+        duration: total,
+        playbackRate: rate,
+        position: Math.min(Math.max(0, current), total)
+      });
+    } catch (e) {}
+  };
+
+  const loadLyricsForTrack = async (track) => {
+    if (!track) {
+      setTrackLyrics(null);
+      return;
+    }
+    setIsLoadingLyrics(true);
+    try {
+      const res = await fetchTrackLyrics(track);
+      setTrackLyrics(res);
+    } catch (e) {
+      console.warn('Error obteniendo letras:', e);
+      setTrackLyrics(null);
+    } finally {
+      setIsLoadingLyrics(false);
+    }
+  };
+
+  const playSingleTrack = (track) => {
+    setCurrentTrack(track);
+    setIsPlaying(true);
+    loadLyricsForTrack(track);
+
+    audioDsp.ensureResumed();
+
+    setTimeout(() => {
+      if (audioRef.current) {
+        audioDsp.attach(audioRef.current);
+        audioRef.current.src = getStreamUrl(track.path);
+        audioRef.current.playbackRate = playbackRate;
+        audioRef.current.volume = isMuted ? 0 : volume;
+        audioRef.current.play().catch(console.warn);
+      }
+    }, 40);
+  };
+
+  // Iniciar reproducción y configurar la cola de reproducción
+  const playTrack = (track, customQueue = null) => {
     if (previewAudioRef.current) {
       previewAudioRef.current.pause();
       setPreviewTrackId(null);
@@ -364,26 +1042,313 @@ export default function App() {
 
     if (currentTrack && currentTrack.path === track.path) {
       if (isPlaying) {
-        audioRef.current.pause();
+        if (audioRef.current) audioRef.current.pause();
         setIsPlaying(false);
       } else {
-        audioRef.current.play();
+        if (audioRef.current) audioRef.current.play().catch(console.warn);
         setIsPlaying(true);
       }
-    } else {
-      setCurrentTrack(track);
-      setIsPlaying(true);
-      setTimeout(() => {
+      return;
+    }
+
+    let newQueue = customQueue;
+    if (!newQueue || newQueue.length === 0) {
+      if (libraryTracks && libraryTracks.length > 0) {
+        newQueue = libraryTracks;
+      } else {
+        newQueue = [track];
+      }
+    }
+    setQueue(newQueue);
+
+    let idx = newQueue.findIndex(t => t.path === track.path);
+    if (idx === -1) {
+      newQueue = [track, ...newQueue];
+      setQueue(newQueue);
+      idx = 0;
+    }
+    setQueueIndex(idx);
+
+    playSingleTrack(track);
+  };
+
+  const handleNextTrack = () => {
+    if (!currentTrack || queue.length === 0) return;
+
+    if (repeatMode === 'one') {
+      if (audioRef.current) {
+        audioRef.current.currentTime = 0;
+        audioRef.current.play().catch(console.warn);
+        setIsPlaying(true);
+      }
+      return;
+    }
+
+    if (shuffle) {
+      if (queue.length === 1) {
         if (audioRef.current) {
+          audioRef.current.currentTime = 0;
           audioRef.current.play().catch(console.warn);
         }
-      }, 50);
+        return;
+      }
+      let nextIdx = Math.floor(Math.random() * queue.length);
+      if (nextIdx === queueIndex && queue.length > 1) {
+        nextIdx = (nextIdx + 1) % queue.length;
+      }
+      setQueueIndex(nextIdx);
+      playSingleTrack(queue[nextIdx]);
+      return;
+    }
+
+    const nextIdx = queueIndex + 1;
+    if (nextIdx < queue.length) {
+      setQueueIndex(nextIdx);
+      playSingleTrack(queue[nextIdx]);
+    } else {
+      if (repeatMode === 'all') {
+        setQueueIndex(0);
+        playSingleTrack(queue[0]);
+      } else {
+        setIsPlaying(false);
+      }
     }
   };
 
+  const handlePrevTrack = () => {
+    if (!currentTrack || queue.length === 0) return;
+
+    // Si pasaron más de 3s de canción, reiniciar tema actual
+    if (audioRef.current && audioRef.current.currentTime > 3) {
+      audioRef.current.currentTime = 0;
+      updateMediaSessionPosition(0, audioDuration, playbackRate);
+      return;
+    }
+
+    if (shuffle) {
+      let prevIdx = Math.floor(Math.random() * queue.length);
+      if (prevIdx === queueIndex && queue.length > 1) {
+        prevIdx = (prevIdx - 1 + queue.length) % queue.length;
+      }
+      setQueueIndex(prevIdx);
+      playSingleTrack(queue[prevIdx]);
+      return;
+    }
+
+    const prevIdx = queueIndex - 1;
+    if (prevIdx >= 0) {
+      setQueueIndex(prevIdx);
+      playSingleTrack(queue[prevIdx]);
+    } else {
+      if (repeatMode === 'all') {
+        const lastIdx = queue.length - 1;
+        setQueueIndex(lastIdx);
+        playSingleTrack(queue[lastIdx]);
+      } else {
+        if (audioRef.current) {
+          audioRef.current.currentTime = 0;
+          updateMediaSessionPosition(0, audioDuration, playbackRate);
+        }
+      }
+    }
+  };
+
+  const handleTogglePlay = () => {
+    if (!audioRef.current) return;
+    if (isPlaying) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+    } else {
+      audioRef.current.play().catch(console.warn);
+      setIsPlaying(true);
+    }
+  };
+
+  const handleSeek = (seconds) => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = seconds;
+      updateMediaSessionPosition(seconds, audioDuration, playbackRate);
+    }
+  };
+
+  const handleSeekToLyric = (time) => {
+    if (audioRef.current && time >= 0) {
+      audioRef.current.currentTime = time;
+      if (!isPlaying) {
+        audioRef.current.play().catch(console.warn);
+        setIsPlaying(true);
+      }
+      updateMediaSessionPosition(time, audioDuration, playbackRate);
+    }
+  };
+
+  const handleToggleShuffle = () => {
+    setShuffle(prev => !prev);
+  };
+
+  const handleCycleRepeat = () => {
+    setRepeatMode(prev => prev === 'off' ? 'all' : prev === 'all' ? 'one' : 'off');
+  };
+
+  const handleVolumeChange = (vol) => {
+    setVolume(vol);
+    setIsMuted(vol === 0);
+    try {
+      localStorage.setItem('ytm_volume', vol.toString());
+    } catch (e) {}
+    if (audioRef.current) {
+      audioRef.current.volume = vol;
+      audioRef.current.muted = vol === 0;
+    }
+  };
+
+  const handleToggleMute = () => {
+    if (isMuted) {
+      setIsMuted(false);
+      const restoreVol = volume > 0 ? volume : 0.8;
+      setVolume(restoreVol);
+      if (audioRef.current) {
+        audioRef.current.volume = restoreVol;
+        audioRef.current.muted = false;
+      }
+    } else {
+      setIsMuted(true);
+      if (audioRef.current) {
+        audioRef.current.muted = true;
+      }
+    }
+  };
+
+  const handleChangePlaybackRate = (rate) => {
+    setPlaybackRate(rate);
+    if (audioRef.current) {
+      audioRef.current.playbackRate = rate;
+      updateMediaSessionPosition(audioRef.current.currentTime, audioDuration, rate);
+    }
+  };
+
+  const handleSetSleepTimer = (val) => {
+    if (!val) {
+      setSleepTimer(null);
+    } else if (val === 'track') {
+      setSleepTimer({ minutesLeft: 0, mode: 'track' });
+    } else {
+      setSleepTimer({ minutesLeft: val, mode: 'timer' });
+    }
+  };
+
+  const handleSelectTrackFromQueue = (track, idx) => {
+    setQueueIndex(idx);
+    playSingleTrack(track);
+  };
+
+  const handleRemoveTrackFromQueue = (idx) => {
+    setQueue(prev => {
+      const copy = [...prev];
+      copy.splice(idx, 1);
+      return copy;
+    });
+    if (idx < queueIndex) {
+      setQueueIndex(prev => prev - 1);
+    }
+  };
+
+  const handleClearQueue = () => {
+    if (currentTrack) {
+      setQueue([currentTrack]);
+      setQueueIndex(0);
+    } else {
+      setQueue([]);
+      setQueueIndex(0);
+    }
+  };
+
+  // Integración nativa con Android MediaSession (Notificación y Pantalla de Bloqueo)
+  useEffect(() => {
+    if (!('mediaSession' in navigator) || !currentTrack) return;
+    try {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: currentTrack.title || 'Música',
+        artist: currentTrack.artist || 'Desconocido',
+        album: currentTrack.album || currentTrack.folder || 'YouTube Music',
+        artwork: currentTrack.cover ? [
+          { src: currentTrack.cover, sizes: '512x512', type: 'image/jpeg' },
+          { src: currentTrack.cover, sizes: '1200x1200', type: 'image/jpeg' }
+        ] : []
+      });
+    } catch (e) {
+      console.warn('Error configurando MediaMetadata:', e);
+    }
+  }, [currentTrack]);
+
+  useEffect(() => {
+    if (!('mediaSession' in navigator)) return;
+    try {
+      navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
+    } catch (e) {}
+  }, [isPlaying]);
+
+  useEffect(() => {
+    if (!('mediaSession' in navigator)) return;
+
+    const actionHandlers = {
+      play: handleTogglePlay,
+      pause: handleTogglePlay,
+      previoustrack: handlePrevTrack,
+      nexttrack: handleNextTrack,
+      seekto: (details) => {
+        if (details.seekTime !== undefined) handleSeek(details.seekTime);
+      },
+      seekforward: (details) => {
+        const step = details.seekOffset || 10;
+        const cur = audioRef.current ? audioRef.current.currentTime : 0;
+        handleSeek(Math.min(audioDuration || 0, cur + step));
+      },
+      seekbackward: (details) => {
+        const step = details.seekOffset || 10;
+        const cur = audioRef.current ? audioRef.current.currentTime : 0;
+        handleSeek(Math.max(0, cur - step));
+      }
+    };
+
+    for (const [act, fn] of Object.entries(actionHandlers)) {
+      try {
+        navigator.mediaSession.setActionHandler(act, fn);
+      } catch (e) {}
+    }
+
+    return () => {
+      for (const act of Object.keys(actionHandlers)) {
+        try {
+          navigator.mediaSession.setActionHandler(act, null);
+        } catch (e) {}
+      }
+    };
+  }, [currentTrack, queue, queueIndex, isPlaying, audioDuration, playbackRate, repeatMode, shuffle]);
+
+  // Temporizador de sueño (Sleep timer)
+  useEffect(() => {
+    if (!sleepTimer || sleepTimer.mode === 'track') return;
+    const timerInterval = setInterval(() => {
+      setSleepTimer(prev => {
+        if (!prev || prev.mode !== 'timer') return null;
+        if (prev.minutesLeft <= 1) {
+          if (audioRef.current) {
+            audioRef.current.pause();
+          }
+          setIsPlaying(false);
+          return null;
+        }
+        return { ...prev, minutesLeft: prev.minutesLeft - 1 };
+      });
+    }, 60000);
+
+    return () => clearInterval(timerInterval);
+  }, [sleepTimer]);
+
   return (
     <div 
-      style={{ paddingBottom: 'calc(var(--sab, 0px) + 6.5rem)' }}
+      style={{ paddingBottom: currentTrack ? 'calc(var(--sab, 0px) + 12.5rem)' : 'calc(var(--sab, 0px) + 7rem)' }}
       className="flex flex-col min-h-screen bg-black text-white font-sf select-none"
     >
       
@@ -412,7 +1377,14 @@ export default function App() {
           onClick={() => setActiveTab('settings')}
           className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-white/5 border border-white/10 cursor-pointer active:scale-95 transition-all"
         >
-          {engineInfo.isNative ? (
+          {!isOnline ? (
+            <>
+              <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+              <span className="text-[11px] text-amber-400 font-medium flex items-center gap-1">
+                <WifiOff className="w-3 h-3" /> Offline
+              </span>
+            </>
+          ) : engineInfo.isNative ? (
             <>
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
               <span className="text-[11px] text-emerald-400 font-medium flex items-center gap-1">
@@ -433,6 +1405,59 @@ export default function App() {
         </div>
       </header>
 
+      {/* Banner Sin Conexión a Internet (Apple Design Glass) */}
+      {!isOnline && (
+        <div className="mx-4 mt-3 px-3.5 py-2.5 rounded-2xl apple-glass border border-amber-500/25 bg-amber-500/10 flex items-center justify-between gap-3 shadow-lg shadow-black/40 animate-fade-in transition-all">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
+              <WifiOff className="w-4 h-4" />
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-bold text-amber-200">Sin conexión a internet</span>
+                <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 uppercase tracking-wider">
+                  Modo Offline
+                </span>
+              </div>
+              <p className="text-[11px] text-amber-300/80 truncate mt-0.5">
+                Música local disponible. Las descargas requieren conexión.
+              </p>
+            </div>
+          </div>
+          {activeTab === 'explore' ? (
+            <button
+              type="button"
+              onClick={() => setActiveTab('library')}
+              className="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 active:scale-95 text-amber-200 border border-amber-500/30 text-xs font-semibold shrink-0 transition-all"
+            >
+              Biblioteca
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={checkConnectionManually}
+              className="p-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 active:scale-95 text-amber-300 border border-amber-500/30 shrink-0 transition-all"
+              title="Comprobar conexión"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${isCheckingConnection ? 'animate-spin' : ''}`} />
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Notificación de Conexión Restablecida */}
+      {showRestoredToast && (
+        <div className="mx-4 mt-3 px-3.5 py-2.5 rounded-2xl apple-glass border border-emerald-500/25 bg-emerald-500/10 flex items-center gap-2.5 shadow-lg shadow-black/40 animate-fade-in transition-all">
+          <div className="w-7 h-7 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+            <Wifi className="w-4 h-4" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-semibold text-emerald-200">Conexión restablecida</p>
+            <p className="text-[11px] text-emerald-300/80">Búsqueda y descargas en línea disponibles nuevamente.</p>
+          </div>
+        </div>
+      )}
+
       {/* Banner de descarga exitosa */}
       {downloadSuccessMessage && (
         <div className="mx-4 mt-3 p-3 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2 shadow-lg animate-fade-in">
@@ -443,58 +1468,124 @@ export default function App() {
 
 
 
-      {/* Tarjeta de progreso de descarga activa estilo Apple */}
-      {downloadProgress && (
-        <div className="mx-4 mt-3 p-4 rounded-2xl apple-card border border-rose-500/30 shadow-xl shadow-rose-500/10 space-y-2.5 animate-fade-in">
-          <div className="flex items-center justify-between text-xs">
-            <span className="font-semibold text-white flex items-center gap-2 truncate">
-              <RefreshCw className="w-3.5 h-3.5 text-rose-400 animate-spin shrink-0" />
-              <span className="truncate">{downloadProgress.title}</span>
-            </span>
-            <span className="font-mono font-bold text-rose-400">
-              {downloadProgress.percent}%
-            </span>
+      {/* HUD flotante de descarga activa y cola estilo Dynamic Island de Apple */}
+      {activeDownload && (
+        <div 
+          onClick={() => setShowQueueModal(true)}
+          className="mx-4 mt-3 rounded-3xl apple-glass-heavy border border-rose-500/30 p-3.5 shadow-2xl shadow-rose-600/15 animate-fade-in transition-all cursor-pointer"
+        >
+          <div className="flex items-center gap-3">
+            {/* Miniatura / Carátula con spinner o check */}
+            <div className="relative w-12 h-12 rounded-2xl overflow-hidden bg-zinc-800 shrink-0 shadow-md border border-white/10 flex items-center justify-center">
+              {activeDownload.item?.cover ? (
+                <img src={activeDownload.item.cover} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-tr from-rose-600 to-pink-500 flex items-center justify-center text-white">
+                  <Music className="w-5 h-5" />
+                </div>
+              )}
+              {activeDownload.stage !== 'done' ? (
+                <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px] flex items-center justify-center">
+                  <RefreshCw className="w-5 h-5 text-white animate-spin" />
+                </div>
+              ) : (
+                <div className="absolute inset-0 bg-emerald-600/70 backdrop-blur-[1px] flex items-center justify-center">
+                  <Check className="w-6 h-6 text-white stroke-[3]" />
+                </div>
+              )}
+            </div>
+
+            {/* Información del tema y progreso numérico */}
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center justify-between gap-2">
+                <h4 className="text-xs font-bold text-white truncate">
+                  {activeDownload.item?.title || 'Descargando...'}
+                </h4>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  {queuedDownloadsCount > 0 && (
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-bold border border-rose-500/30 flex items-center gap-1">
+                      <Clock className="w-2.5 h-2.5" />
+                      +{queuedDownloadsCount} en cola
+                    </span>
+                  )}
+                  <span className="text-xs font-mono font-extrabold text-rose-400">
+                    {activeDownload.percent || 0}%
+                  </span>
+                </div>
+              </div>
+              <p className="text-[11px] text-zinc-400 truncate">
+                {activeDownload.item?.artist || 'YouTube Music'}
+              </p>
+
+              {/* Indicadores de etapa y velocidad */}
+              <div className="flex items-center justify-between text-[10px] text-zinc-400 mt-1">
+                <span className="text-rose-300 font-medium truncate max-w-[65%]">
+                  {activeDownload.statusText || 'Procesando...'}
+                </span>
+                <span className="font-mono text-zinc-400 shrink-0 flex items-center gap-1.5">
+                  {activeDownload.speed && <span>{activeDownload.speed}</span>}
+                  {activeDownload.eta && activeDownload.eta !== '--' && (
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-2.5 h-2.5 text-zinc-500" />
+                      {activeDownload.eta}
+                    </span>
+                  )}
+                </span>
+              </div>
+            </div>
           </div>
 
-          <div className="w-full h-2 rounded-full bg-zinc-800 overflow-hidden relative">
+          {/* Barra de progreso fluida estilo iOS */}
+          <div className="w-full h-2 rounded-full bg-white/10 overflow-hidden relative mt-2.5">
             <div 
-              className="h-full bg-gradient-to-r from-rose-500 to-pink-500 rounded-full transition-all duration-300 ease-out"
-              style={{ width: `${downloadProgress.percent}%` }}
+              className={`h-full rounded-full transition-all duration-300 ease-out ${
+                activeDownload.stage === 'done' 
+                  ? 'bg-gradient-to-r from-emerald-500 to-teal-400' 
+                  : 'bg-gradient-to-r from-rose-600 via-pink-500 to-amber-400'
+              }`}
+              style={{ width: `${activeDownload.percent || 0}%` }}
             />
           </div>
 
-          <div className="flex items-center justify-between text-[11px] text-zinc-400">
-            <span>{downloadProgress.statusText || 'Descargando audio oficial de estudio...'}</span>
-            <span>ETA: {downloadProgress.eta}</span>
+          {/* Botones de acción del HUD: Ver cola completa y consola */}
+          <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-white/5" onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              onClick={() => setShowQueueModal(true)}
+              className="text-[11px] text-rose-300 hover:text-white flex items-center gap-1.5 py-1 px-2.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/25 active:scale-95 transition-all apple-press font-medium"
+            >
+              <ListMusic className="w-3.5 h-3.5 text-rose-400" />
+              <span>Ver cola ({downloadQueue.length})</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setShowTerminal(!showTerminal)}
+              className="text-[10px] text-zinc-400 hover:text-white flex items-center gap-1 py-1 px-2 rounded-lg bg-white/5 active:scale-95 transition-all"
+            >
+              <TerminalIcon className="w-3 h-3 text-emerald-400" />
+              <span>{showTerminal ? 'Ocultar consola' : 'Consola'}</span>
+              {showTerminal ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+            </button>
           </div>
 
-          {/* Botón para abrir / cerrar la Terminal en Vivo */}
-          <button
-            onClick={() => setShowTerminal(!showTerminal)}
-            className="w-full mt-1 py-1.5 px-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 text-[11px] text-zinc-300 flex items-center justify-between apple-press transition-all"
-          >
-            <span className="flex items-center gap-1.5 font-mono">
-              <TerminalIcon className="w-3 h-3 text-emerald-400" />
-              Terminal de Descarga en Vivo
-            </span>
-            {showTerminal ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-          </button>
-
-          {/* Consola / Terminal en Vivo tipo macOS/Termux */}
+          {/* Consola técnica opcional SIN auto-scroll que mueva la ventana */}
           {showTerminal && (
-            <div className="mt-2 p-2.5 rounded-xl bg-zinc-950 border border-zinc-800 font-mono text-[10px] text-emerald-400/90 max-h-36 overflow-y-auto space-y-1 select-text scrollbar-thin shadow-inner animate-fade-in">
-              <div className="flex items-center gap-1.5 pb-1 mb-1 border-b border-white/5 text-[9px] text-zinc-500">
+            <div 
+              ref={terminalContainerRef}
+              className="mt-2 p-2.5 rounded-2xl bg-black/90 border border-white/10 font-mono text-[10px] text-emerald-400/90 max-h-36 overflow-y-auto space-y-1 select-text scrollbar-thin shadow-inner animate-fade-in"
+            >
+              <div className="flex items-center gap-1.5 pb-1 mb-1 border-b border-white/10 text-[9px] text-zinc-500">
                 <span className="w-2 h-2 rounded-full bg-red-500/80"></span>
                 <span className="w-2 h-2 rounded-full bg-yellow-500/80"></span>
                 <span className="w-2 h-2 rounded-full bg-green-500/80"></span>
-                <span className="ml-1 text-zinc-400">android@yt-music-termux ~ yt-dlp & ffmpeg</span>
+                <span className="ml-1 text-zinc-400">yt-dlp engine output</span>
               </div>
               {terminalLines.map((line, idx) => (
                 <div key={idx} className="break-all leading-tight opacity-90">
                   {line}
                 </div>
               ))}
-              <div ref={terminalEndRef} />
             </div>
           )}
         </div>
@@ -505,94 +1596,187 @@ export default function App() {
         
         {/* --- TAB 1: EXPLORAR / DESCARGAR --- */}
         {activeTab === 'explore' && (
-          <div className="space-y-4">
+          <div className="space-y-3.5">
             
-            {/* Input de búsqueda o enlace */}
-            <form onSubmit={handleSearch} className="relative">
-              <input
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Busca canción, artista o pega un enlace..."
-                className="w-full py-3.5 pl-11 pr-24 rounded-2xl bg-zinc-900/90 border border-white/10 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-rose-500/50 focus:ring-2 focus:ring-rose-500/20 shadow-inner"
-              />
-              <Search className="w-5 h-5 text-zinc-400 absolute left-3.5 top-3.5" />
+            {/* Aviso no intrusivo si el usuario intenta buscar o descargar sin conexión */}
+            {offlineAttemptNotice && (
+              <div className="p-3 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-200 text-xs flex items-center justify-between gap-2 shadow-lg animate-fade-in">
+                <div className="flex items-center gap-2 min-w-0">
+                  <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
+                  <span className="truncate">Sin internet para buscar o descargar canciones nuevas.</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('library')}
+                  className="px-2.5 py-1 rounded-xl bg-amber-500/25 hover:bg-amber-500/35 text-amber-200 text-[11px] font-semibold shrink-0"
+                >
+                  Ver local
+                </button>
+              </div>
+            )}
+
+            {/* Input de búsqueda o enlace con botón Pegar y Limpiar */}
+            <form onSubmit={handleSearch} className="relative flex items-center gap-2">
+              <div className="relative flex-1">
+                <input
+                  type="text"
+                  value={query}
+                  onChange={handleQueryChange}
+                  onPaste={handlePaste}
+                  placeholder="Busca canción, artista o pega un enlace..."
+                  className="w-full py-3.5 pl-11 pr-20 rounded-2xl bg-zinc-900/90 border border-white/10 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-rose-500/50 focus:ring-2 focus:ring-rose-500/20 shadow-inner"
+                />
+                <Search className="w-5 h-5 text-zinc-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                  {query && (
+                    <button
+                      type="button"
+                      onClick={() => setQuery('')}
+                      className="p-1 rounded-full text-zinc-400 hover:text-white bg-white/10"
+                      title="Limpiar búsqueda"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={handlePasteFromClipboard}
+                    className="p-1.5 rounded-xl text-zinc-400 hover:text-rose-400 bg-white/5 active:scale-90 border border-white/5"
+                    title="Pegar enlace del portapapeles"
+                  >
+                    <ClipboardPaste className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* Panel de sugerencias predictivas estilo Apple Glass */}
+                {showSuggestions && searchSuggestions.length > 0 && (
+                  <div className="absolute top-full left-0 right-0 mt-1.5 z-40 apple-glass-heavy rounded-2xl border border-white/10 shadow-2xl overflow-hidden py-1">
+                    {searchSuggestions.map((sug, idx) => (
+                      <div
+                        key={idx}
+                        onClick={() => {
+                          setQuery(sug);
+                          setShowSuggestions(false);
+                          executeSearchQuery(sug);
+                        }}
+                        className="px-3.5 py-2.5 text-xs text-zinc-300 hover:text-white hover:bg-white/10 flex items-center space-x-2.5 cursor-pointer transition-colors"
+                      >
+                        <Search className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
+                        <span className="truncate">{sug}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               <button
                 type="submit"
                 disabled={isSearching}
-                className="absolute right-2 top-2 px-3.5 py-1.5 rounded-xl bg-rose-500 hover:bg-rose-600 active:scale-95 text-xs font-semibold text-white shadow-md shadow-rose-500/20 transition-all"
+                className="px-4 py-3.5 rounded-2xl bg-rose-500 hover:bg-rose-600 active:scale-95 text-xs font-semibold text-white shadow-md shadow-rose-500/25 transition-all shrink-0 flex items-center justify-center min-w-[70px]"
               >
-                {isSearching ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : 'Buscar'}
+                {isSearching ? <RefreshCw className="w-4 h-4 animate-spin" /> : 'Buscar'}
               </button>
             </form>
 
-            {/* Selector de Calidad Real estilo Chips de Apple */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
-                  Calidad de Descarga
-                </span>
-                <span className="text-[11px] text-rose-400 font-medium">
-                  {CALIDADES.find(c => c.id === selectedQuality)?.desc}
-                </span>
+            {/* Chips de exploración rápida */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 -mx-4 px-4 no-scrollbar scroll-smooth">
+              {[
+                { label: 'Tendencias', q: 'Top Éxitos' },
+                { label: 'Pop', q: 'Pop Hits' },
+                { label: 'Rock', q: 'Rock Clásico' },
+                { label: 'Lo-Fi', q: 'Lo-Fi Beats' },
+                { label: 'Electrónica', q: 'Electronic Dance' },
+                { label: 'Reggaeton', q: 'Reggaeton Hits' },
+                { label: 'Acústico', q: 'Acoustic' }
+              ].map(chip => (
+                <button
+                  key={chip.label}
+                  type="button"
+                  onClick={() => {
+                    setQuery(chip.q);
+                    executeSearchQuery(chip.q);
+                  }}
+                  className="px-3.5 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-zinc-300 font-medium whitespace-nowrap active:scale-95 transition-all apple-press"
+                >
+                  {chip.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Estado de detección inteligente de enlace */}
+            {urlResolvingStatus && (
+              <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-xs text-rose-300 animate-pulse">
+                <RefreshCw className="w-4 h-4 animate-spin text-rose-400 shrink-0" />
+                <span className="font-medium">{urlResolvingStatus}</span>
               </div>
-              <div className="grid grid-cols-2 gap-2">
-                {CALIDADES.map(cal => {
-                  const isSelected = selectedQuality === cal.id;
-                  return (
-                    <button
-                      key={cal.id}
-                      onClick={() => setSelectedQuality(cal.id)}
-                      className={`p-2.5 rounded-2xl border text-left transition-all apple-press ${
-                        cal.recommended ? 'col-span-2' : ''
-                      } ${
-                        isSelected 
-                          ? 'bg-rose-500/15 border-rose-500/50 shadow-lg shadow-rose-500/10' 
-                          : 'bg-zinc-900/60 border-white/5 hover:border-white/10'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs font-semibold text-white flex items-center gap-1.5">
-                          <span>{cal.icon}</span> {cal.nombre}
-                          {cal.recommended && (
-                            <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">
-                              Recomendado
-                            </span>
-                          )}
-                        </span>
-                        {isSelected && <Check className="w-3.5 h-3.5 text-rose-400" />}
-                      </div>
-                      <div className="flex items-center justify-between gap-1">
-                        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-white/5 text-zinc-300 shrink-0">
-                          {cal.badge}
-                        </span>
-                        <span className="text-[10px] text-zinc-400 truncate">
-                          {cal.desc}
-                        </span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
+            )}
+
+            {/* Acceso rápido a Formato de Descarga */}
+            <div className="flex items-center justify-between px-1 text-xs text-zinc-400">
+              <span className="text-[11px] font-medium">Formato de descarga</span>
+              <button
+                type="button"
+                onClick={() => setActiveTab('settings')}
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-[11px] text-zinc-300 font-medium active:scale-95 transition-all apple-press"
+                title="Configurar en Ajustes"
+              >
+                <SlidersHorizontal className="w-3 h-3 text-rose-400" />
+                <span className="text-white font-semibold">{CALIDADES.find(c => c.id === selectedQuality)?.nombre}</span>
+                <span className="text-[9px] font-mono text-zinc-400 bg-white/5 px-1 py-0.5 rounded">
+                  {CALIDADES.find(c => c.id === selectedQuality)?.badge}
+                </span>
+              </button>
             </div>
 
             {/* Resultados de Búsqueda */}
             {searchResults.length > 0 && (
               <div className="space-y-2 pt-2">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
-                    Temas Oficiales Encontrados ({searchResults.length})
-                  </h3>
-                  <span className="text-[10px] text-zinc-500">Portadas oficiales 1200px</span>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+                      Temas Oficiales ({searchResults.length})
+                    </h3>
+                    {(queuedDownloadsCount > 0 || activeDownload) && (
+                      <button
+                        onClick={() => setShowQueueModal(true)}
+                        className="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 text-[10px] font-semibold flex items-center gap-1 apple-press"
+                      >
+                        <ListMusic className="w-2.5 h-2.5" />
+                        <span>Cola ({queuedDownloadsCount + (activeDownload ? 1 : 0)})</span>
+                      </button>
+                    )}
+                  </div>
+                  <button
+                    onClick={handleDownloadAllResults}
+                    className="px-2.5 py-1 rounded-xl bg-white/10 hover:bg-white/15 text-zinc-200 border border-white/10 text-[11px] font-semibold flex items-center gap-1.5 apple-press transition-all"
+                    title="Descargar todos los temas que aún no tienes"
+                  >
+                    <Download className="w-3 h-3 text-rose-400" />
+                    <span>Descargar todas</span>
+                  </button>
                 </div>
                 <div className="space-y-2">
                   {searchResults.map((item) => {
                     const localMatch = findMatchingTrack(item, libraryTracks);
+                    const queueEntry = downloadQueue.find(q => 
+                      q.id === item.id || 
+                      (q.item?.url && item.url && q.item.url === item.url) ||
+                      (q.item?.id && item.id && q.item.id === item.id) ||
+                      (q.item?.title && item.title && q.item.title.toLowerCase() === item.title.toLowerCase())
+                    );
+                    const isItemDownloading = queueEntry && queueEntry.status === 'downloading';
+                    const isItemQueued = queueEntry && queueEntry.status === 'queued';
                     return (
                       <div
                         key={item.id}
                         className={`p-3 rounded-2xl apple-card flex items-center justify-between gap-3 border transition-all ${
-                          localMatch ? 'border-emerald-500/30 bg-emerald-950/10' : 'border-white/5 hover:border-white/10'
+                          localMatch 
+                            ? 'border-emerald-500/30 bg-emerald-950/10' 
+                            : isItemDownloading
+                              ? 'border-rose-500/40 bg-rose-950/15'
+                              : isItemQueued
+                                ? 'border-amber-500/30 bg-amber-950/10'
+                                : 'border-white/5 hover:border-white/10'
                         }`}
                       >
                         <div className="flex items-center gap-3 min-w-0">
@@ -625,12 +1809,22 @@ export default function App() {
                               {item.artist} {item.album ? `• ${item.album}` : ''}
                             </p>
                             <div className="flex items-center gap-2 mt-0.5">
-                              <span className="text-[11px] font-mono text-zinc-500">
-                                ⏱ {item.duration_str}
+                              <span className="text-[11px] font-mono text-zinc-500 flex items-center gap-1">
+                                <Clock className="w-2.5 h-2.5 text-zinc-500" /> {item.duration_str}
                               </span>
                               {localMatch && (
                                 <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center gap-1 border border-emerald-500/30">
                                   <CheckCircle2 className="w-2.5 h-2.5" /> En tu dispositivo
+                                </span>
+                              )}
+                              {!localMatch && isItemQueued && (
+                                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 flex items-center gap-1 border border-amber-500/30">
+                                  <Clock className="w-2.5 h-2.5" /> En cola
+                                </span>
+                              )}
+                              {!localMatch && isItemDownloading && (
+                                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 flex items-center gap-1 border border-rose-500/30">
+                                  <RefreshCw className="w-2.5 h-2.5 animate-spin" /> Descargando ({queueEntry.percent}%)
                                 </span>
                               )}
                             </div>
@@ -655,6 +1849,24 @@ export default function App() {
                               <Download className="w-3.5 h-3.5" />
                             </button>
                           </div>
+                        ) : isItemDownloading ? (
+                          <button
+                            onClick={() => setShowQueueModal(true)}
+                            className="px-3 py-2 rounded-xl bg-rose-500/25 border border-rose-500/40 text-rose-300 text-xs font-semibold flex items-center gap-1.5 shrink-0 apple-press animate-pulse"
+                            title="Ver en cola de descargas"
+                          >
+                            <RefreshCw className="w-3.5 h-3.5 animate-spin text-rose-400" />
+                            <span>{queueEntry.percent}%</span>
+                          </button>
+                        ) : isItemQueued ? (
+                          <button
+                            onClick={() => setShowQueueModal(true)}
+                            className="px-3 py-2 rounded-xl bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-semibold flex items-center gap-1.5 shrink-0 apple-press"
+                            title="Ver cola de descargas"
+                          >
+                            <Clock className="w-3.5 h-3.5" />
+                            <span>En cola</span>
+                          </button>
                         ) : (
                           <button
                             onClick={() => handleDownloadItem(item)}
@@ -671,16 +1883,86 @@ export default function App() {
               </div>
             )}
 
-            {/* Placeholder vacío cuando no hay búsqueda */}
+            {/* Estado inicial / sugerencias de búsqueda y recientes */}
             {searchResults.length === 0 && !isSearching && (
-              <div className="py-12 flex flex-col items-center justify-center text-center text-zinc-500">
-                <div className="w-16 h-16 rounded-full bg-zinc-900 border border-white/5 flex items-center justify-center mb-3">
-                  <Sparkles className="w-7 h-7 text-rose-400/80" />
+              <div className="py-6 space-y-5">
+                {/* Historial rápido de búsquedas */}
+                {historyList && historyList.length > 0 && (
+                  <div className="space-y-2">
+                    <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider px-1">
+                      Búsquedas Recientes
+                    </span>
+                    <div className="flex flex-wrap gap-2">
+                      {historyList.slice(0, 6).map((item, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => {
+                            setQuery(item);
+                            executeSearchQuery(item);
+                          }}
+                          className="px-3 py-1.5 rounded-xl bg-zinc-900/80 hover:bg-zinc-800 border border-white/10 text-xs text-zinc-300 flex items-center gap-1.5 active:scale-95 transition-all apple-press truncate max-w-xs"
+                        >
+                          <History className="w-3 h-3 text-zinc-500" />
+                          <span className="truncate">{item}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Estado sin conexión en Explorar */}
+                {!isOnline && (
+                  <div className="p-4 rounded-3xl apple-glass border border-amber-500/20 bg-amber-500/5 space-y-2.5 text-center animate-fade-in">
+                    <div className="w-10 h-10 mx-auto rounded-2xl bg-amber-500/15 text-amber-400 flex items-center justify-center">
+                      <WifiOff className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-bold text-white">Búsqueda en línea en pausa</h4>
+                      <p className="text-[11px] text-zinc-400 max-w-xs mx-auto mt-0.5 leading-relaxed">
+                        Conéctate a una red Wi-Fi o datos móviles para buscar o descargar música. Tu colección guardada sigue 100% disponible.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('library')}
+                      className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 active:scale-95 text-white text-xs font-medium border border-white/10 inline-flex items-center gap-1.5 transition-all apple-press"
+                    >
+                      <Music className="w-3.5 h-3.5 text-rose-400" />
+                      <span>Escuchar música local ({libraryTracks.length})</span>
+                    </button>
+                  </div>
+                )}
+
+                {/* Tarjeta de bienvenida y características Apple Music */}
+                <div className="p-5 rounded-3xl apple-card border border-white/10 space-y-3 text-center">
+                  <div className="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-tr from-rose-600 to-pink-500 flex items-center justify-center shadow-lg shadow-rose-600/30 text-white">
+                    <Sparkles className="w-7 h-7" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-white">Música 100% en tu Teléfono</h3>
+                    <p className="text-xs text-zinc-400 max-w-xs mx-auto mt-1 leading-relaxed">
+                      Busca cualquier tema o pega un link de YouTube. Las canciones se descargan con calidad de máster, carátula HD 1200px y letras sincronizadas karaoke.
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 pt-2 border-t border-white/5 text-[11px] text-zinc-400">
+                    <div className="p-2 rounded-xl bg-white/5 flex flex-col items-center gap-1.5 text-center">
+                      <Music className="w-4 h-4 text-rose-400" />
+                      <span className="font-semibold text-white">Opus Nativo</span>
+                      <span className="text-[9px] text-zinc-500">Sin recodificar</span>
+                    </div>
+                    <div className="p-2 rounded-xl bg-white/5 flex flex-col items-center gap-1.5 text-center">
+                      <Disc className="w-4 h-4 text-rose-400" />
+                      <span className="font-semibold text-white">Carátula HD</span>
+                      <span className="text-[9px] text-zinc-500">Apple 1200px</span>
+                    </div>
+                    <div className="p-2 rounded-xl bg-white/5 flex flex-col items-center gap-1.5 text-center">
+                      <Mic2 className="w-4 h-4 text-rose-400" />
+                      <span className="font-semibold text-white">Karaoke</span>
+                      <span className="text-[9px] text-zinc-500">Letras LRC</span>
+                    </div>
+                  </div>
                 </div>
-                <h3 className="text-sm font-semibold text-zinc-300">Descargas 100% en tu Teléfono</h3>
-                <p className="text-xs text-zinc-500 max-w-xs mt-1">
-                  Descarga en la calle con datos móviles o Wi-Fi sin depender de tu PC. Audio oficial y carátula 1200x1200px incrustada.
-                </p>
               </div>
             )}
           </div>
@@ -689,23 +1971,40 @@ export default function App() {
         {/* --- TAB 2: BIBLIOTECA & REPRODUCTOR --- */}
         {activeTab === 'library' && (
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0">
                 <h2 className="text-lg font-bold text-white tracking-tight">Tu Música en el Dispositivo</h2>
-                <p className="text-xs text-zinc-400">
+                <p className="text-xs text-zinc-400 truncate">
                   {filteredLibraryTracks.length} {librarySearchQuery ? 'encontradas' : 'canciones reconocidas'} • {totalLibrarySizeMb > 1024 ? (totalLibrarySizeMb / 1024).toFixed(1) + ' GB' : totalLibrarySizeMb + ' MB'}
                 </p>
               </div>
-              <button 
-                onClick={loadLibraryData}
-                disabled={isScanningLibrary}
-                className="px-3 py-1.5 rounded-xl bg-zinc-900 border border-white/10 text-xs font-medium text-zinc-300 flex items-center gap-1.5 active:scale-95 shadow-sm"
-                title="Escanear todo el almacenamiento del teléfono"
-              >
-                <RefreshCw className={`w-3.5 h-3.5 text-rose-400 ${isScanningLibrary ? 'animate-spin' : ''}`} />
-                <span>{isScanningLibrary ? 'Escaneando...' : 'Escanear'}</span>
-              </button>
+              <div className="flex items-center gap-2 shrink-0">
+                <button 
+                  onClick={loadLibraryData}
+                  disabled={isScanningLibrary || isSyncingCovers}
+                  className="p-2 rounded-xl bg-zinc-900 border border-white/10 text-zinc-300 hover:text-white flex items-center justify-center active:scale-95 shadow-sm apple-press"
+                  title="Re-escanear biblioteca"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 text-zinc-400 ${isScanningLibrary ? 'animate-spin text-rose-400' : ''}`} />
+                </button>
+              </div>
             </div>
+
+            {/* Indicador sutil de sincronización en curso (gestión en Ajustes) */}
+            {isSyncingCovers && (
+              <div 
+                onClick={() => setActiveTab('settings')}
+                className="p-2.5 rounded-2xl apple-glass border border-rose-500/30 flex items-center justify-between text-xs text-rose-300 cursor-pointer animate-fade-in apple-press"
+              >
+                <div className="flex items-center gap-2 truncate">
+                  <Sparkles className="w-3.5 h-3.5 text-rose-400 animate-spin shrink-0" />
+                  <span className="truncate">{syncProgress.artist ? `${syncProgress.artist} • ${syncProgress.item}` : 'Sincronizando carátulas...'}</span>
+                </div>
+                <span className="font-mono text-[11px] text-rose-400 shrink-0 ml-2">
+                  {syncProgress.percent}% • Ver en Ajustes
+                </span>
+              </div>
+            )}
 
             {/* Buscador de canciones en la biblioteca local */}
             <div className="relative">
@@ -725,6 +2024,58 @@ export default function App() {
                   Limpiar
                 </button>
               )}
+            </div>
+
+            {/* Filtros rápidos: Todo / Favoritos / Listas de Reproducción */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 -mx-4 px-4 scroll-smooth no-scrollbar">
+              <button
+                onClick={() => setSelectedPlaylistFilter('all')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold shrink-0 transition-all apple-press ${
+                  selectedPlaylistFilter === 'all'
+                    ? 'bg-white text-black shadow-md'
+                    : 'bg-white/5 hover:bg-white/10 text-zinc-300 border border-white/10'
+                }`}
+              >
+                Todas ({libraryTracks.length})
+              </button>
+
+              <button
+                onClick={() => setSelectedPlaylistFilter(selectedPlaylistFilter === 'favorites' ? 'all' : 'favorites')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold shrink-0 transition-all apple-press flex items-center gap-1.5 ${
+                  selectedPlaylistFilter === 'favorites'
+                    ? 'bg-rose-500 text-white shadow-md shadow-rose-500/30'
+                    : 'bg-white/5 hover:bg-white/10 text-zinc-300 border border-white/10'
+                }`}
+              >
+                <Heart className={`w-3.5 h-3.5 ${selectedPlaylistFilter === 'favorites' ? 'fill-current' : 'text-rose-400'}`} />
+                <span>Favoritos ({favorites.length})</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setPlaylistModalTrack(null);
+                  setShowPlaylistModal(true);
+                }}
+                className="px-3 py-1.5 rounded-xl text-xs font-semibold shrink-0 transition-all apple-press flex items-center gap-1.5 bg-white/5 hover:bg-white/10 text-zinc-300 border border-white/10"
+              >
+                <ListMusic className="w-3.5 h-3.5 text-zinc-400" />
+                <span>Listas ({playlists.length})</span>
+              </button>
+
+              {playlists.map((pl) => (
+                <button
+                  key={pl.id}
+                  onClick={() => setSelectedPlaylistFilter(selectedPlaylistFilter === pl.id ? 'all' : pl.id)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-medium shrink-0 transition-all apple-press flex items-center gap-1 ${
+                    selectedPlaylistFilter === pl.id
+                      ? 'bg-rose-500 text-white shadow-md shadow-rose-500/30'
+                      : 'bg-white/5 hover:bg-white/10 text-zinc-300 border border-white/10'
+                  }`}
+                >
+                  <ListMusic className="w-3 h-3" />
+                  <span>{pl.name} ({pl.tracks?.length || 0})</span>
+                </button>
+              ))}
             </div>
 
             {/* Chips deslizables de artistas estilo Apple Glass */}
@@ -792,42 +2143,117 @@ export default function App() {
                   return (
                     <div
                       key={track.path || i}
-                      onClick={() => playTrack(track)}
+                      onClick={() => playTrack(track, filteredLibraryTracks)}
                       className={`p-3 rounded-2xl border flex items-center justify-between gap-3 cursor-pointer apple-press transition-all ${
                         isCurrent 
-                          ? 'bg-rose-500/20 border-rose-500/40' 
+                          ? 'bg-rose-500/20 border-rose-500/40 shadow-sm' 
                           : 'bg-zinc-900/60 border-white/5 hover:border-white/10'
                       }`}
                     >
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-                          isCurrent ? 'bg-rose-500 text-white shadow-md shadow-rose-500/40' : 'bg-zinc-800 text-zinc-400'
-                        }`}>
-                          {isCurrent && isPlaying ? (
-                            <Pause className="w-5 h-5 fill-current" />
+                        <div className="w-10 h-10 rounded-xl overflow-hidden bg-zinc-800 shrink-0 relative flex items-center justify-center">
+                          {track.cover ? (
+                            <img src={track.cover} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                           ) : (
-                            <Play className="w-5 h-5 fill-current ml-0.5" />
+                            <div className={`w-full h-full flex items-center justify-center ${
+                              isCurrent ? 'bg-rose-500 text-white shadow-md shadow-rose-500/40' : 'bg-zinc-800 text-zinc-400'
+                            }`}>
+                              {isCurrent && isPlaying ? (
+                                <Pause className="w-5 h-5 fill-current" />
+                              ) : (
+                                <Play className="w-5 h-5 fill-current ml-0.5" />
+                              )}
+                            </div>
+                          )}
+                          {isCurrent && isPlaying && (
+                            <div className="absolute inset-0 bg-black/55 flex items-center justify-center gap-0.5 pointer-events-none">
+                              <span className="w-1 bg-white rounded-full animate-music-bar-1" />
+                              <span className="w-1 bg-white rounded-full animate-music-bar-2" />
+                              <span className="w-1 bg-white rounded-full animate-music-bar-3" />
+                            </div>
                           )}
                         </div>
                         <div className="min-w-0">
                           <h4 className="text-sm font-semibold text-white truncate">{track.title}</h4>
-                          <p className="text-xs text-zinc-400 truncate">{track.artist || 'Artista'} • {track.folder || 'Música'}</p>
+                          <p className="text-xs text-zinc-400 truncate flex items-center gap-1.5">
+                            <span>{track.artist || 'Artista'} • {track.folder || 'Música'}</span>
+                            {track.hasLyrics && (
+                              <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30 flex items-center gap-0.5" title="Letras sincronizadas disponibles">
+                                <Mic2 className="w-2.5 h-2.5" /> Letra
+                              </span>
+                            )}
+                          </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 shrink-0">
+                      <div className="flex items-center gap-1 shrink-0">
                         <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/5 text-zinc-400 uppercase">
                           {track.ext ? track.ext.replace('.', '') : 'mp3'}
                         </span>
-                        <span className="text-[11px] font-mono text-zinc-500">
-                          {track.size_mb} MB
-                        </span>
+                        
+                        {/* Botón de Favorito */}
                         <button
-                          onClick={(e) => handleDeleteTrack(track, e)}
-                          className="p-1.5 rounded-lg text-zinc-500 hover:text-rose-400 active:scale-90"
-                          title="Eliminar de tu teléfono"
+                          onClick={(e) => toggleFavorite(track, e)}
+                          className="p-1.5 rounded-lg active:scale-90 transition-transform"
+                          title={favorites.includes(track.path) ? 'Quitar de favoritos' : 'Marcar como favorito'}
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          <Heart className={`w-4 h-4 transition-colors ${favorites.includes(track.path) ? 'text-rose-500 fill-rose-500' : 'text-zinc-500 hover:text-zinc-300'}`} />
                         </button>
+
+                        {/* Menú de opciones */}
+                        <div className="relative">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setTrackMenuOpen(trackMenuOpen === track.path ? null : track.path);
+                            }}
+                            className="p-1.5 rounded-lg text-zinc-400 hover:text-white active:scale-90 transition-colors"
+                            title="Más opciones"
+                          >
+                            <MoreVertical className="w-4 h-4" />
+                          </button>
+
+                          {trackMenuOpen === track.path && (
+                            <div 
+                              className="absolute right-0 top-full mt-1 z-30 w-44 py-1.5 apple-glass-heavy rounded-2xl border border-white/10 shadow-2xl space-y-0.5 animate-fade-in"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <button
+                                onClick={() => {
+                                  setTrackMenuOpen(null);
+                                  setCoverPickerTrack(track);
+                                  setShowCoverPicker(true);
+                                }}
+                                className="w-full text-left px-3 py-2 text-xs text-zinc-300 hover:text-white hover:bg-white/10 flex items-center space-x-2 transition-colors"
+                              >
+                                <Sparkles className="w-3.5 h-3.5 text-rose-400" />
+                                <span>Cambiar carátula</span>
+                              </button>
+
+                              <button
+                                onClick={() => {
+                                  setTrackMenuOpen(null);
+                                  setPlaylistModalTrack(track);
+                                  setShowPlaylistModal(true);
+                                }}
+                                className="w-full text-left px-3 py-2 text-xs text-zinc-300 hover:text-white hover:bg-white/10 flex items-center space-x-2 transition-colors"
+                              >
+                                <ListPlus className="w-3.5 h-3.5 text-zinc-400" />
+                                <span>Agregar a lista...</span>
+                              </button>
+
+                              <button
+                                onClick={(e) => {
+                                  setTrackMenuOpen(null);
+                                  handleDeleteTrack(track, e);
+                                }}
+                                className="w-full text-left px-3 py-2 text-xs text-rose-400 hover:bg-rose-500/10 flex items-center space-x-2 transition-colors"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                                <span>Eliminar</span>
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   );
@@ -910,11 +2336,21 @@ export default function App() {
                 </div>
 
                 <div className="space-y-1.5 text-xs text-zinc-400">
-                  <p>• <span className="text-zinc-200">Tecnología:</span> Python + yt-dlp + FFmpeg compilados en ARM64</p>
+                  <p>• <span className="text-zinc-200">Versión yt-dlp:</span> <span className="font-mono text-[11px] text-zinc-300">{engineInfo.version || 'Cargando motor...'}</span></p>
+                  <p>• <span className="text-zinc-200">Tecnología:</span> Python + FFmpeg compilados en ARM64</p>
                   <p>• <span className="text-zinc-200">Almacenamiento:</span> <span className="font-mono text-[11px] text-zinc-300">/sdcard/Music/</span></p>
                   <p>• <span className="text-zinc-200">SponsorBlock:</span> Activado automáticamente</p>
-                  <p>• <span className="text-zinc-200">Carátulas:</span> 1200×1200 px HD incrustadas en el archivo</p>
+                  <p>• <span className="text-zinc-200">Carátulas:</span> 1200×1200 px HD incrustadas</p>
                 </div>
+
+                <button
+                  onClick={handleUpdateEngine}
+                  disabled={isUpdatingEngine}
+                  className="w-full py-2 px-3 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 text-xs font-medium flex items-center justify-center gap-2 apple-press border border-white/10 transition-all disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 text-zinc-400 ${isUpdatingEngine ? 'animate-spin' : ''}`} />
+                  <span>{isUpdatingEngine ? 'Actualizando motor yt-dlp...' : 'Actualizar motor yt-dlp a última versión'}</span>
+                </button>
               </div>
             </div>
 
@@ -931,7 +2367,7 @@ export default function App() {
                   </div>
                   {cookieInfo.hasCookies ? (
                     <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center gap-1">
-                      <Check className="w-3 h-3" /> Conectada
+                      <Check className="w-3 h-3" /> Conectada ({Math.round((cookieInfo.size || 0) / 1024 * 10) / 10} KB)
                     </span>
                   ) : (
                     <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300">
@@ -978,31 +2414,111 @@ export default function App() {
               </div>
             </div>
 
-            {/* Tarjeta de Reconocimiento de Música del Dispositivo */}
+            {/* Tarjeta de Reconocimiento y Ubicación de Música del Dispositivo */}
             <div className="space-y-2">
               <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider px-1">
-                Música en el Dispositivo
+                Ubicación de Música y Biblioteca
               </span>
               <div className="p-4 rounded-2xl apple-card border border-white/10 space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Disc className="w-4 h-4 text-emerald-400" />
-                    <span className="text-xs font-semibold text-white">Reconocimiento Integral</span>
+                    <Folder className="w-4 h-4 text-emerald-400" />
+                    <span className="text-xs font-semibold text-white">Carpetas y Filtros</span>
                   </div>
                   <span className="text-[11px] font-mono text-emerald-400 font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20">
                     {libraryTracks.length} canciones
                   </span>
                 </div>
-                <p className="text-xs text-zinc-400">
-                  Detecta automáticamente todos los archivos de música en /sdcard/Music/ y en la biblioteca MediaStore de Android.
+                <p className="text-xs text-zinc-400 leading-relaxed">
+                  Configura en qué carpetas buscar canciones y dónde guardar las nuevas descargas. Excluye automáticamente audios de WhatsApp, notas de voz y llamadas grabadas.
                 </p>
+                <div className="flex flex-col gap-2 pt-1">
+                  <button
+                    onClick={() => setShowFolderModal(true)}
+                    className="w-full py-2.5 px-3 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 text-xs font-semibold flex items-center justify-center gap-2 apple-press border border-rose-500/30 transition-all shadow-sm"
+                  >
+                    <Folder className="w-3.5 h-3.5 text-rose-400" />
+                    <span>Elegir ubicación de música...</span>
+                  </button>
+                  <button
+                    onClick={loadLibraryData}
+                    disabled={isScanningLibrary}
+                    className="w-full py-2.5 px-3 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-semibold flex items-center justify-center gap-2 apple-press border border-white/10 transition-all"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 text-zinc-400 ${isScanningLibrary ? 'animate-spin text-rose-400' : ''}`} />
+                    <span>{isScanningLibrary ? 'Escaneando biblioteca...' : 'Re-escanear biblioteca'}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Tarjeta de Sincronización de Carátulas Oficiales */}
+            <div className="space-y-2">
+              <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider px-1">
+                Carátulas y Metadatos
+              </span>
+              <div className="p-4 rounded-2xl apple-card border border-white/10 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-rose-400" />
+                    <span className="text-xs font-semibold text-white">Carátulas Oficiales HD</span>
+                  </div>
+                  <span className="text-[11px] font-mono text-rose-400 font-semibold px-2 py-0.5 rounded-full bg-rose-500/20">
+                    1200×1200 px
+                  </span>
+                </div>
+                <p className="text-xs text-zinc-400 leading-relaxed">
+                  Busca e incrusta las carátulas oficiales de Apple Music y Deezer en máxima fidelidad para toda tu biblioteca. Se guardan con archivo .nomedia para no aparecer en tu galería de fotos.
+                </p>
+
+                {/* Banner de progreso si está sincronizando actualmente */}
+                {isSyncingCovers && (
+                  <div className="p-3.5 rounded-2xl apple-glass-heavy border border-rose-500/30 shadow-lg space-y-2.5 animate-fade-in">
+                    <div className="flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="w-4 h-4 text-rose-400 animate-spin" />
+                        <span className="font-semibold text-white">Sincronizando carátulas oficiales...</span>
+                      </div>
+                      <button 
+                        onClick={cancelSyncCovers}
+                        className="text-[11px] text-zinc-400 hover:text-rose-400 px-2.5 py-0.5 rounded-lg bg-white/5 active:scale-95 transition-all"
+                      >
+                        Detener
+                      </button>
+                    </div>
+
+                    <div className="flex items-center justify-between text-[11px] text-zinc-400">
+                      <span className="truncate max-w-[70%] text-zinc-200 font-medium">
+                        {syncProgress.artist ? `${syncProgress.artist} • ${syncProgress.item}` : 'Buscando másteres oficiales...'}
+                      </span>
+                      <span className="font-mono text-rose-400">
+                        {syncProgress.current} / {syncProgress.total} ({syncProgress.percent}%)
+                      </span>
+                    </div>
+
+                    <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-gradient-to-r from-rose-600 to-pink-500 transition-all duration-300"
+                        style={{ width: `${syncProgress.percent}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {syncSuccessMsg && (
+                  <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2 animate-fade-in">
+                    <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <span>{syncSuccessMsg}</span>
+                  </div>
+                )}
+
                 <button
-                  onClick={loadLibraryData}
-                  disabled={isScanningLibrary}
-                  className="w-full py-2.5 px-3 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-semibold flex items-center justify-center gap-2 apple-press border border-white/10 transition-all"
+                  onClick={handleSyncCovers}
+                  disabled={isSyncingCovers || libraryTracks.length === 0}
+                  className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white text-xs font-semibold flex items-center justify-center gap-2 apple-press shadow-md transition-all disabled:opacity-50"
                 >
-                  <RefreshCw className={`w-3.5 h-3.5 text-rose-400 ${isScanningLibrary ? 'animate-spin' : ''}`} />
-                  <span>{isScanningLibrary ? 'Escaneando archivos del teléfono...' : 'Re-escanear todo el dispositivo'}</span>
+                  <Sparkles className={`w-3.5 h-3.5 text-white ${isSyncingCovers ? 'animate-spin' : ''}`} />
+                  <span>{isSyncingCovers ? 'Sincronizando carátulas...' : 'Sincronizar Todas las Carátulas'}</span>
                 </button>
               </div>
             </div>
@@ -1038,44 +2554,138 @@ export default function App() {
         )}
       </main>
 
-      {/* Mini-reproductor Flotante estilo iOS cuando hay canción sonando */}
+      {/* Elemento de Audio Nativo HTML5 */}
+      <audio 
+        ref={audioRef}
+        src={currentTrack ? getStreamUrl(currentTrack.path) : undefined}
+        onLoadedMetadata={() => {
+          if (audioRef.current) {
+            setAudioDuration(audioRef.current.duration);
+            updateMediaSessionPosition(audioRef.current.currentTime, audioRef.current.duration, playbackRate);
+          }
+        }}
+        onEnded={() => {
+          if (sleepTimer && sleepTimer.mode === 'track') {
+            setIsPlaying(false);
+            setSleepTimer(null);
+            return;
+          }
+          handleNextTrack();
+        }}
+      />
+
+      {/* Mini-reproductor Flotante estilo Apple Music cuando hay canción activa */}
       {currentTrack && (
         <div 
           style={{ bottom: 'calc(var(--sab, 0px) + 4.8rem)' }}
-          className="fixed left-4 right-4 z-50 p-2.5 rounded-2xl apple-glass-heavy border border-white/20 shadow-float flex items-center justify-between gap-3 animate-fade-in"
+          onTouchStart={(e) => {
+            miniSwipeStartX.current = e.touches[0].clientX;
+          }}
+          onTouchEnd={(e) => {
+            const diff = e.changedTouches[0].clientX - miniSwipeStartX.current;
+            if (diff < -50) {
+              if (window.navigator?.vibrate) window.navigator.vibrate(10);
+              handleNextTrack();
+            } else if (diff > 50) {
+              if (window.navigator?.vibrate) window.navigator.vibrate(10);
+              handlePrevTrack();
+            }
+          }}
+          className="fixed left-4 right-4 z-50 rounded-2xl apple-glass-heavy border border-white/20 shadow-float overflow-hidden animate-fade-in transition-all select-none"
         >
-          <audio 
-            ref={audioRef}
-            src={getStreamUrl(currentTrack.path)}
-            onTimeUpdate={() => setAudioCurrentTime(audioRef.current ? audioRef.current.currentTime : 0)}
-            onLoadedMetadata={() => setAudioDuration(audioRef.current ? audioRef.current.duration : 0)}
-            onEnded={() => setIsPlaying(false)}
-          />
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-rose-600 to-pink-500 flex items-center justify-center text-white shrink-0 shadow-md">
-              <Music className="w-5 h-5" />
-            </div>
-            <div className="min-w-0">
-              <h4 className="text-xs font-semibold text-white truncate">{currentTrack.title}</h4>
-              <p className="text-[10px] text-zinc-400 truncate">{currentTrack.artist || 'Reproduciendo en móvil'}</p>
-            </div>
-          </div>
+          {/* Micro-barra de progreso desacoplada de 60 FPS sin re-renderizar la app */}
+          <MiniProgressBar audioRef={audioRef} isPlaying={isPlaying} />
 
-          <div className="flex items-center gap-2 shrink-0">
-            <button
+          <div className="p-2.5 flex items-center justify-between gap-3">
+            <div 
               onClick={() => {
-                if (isPlaying) {
-                  audioRef.current.pause();
-                  setIsPlaying(false);
-                } else {
-                  audioRef.current.play();
-                  setIsPlaying(true);
-                }
+                setNowPlayingTab('artwork');
+                setShowNowPlayingSheet(true);
               }}
-              className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center active:scale-95 shadow-md"
+              className="flex items-center gap-2.5 min-w-0 flex-1 cursor-pointer select-none"
             >
-              {isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current ml-0.5" />}
-            </button>
+              <div className="w-11 h-11 rounded-xl overflow-hidden bg-zinc-800 shrink-0 shadow-md relative flex items-center justify-center">
+                {currentTrack.cover ? (
+                  <img src={currentTrack.cover} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-tr from-rose-600 to-pink-500 flex items-center justify-center text-white">
+                    <Music className="w-5 h-5" />
+                  </div>
+                )}
+                {isPlaying && (
+                  <div className="absolute inset-0 bg-black/45 flex items-center justify-center gap-0.5 pointer-events-none">
+                    <span className="w-1 bg-white rounded-full animate-music-bar-1" />
+                    <span className="w-1 bg-white rounded-full animate-music-bar-2" />
+                    <span className="w-1 bg-white rounded-full animate-music-bar-3" />
+                  </div>
+                )}
+              </div>
+
+              <div className="min-w-0 flex-1">
+                <h4 className="text-xs font-semibold text-white truncate">{currentTrack.title}</h4>
+                <p className="text-[10px] text-zinc-400 truncate flex items-center gap-1.5 mt-0.5">
+                  <span className="truncate">{currentTrack.artist || 'Reproduciendo'}</span>
+                  {trackLyrics && (
+                    <span className="text-[9px] px-1 py-0.5 rounded bg-rose-500/20 text-rose-300 font-medium border border-rose-500/30 shrink-0 flex items-center gap-0.5">
+                      <Mic2 className="w-2.5 h-2.5" /> Letra
+                    </span>
+                  )}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1 shrink-0">
+              <button
+                onClick={(e) => toggleFavorite(currentTrack, e)}
+                className="p-2 text-zinc-400 hover:text-white active:scale-90 transition-all"
+                title={favorites.includes(currentTrack.path) ? 'Quitar de favoritos' : 'Marcar como favorito'}
+              >
+                <Heart className={`w-4 h-4 transition-colors ${favorites.includes(currentTrack.path) ? 'text-rose-500 fill-rose-500' : 'text-zinc-400'}`} />
+              </button>
+
+              <button
+                onClick={() => {
+                  setNowPlayingTab('lyrics');
+                  setShowNowPlayingSheet(true);
+                }}
+                className={`p-2 rounded-xl border apple-press transition-all ${
+                  trackLyrics 
+                    ? 'bg-rose-500/20 border-rose-500/40 text-rose-300' 
+                    : 'bg-white/5 border-white/10 text-zinc-400 hover:text-white'
+                }`}
+                title="Abrir letras karaoke"
+              >
+                <Mic2 className="w-4 h-4" />
+              </button>
+
+              <button
+                onClick={handlePrevTrack}
+                className="p-2 text-zinc-300 hover:text-white active:scale-90 transition-all"
+                title="Pista anterior"
+              >
+                <SkipBack className="w-4 h-4 fill-current" />
+              </button>
+
+              <button
+                onClick={handleTogglePlay}
+                className="w-9 h-9 rounded-full bg-white text-black flex items-center justify-center active:scale-95 shadow-md"
+                title={isPlaying ? 'Pausar' : 'Reproducir'}
+              >
+                {isPlaying ? (
+                  <Pause className="w-4 h-4 fill-current" />
+                ) : (
+                  <Play className="w-4 h-4 fill-current ml-0.5" />
+                )}
+              </button>
+
+              <button
+                onClick={handleNextTrack}
+                className="p-2 text-zinc-300 hover:text-white active:scale-90 transition-all"
+                title="Siguiente pista"
+              >
+                <SkipForward className="w-4 h-4 fill-current" />
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -1169,6 +2779,97 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* Reproductor Now Playing Completo & Letras Sincronizadas estilo Apple Music iOS 18 */}
+      {showNowPlayingSheet && currentTrack && (
+        <NowPlayingSheet
+          currentTrack={currentTrack}
+          isPlaying={isPlaying}
+          audioRef={audioRef}
+          audioDuration={audioDuration}
+          trackLyrics={trackLyrics}
+          isLoadingLyrics={isLoadingLyrics}
+          queue={queue}
+          queueIndex={queueIndex}
+          shuffle={shuffle}
+          repeatMode={repeatMode}
+          volume={volume}
+          isMuted={isMuted}
+          playbackRate={playbackRate}
+          sleepTimer={sleepTimer}
+          activeTab={nowPlayingTab}
+          isFavorite={Boolean(currentTrack && favorites.includes(currentTrack.path))}
+          onToggleFavorite={toggleFavorite}
+          onTabChange={setNowPlayingTab}
+          onClose={() => setShowNowPlayingSheet(false)}
+          onTogglePlay={handleTogglePlay}
+          onNext={handleNextTrack}
+          onPrev={handlePrevTrack}
+          onSeek={handleSeek}
+          onSeekToLyric={handleSeekToLyric}
+          onToggleShuffle={handleToggleShuffle}
+          onCycleRepeat={handleCycleRepeat}
+          onVolumeChange={handleVolumeChange}
+          onToggleMute={handleToggleMute}
+          onChangePlaybackRate={handleChangePlaybackRate}
+          onSetSleepTimer={handleSetSleepTimer}
+          onSelectTrackFromQueue={handleSelectTrackFromQueue}
+          onRemoveTrackFromQueue={handleRemoveTrackFromQueue}
+          onClearQueue={handleClearQueue}
+          onReloadLyrics={() => loadLyricsForTrack(currentTrack)}
+          formatDuration={formatDuration}
+        />
+      )}
+
+      {/* Modal de selección visual de carátulas oficiales en HD */}
+      <CoverPickerModal
+        track={coverPickerTrack}
+        isOpen={showCoverPicker}
+        onClose={() => {
+          setShowCoverPicker(false);
+          setCoverPickerTrack(null);
+        }}
+        onCoverUpdated={handleCoverUpdated}
+      />
+
+      {/* Modal de gestión de Listas de Reproducción */}
+      <PlaylistModal
+        isOpen={showPlaylistModal}
+        onClose={() => {
+          setShowPlaylistModal(false);
+          setPlaylistModalTrack(null);
+        }}
+        playlists={playlists}
+        onCreatePlaylist={handleCreatePlaylist}
+        onAddToPlaylist={handleAddToPlaylist}
+        onPlayPlaylist={handlePlayPlaylist}
+        onDeletePlaylist={handleDeletePlaylist}
+        trackToAdd={playlistModalTrack}
+      />
+
+      {/* Modal de selección de ubicación de música y filtros de almacenamiento */}
+      <FolderPickerModal
+        isOpen={showFolderModal}
+        onClose={() => setShowFolderModal(false)}
+        onConfigSaved={() => {
+          loadLibraryData();
+        }}
+      />
+
+      {/* Modal de gestión de Cola de Descargas Múltiples */}
+      <DownloadQueueModal
+        isOpen={showQueueModal}
+        onClose={() => setShowQueueModal(false)}
+        queue={downloadQueue}
+        onRemoveItem={handleRemoveQueueItem}
+        onClearCompleted={handleClearCompletedQueue}
+        onRetryItem={handleRetryQueueItem}
+        onPlayTrack={(item) => playTrack(findMatchingTrack(item, libraryTracks) || item)}
+        terminalLines={terminalLines}
+        showTerminal={showTerminal}
+        onToggleTerminal={() => setShowTerminal(!showTerminal)}
+        terminalContainerRef={terminalContainerRef}
+      />
 
     </div>
   );
