@@ -1,0 +1,163 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Logo de aplicación para descargar música by:MAAD">
+  <defs>
+    <!-- =========================================================
+         GRADIENTES DE NEGRO CARBÓN (Mate, cálido y profundo)
+         ========================================================= -->
+    <linearGradient id="charcoal-base" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#272625" />
+      <stop offset="50%" stop-color="#1D1C1C" />
+      <stop offset="100%" stop-color="#131314" />
+    </linearGradient>
+
+    <radialGradient id="vinyl-recess" cx="50%" cy="46%" r="54%">
+      <stop offset="0%" stop-color="#1E1D1D" />
+      <stop offset="72%" stop-color="#151516" />
+      <stop offset="100%" stop-color="#0F0F10" />
+    </radialGradient>
+
+    <!-- Brillo diagonal sutil para simular los surcos de un disco de vinilo -->
+    <linearGradient id="vinyl-sheen" x1="15%" y1="10%" x2="85%" y2="90%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.06" />
+      <stop offset="45%" stop-color="#FFFFFF" stop-opacity="0.0" />
+      <stop offset="55%" stop-color="#FFFFFF" stop-opacity="0.0" />
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.04" />
+    </linearGradient>
+
+    <!-- =========================================================
+         GRADIENTES NARANJA MATE / TERRACOTA (Sin brillo ni neón)
+         ========================================================= -->
+    <linearGradient id="burnt-orange-primary" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#D46630" />
+      <stop offset="55%" stop-color="#C25422" />
+      <stop offset="100%" stop-color="#A64117" />
+    </linearGradient>
+
+    <linearGradient id="burnt-orange-muted" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#C45A28" />
+      <stop offset="100%" stop-color="#963A15" />
+    </linearGradient>
+
+    <!-- Borde sutil para dar volumen físico al ícono -->
+    <linearGradient id="rim-highlight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4A4846" stop-opacity="0.65" />
+      <stop offset="45%" stop-color="#2A2928" stop-opacity="0.25" />
+      <stop offset="100%" stop-color="#0A0A0B" stop-opacity="0.85" />
+    </linearGradient>
+
+    <!-- =========================================================
+         TEXTURA DE CARBÓN (Ruido mineral + trama micro-carbón)
+         ========================================================= -->
+    <filter id="charcoal-grain" x="0%" y="0%" width="100%" height="100%">
+      <feTurbulence
+        type="fractalNoise"
+        baseFrequency="0.82"
+        numOctaves="4"
+        seed="11"
+        stitchTiles="stitch"
+        result="noise"
+      />
+      <feColorMatrix
+        type="saturate"
+        values="0"
+        in="noise"
+        result="monoNoise"
+      />
+      <feComponentTransfer in="monoNoise" result="contrastedNoise">
+        <feFuncR type="linear" slope="1.35" intercept="-0.18" />
+        <feFuncG type="linear" slope="1.35" intercept="-0.18" />
+        <feFuncB type="linear" slope="1.35" intercept="-0.18" />
+        <feFuncA type="linear" slope="0.22" intercept="0" />
+      </feComponentTransfer>
+    </filter>
+
+    <!-- Sombra suave para separar el emblema naranja del fondo de carbón -->
+    <filter id="emblem-shadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#070708" flood-opacity="0.65" />
+    </filter>
+
+    <!-- Patrón micro-texturizado sutil de fibra/carbón -->
+    <pattern id="carbon-micro-weave" width="8" height="8" patternUnits="userSpaceOnUse">
+      <rect width="8" height="8" fill="none" />
+      <path d="M 0 4 L 4 0 L 8 4 L 4 8 Z" fill="#FFFFFF" fill-opacity="0.018" />
+      <circle cx="2" cy="2" r="0.65" fill="#000000" fill-opacity="0.22" />
+      <circle cx="6" cy="6" r="0.65" fill="#000000" fill-opacity="0.22" />
+    </pattern>
+
+    <!-- Máscara de recorte con esquinas redondeadas (estilo App Icon) -->
+    <clipPath id="app-icon-clip">
+      <rect x="16" y="16" width="480" height="480" rx="108" ry="108" />
+    </clipPath>
+  </defs>
+
+  <!-- =========================================================
+       CONTENEDOR PRINCIPAL DEL ÍCONO
+       ========================================================= -->
+  <g clip-path="url(#app-icon-clip)">
+    <!-- 1. Base de negro carbón -->
+    <rect x="16" y="16" width="480" height="480" fill="url(#charcoal-base)" />
+
+    <!-- 2. Trama micro-carbón -->
+    <rect x="16" y="16" width="480" height="480" fill="url(#carbon-micro-weave)" />
+
+    <!-- 3. Disco de vinilo rehundido (referencia visual a música) -->
+    <circle cx="256" cy="256" r="192" fill="url(#vinyl-recess)" stroke="#2E2D2C" stroke-width="2" />
+
+    <!-- Surcos concéntricos sutiles del vinilo -->
+    <g fill="none" stroke="#363432" stroke-opacity="0.38">
+      <circle cx="256" cy="256" r="176" stroke-width="1.2" />
+      <circle cx="256" cy="256" r="162" stroke-width="1" />
+      <circle cx="256" cy="256" r="148" stroke-width="1.2" />
+      <circle cx="256" cy="256" r="134" stroke-width="0.9" />
+      <circle cx="256" cy="256" r="120" stroke-width="1" />
+    </g>
+
+    <!-- Reflejo suave sobre el disco -->
+    <circle cx="256" cy="256" r="191" fill="url(#vinyl-sheen)" />
+
+    <!-- 4. Emblema principal: Onda senoidal centrada (0 -> +1 -> 0 -> +1 -> 0) -->
+    <g filter="url(#emblem-shadow)" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path
+        d="M 104 312 C 132 312, 152 200, 180 200 S 228 312, 256 312 S 304 200, 332 200 S 380 312, 408 312"
+        stroke="url(#burnt-orange-primary)"
+        stroke-width="16"
+      />
+    </g>
+
+    <!-- Firma discreta en la esquina inferior derecha -->
+    <text
+      x="426"
+      y="462"
+      text-anchor="end"
+      font-family="'Montserrat', 'Inter', 'Helvetica Neue', Arial, sans-serif"
+      font-size="16"
+      letter-spacing="2"
+    >
+      <tspan fill="#7D7975" font-weight="400">by:</tspan><tspan fill="#C45A28" font-weight="600">MAAD</tspan>
+    </text>
+
+    <!-- 5. Capa global de textura granular de carbón (unifica todo en acabado mate) -->
+    <rect
+      x="16"
+      y="16"
+      width="480"
+      height="480"
+      filter="url(#charcoal-grain)"
+      style="mix-blend-mode: overlay;"
+      opacity="0.85"
+      pointer-events="none"
+    />
+  </g>
+
+  <!-- Borde biselado exterior para definición nítida sobre cualquier fondo -->
+  <rect
+    x="17"
+    y="17"
+    width="478"
+    height="478"
+    rx="107"
+    ry="107"
+    fill="none"
+    stroke="url(#rim-highlight)"
+    stroke-width="2.5"
+  />
+</svg>

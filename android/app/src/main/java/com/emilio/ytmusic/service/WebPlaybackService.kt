@@ -386,7 +386,7 @@ class WebPlaybackService : Service() {
         ).build()
 
         val builder = Notification.Builder(this, CHANNEL_ID)
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(currentTitle)
             .setContentText(currentArtist)
             .setContentIntent(openIntent)
